@@ -28,20 +28,13 @@ Elements keeps the runtime narrow and delegates rendering and timing to the brow
 
 ### Composition
 
-Complex elements are assembled from static SVG templates and keyed fragments mounted into named regions.
+Complex elements are assembled from static SVG templates and keyed fragments mounted into named regions. Repeated geometry can be generated parametrically while fragments retain stable instance keys and per-instance SVG ID namespacing.
 
-```ts
-collections: [{
-  mount: 'controller',
-  items: ({ attributes }) => [
-    enclosure,
-    ...createInputChannels(attributes.inputs),
-    ...createOutputChannels(attributes.outputs),
-  ],
-}]
-```
+### Viewport and detail
 
-Fragments provide reusable geometry without introducing a virtual DOM. IDs and SVG references are namespaced per instance, parts remain discoverable, and repeated modules keep stable keys.
+Element definitions may provide a static or context-derived `viewBox`. Parameterically composed devices therefore keep a tight viewport as modules are added or removed.
+
+Visual parts can be classified as `essential`, `standard`, or `fine`. Elements expose a common `detail="auto | full | compact | symbol"` contract, and `auto` uses container queries to preserve readability at small sizes.
 
 ### Motion
 
@@ -53,22 +46,6 @@ Motion is declared through three runtime primitives:
 | `transition` | plays when a signal changes | startup kick, network activity |
 | `scrub` | binds timeline position to a number | level, load, progress |
 
-```ts
-{
-  id: 'rotor-spin',
-  type: 'loop',
-  target: 'rotor',
-  active: ({ states }) => states.running,
-  playbackRate: ({ attributes }) => Number(attributes.speed) / 1450,
-  phase: 'process-mechanical',
-  keyframes: [
-    { transform: 'rotate(0deg)' },
-    { transform: 'rotate(360deg)' },
-  ],
-  options: { duration: 1000, iterations: Infinity, easing: 'linear' },
-}
-```
-
 Animations use the Web Animations API. A shared `MotionScope` aligns phases across parts and elements, while reduced-motion behavior is part of every motion contract.
 
 ### State and bindings
@@ -76,7 +53,7 @@ Animations use the Web Animations API. A shared `MotionScope` aligns phases acro
 Attributes are the public API. Runtime updates are batched, parsed into typed values and transformed into derived states.
 
 ```text
-attributes → derived states → fragment reconciliation → bindings → motion reconciliation
+attributes → derived states → viewport → fragment reconciliation → bindings → motion reconciliation
 ```
 
 Bindings update text, attributes and CSS properties without rebuilding the component SVG.
@@ -86,7 +63,7 @@ Bindings update text, attributes and CSS properties without rebuilding the compo
 Every definition exposes enough structure for documentation, inspectors and visual editors:
 
 ```text
-attributes · states · parts · ports · motions · composition
+attributes · states · parts · detail · ports · motions · composition · viewport
 ```
 
 The manifest layer is independent from the DOM runtime and can be consumed by CLI tools, RSC, documentation generators and registry services.
@@ -102,25 +79,18 @@ const path = pointsToRoundedPath(points, 10);
 
 Routes account for port direction, generate straight/L/Z/U paths, remove redundant points and produce rounded SVG paths.
 
-## Packages
+## Reference elements
 
-```text
-packages/core              attribute, composition, motion, manifest and routing runtime
-packages/process-elements  pump and programmable controller reference elements
-apps/playground            live registry and runtime playground
-```
+`pe-pump` exercises layered hydraulic geometry, mechanical motion, process flow, quality and alarm states, and responsive level of detail.
+
+`pe-controller` exercises generated I/O modules, a context-derived viewport, live channel indicators, scan motion, communication transitions and numeric load scrubbing.
 
 ## Development
 
 ```bash
 bun install
 bun run dev
-```
-
-```bash
-bun run typecheck
-bun test
-bun run build
+bun run check
 ```
 
 ## License
