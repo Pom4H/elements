@@ -1,20 +1,20 @@
 {
   "name": "elements-workspace",
   "private": true,
-  "packageManager": "bun@1.2.20",
+  "packageManager": "bun@1.3.14",
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
   "scripts": {
-    "build": "bun run --filter '*' build",
+    "clean": "bun run scripts/clean.ts",
+    "build": "bun run clean && tsc -b --force && bun run --filter @pom4h/elements-playground build",
     "dev": "bun run --filter @pom4h/elements-playground dev",
     "test": "bun test",
-    "typecheck": "tsc -b",
-    "check": "bun run typecheck && bun test && bun run build"
+    "typecheck": "tsc -b --pretty false",
+    "check": "bun run build && bun test"
   },
   "devDependencies": {
-    "typescript": "^5.8.3",
-    "vite": "^7.0.0"
+    "typescript": "5.9.3"
   }
 }

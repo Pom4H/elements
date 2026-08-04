@@ -4,15 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "bun ./index.html --console",
+    "build": "bun run build.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@pom4h/elements-core": "workspace:*",
     "@pom4h/process-elements": "workspace:*"
-  },
-  "devDependencies": {
-    "vite": "^7.0.0"
   }
 }
