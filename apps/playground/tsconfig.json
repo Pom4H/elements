@@ -3,7 +3,6 @@
   "compilerOptions": {
     "composite": true,
     "noEmit": true,
-    "baseUrl": ".",
     "paths": {
       "@pom4h/elements-core": ["../../packages/core/src/index.ts"],
       "@pom4h/elements-core/runtime": ["../../packages/core/src/runtime.ts"],

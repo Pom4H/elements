@@ -7,6 +7,7 @@ const generatedPaths = [
   'packages/core/tsconfig.tsbuildinfo',
   'packages/process-elements/tsconfig.tsbuildinfo',
   'apps/playground/tsconfig.tsbuildinfo',
+  'tsconfig.tools.tsbuildinfo',
 ] as const;
 
 await Promise.all(generatedPaths.map((path) => rm(path, { recursive: true, force: true })));

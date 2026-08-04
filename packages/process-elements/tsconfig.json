@@ -7,7 +7,6 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "baseUrl": ".",
     "paths": {
       "@pom4h/elements-core": ["../core/src/index.ts"],
       "@pom4h/elements-core/runtime": ["../core/src/runtime.ts"]
