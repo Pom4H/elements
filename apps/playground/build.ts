@@ -1,4 +1,14 @@
-import { rm } from 'node:fs/promises';
+import { readdir, readFile, rm } from 'node:fs/promises';
+import { join } from 'node:path';
+
+async function filesUnder(directory: string): Promise<string[]> {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = await Promise.all(entries.map(async (entry) => {
+    const path = join(directory, entry.name);
+    return entry.isDirectory() ? filesUnder(path) : [path];
+  }));
+  return files.flat();
+}
 
 await rm('./dist', { recursive: true, force: true });
 
@@ -17,5 +27,14 @@ const result = await Bun.build({
 
 if (!result.success) {
   for (const message of result.logs) console.error(message);
-  process.exitCode = 1;
+  process.exit(1);
+}
+
+const javascriptFiles = (await filesUnder('./dist')).filter((path) => path.endsWith('.js'));
+const javascript = (await Promise.all(javascriptFiles.map((path) => readFile(path, 'utf8')))).join('\n');
+
+for (const requiredToken of ['pe-pump', 'pe-controller', 'customElements']) {
+  if (!javascript.includes(requiredToken)) {
+    throw new Error(`Production bundle is missing required runtime token: ${requiredToken}`);
+  }
 }
