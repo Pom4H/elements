@@ -9,6 +9,7 @@ export {
   type FragmentPlacement,
   type SvgFragmentDefinition,
 } from './composition/index.js';
+export { detailModeStyles, detailStyles, type DetailStyleOptions } from './detail.js';
 export {
   defineElementDefinition,
   initialViewBox,
