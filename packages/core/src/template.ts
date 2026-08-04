@@ -1,3 +1,5 @@
+import { detailModeStyles } from './detail.js';
+
 export interface SvgTemplate {
   readonly markup: string;
 }
@@ -31,12 +33,13 @@ export function instantiateSvg(template: SvgTemplate, viewBox: string): SVGSVGEl
 }
 
 export function createStyleSheet(cssText: string): CSSStyleSheet | HTMLStyleElement {
+  const resolvedCssText = `${cssText}\n${detailModeStyles}`;
   if ('adoptedStyleSheets' in Document.prototype && 'replaceSync' in CSSStyleSheet.prototype) {
     const sheet = new CSSStyleSheet();
-    sheet.replaceSync(cssText);
+    sheet.replaceSync(resolvedCssText);
     return sheet;
   }
   const style = document.createElement('style');
-  style.textContent = cssText;
+  style.textContent = resolvedCssText;
   return style;
 }
