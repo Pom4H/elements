@@ -21,6 +21,6 @@ export interface ElementDefinition {
   readonly parts?: readonly CssPartDefinition[];
 }
 
-export function defineElementDefinition<T extends ElementDefinition>(definition: T): T {
+export function defineElementDefinition(definition: ElementDefinition): ElementDefinition {
   return Object.freeze(definition);
 }
