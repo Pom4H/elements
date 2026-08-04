@@ -1,5 +1,7 @@
-import '@pom4h/process-elements/register';
+import { registerProcessElements } from '@pom4h/process-elements/register';
 import './style.css';
+
+registerProcessElements();
 
 function required<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
