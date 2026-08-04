@@ -23,7 +23,7 @@
             <code>&lt;pe-pump&gt;</code>
           </div>
           <div class="canvas pump-canvas">
-            <pe-pump id="pump" label="P-101" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" detail="full"></pe-pump>
+            <pe-pump id="pump" label="P-101" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" detail="auto"></pe-pump>
           </div>
           <div class="controls">
             <label>Speed <output id="speed-value">1450 rpm</output><input id="speed" type="range" min="0" max="2900" step="10" value="1450" /></label>
@@ -39,7 +39,7 @@
             <code>&lt;pe-controller&gt;</code>
           </div>
           <div class="canvas controller-canvas">
-            <pe-controller id="controller" label="PLC-X2" running inputs="16" outputs="16" input-state="1011010101011011" output-state="1100101000110101" scan-rate="10" load="62" activity="1" status="normal" quality="good" detail="full"></pe-controller>
+            <pe-controller id="controller" label="PLC-X2" running inputs="16" outputs="16" input-state="1011010101011011" output-state="1100101000110101" scan-rate="10" load="62" activity="1" status="normal" quality="good" detail="auto"></pe-controller>
           </div>
           <div class="controls">
             <label>I/O channels <select id="channels"><option value="8">8 + 8</option><option value="16" selected>16 + 16</option><option value="24">24 + 24</option><option value="32">32 + 32</option></select></label>
