@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Elements Playground</title>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">ELEMENTS RUNTIME</p>
+        <h1>Stateful SVG elements, composed by the browser.</h1>
+        <p class="lede">Attributes drive state. Parts expose the visual contract. Motion is coordinated without a render loop.</p>
+      </header>
+
+      <section class="stage" aria-label="Live elements">
+        <article>
+          <div class="element-frame">
+            <pe-pump id="pump" label="P-101" running speed="1450" value="6.2" unit="bar" status="normal"></pe-pump>
+          </div>
+          <div class="controls">
+            <label>Speed <input id="speed" type="range" min="0" max="2900" value="1450" /></label>
+            <button id="pump-toggle" type="button">Stop pump</button>
+            <button id="pump-alarm" type="button">Toggle alarm</button>
+          </div>
+        </article>
+
+        <article>
+          <div class="element-frame controller-frame">
+            <pe-controller
+              id="controller"
+              label="PLC-01"
+              running
+              inputs="8"
+              outputs="4"
+              input-state="10110100"
+              output-state="1010"
+              scan-rate="10"
+              load="42"
+              activity="1"
+              status="normal">
+            </pe-controller>
+          </div>
+          <div class="controls">
+            <label>Load <input id="load" type="range" min="0" max="100" value="42" /></label>
+            <button id="activity" type="button">Network activity</button>
+            <button id="channels" type="button">Add I/O bank</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="architecture">
+        <div><strong>Composition</strong><span>keyed SVG fragments</span></div>
+        <div><strong>State</strong><span>attributes → derived states</span></div>
+        <div><strong>Motion</strong><span>loop · transition · scrub</span></div>
+        <div><strong>Registry</strong><span>manifest · parts · ports</span></div>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

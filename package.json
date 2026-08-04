@@ -1,0 +1,20 @@
+{
+  "name": "elements-workspace",
+  "private": true,
+  "packageManager": "bun@1.2.20",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "bun run --filter '*' build",
+    "dev": "bun run --filter @pom4h/elements-playground dev",
+    "test": "bun test",
+    "typecheck": "tsc -b",
+    "check": "bun run typecheck && bun test && bun run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vite": "^7.0.0"
+  }
+}
