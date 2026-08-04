@@ -9,7 +9,15 @@ export {
   type FragmentPlacement,
   type SvgFragmentDefinition,
 } from './composition/index.js';
-export { defineElementDefinition, type ElementDefinition } from './definition.js';
+export {
+  defineElementDefinition,
+  initialViewBox,
+  resolveViewBox,
+  viewBox,
+  type DynamicViewBox,
+  type ElementDefinition,
+  type ViewBoxDefinition,
+} from './definition.js';
 export { createManifestEntry, type ElementsManifestEntry } from './manifest.js';
 export type {
   LoopMotionDefinition,
@@ -30,5 +38,6 @@ export type {
   PortDirection,
   Primitive,
   StateValueMap,
+  VisualDetail,
 } from './types.js';
 export * from './routing/index.js';

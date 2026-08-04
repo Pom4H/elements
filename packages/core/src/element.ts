@@ -6,7 +6,7 @@ import {
 } from './attributes.js';
 import { applyBindings } from './bindings.js';
 import { CollectionController } from './composition/index.js';
-import type { ElementDefinition } from './definition.js';
+import { initialViewBox, resolveViewBox, type ElementDefinition } from './definition.js';
 import { MotionController } from './motion/index.js';
 import { PartMap } from './parts.js';
 import { createStyleSheet, instantiateSvg } from './template.js';
@@ -15,6 +15,11 @@ import type { ElementContext, StateValueMap } from './types.js';
 type StateInternals = ElementInternals & {
   readonly states?: CustomStateSet;
 };
+
+function aspectRatioFor(viewBox: string): string {
+  const values = viewBox.trim().split(/[\s,]+/).map(Number);
+  return `${values[2] ?? 1} / ${values[3] ?? 1}`;
+}
 
 export abstract class ElementsElement extends HTMLElement {
   static readonly definition: ElementDefinition;
@@ -42,7 +47,9 @@ export abstract class ElementsElement extends HTMLElement {
     this.#internals = typeof this.attachInternals === 'function' ? (this.attachInternals() as StateInternals) : undefined;
 
     const shadow = this.attachShadow({ mode: 'open' });
-    this.#svg = instantiateSvg(this.#definition.template, this.#definition.viewBox);
+    const initial = initialViewBox(this.#definition.viewBox);
+    this.#svg = instantiateSvg(this.#definition.template, initial);
+    this.style.setProperty('--elements-aspect-ratio', aspectRatioFor(initial));
     shadow.append(this.#svg);
 
     if (this.#definition.styles) {
@@ -132,6 +139,7 @@ export abstract class ElementsElement extends HTMLElement {
     this.#reflectStates();
 
     const context = this.context;
+    this.#updateViewport(context);
     const structureChanged = this.#collections.reconcile(context);
     if (structureChanged) this.#parts.refresh();
 
@@ -145,6 +153,14 @@ export abstract class ElementsElement extends HTMLElement {
       composed: true,
       detail: { changed, attributes: this.#attributes, states: this.#states },
     }));
+  }
+
+  #updateViewport(context: ElementContext): void {
+    const next = resolveViewBox(this.#definition.viewBox, context);
+    if (this.#svg.getAttribute('viewBox') === next) return;
+    this.#svg.setAttribute('viewBox', next);
+    this.style.setProperty('--elements-aspect-ratio', aspectRatioFor(next));
+    this.#changed.add('viewBox');
   }
 
   #reflectAttributesToCss(): void {

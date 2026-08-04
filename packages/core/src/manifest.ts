@@ -1,10 +1,11 @@
-import type { ElementDefinition } from './definition.js';
+import { initialViewBox, type ElementDefinition } from './definition.js';
 
 export interface ElementsManifestEntry {
   readonly tagName: string;
   readonly name: string;
   readonly description?: string;
   readonly viewBox: string;
+  readonly dynamicViewBox: boolean;
   readonly attributes: readonly {
     readonly name: string;
     readonly property: string;
@@ -12,7 +13,7 @@ export interface ElementsManifestEntry {
     readonly description?: string;
   }[];
   readonly states: readonly string[];
-  readonly parts: readonly { readonly name: string; readonly description?: string }[];
+  readonly parts: NonNullable<ElementDefinition['parts']>;
   readonly ports: NonNullable<ElementDefinition['ports']>;
   readonly motions: readonly { readonly id: string; readonly type: string; readonly target: unknown }[];
   readonly composition: readonly string[];
@@ -23,7 +24,8 @@ export function createManifestEntry(definition: ElementDefinition): ElementsMani
     tagName: definition.tagName,
     name: definition.displayName,
     ...(definition.description === undefined ? {} : { description: definition.description }),
-    viewBox: definition.viewBox,
+    viewBox: initialViewBox(definition.viewBox),
+    dynamicViewBox: typeof definition.viewBox !== 'string',
     attributes: Object.values(definition.attributes).map((attribute) => ({
       name: attribute.attribute,
       property: attribute.property,

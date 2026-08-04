@@ -4,57 +4,57 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark" />
-    <title>Elements Playground</title>
+    <title>Elements</title>
   </head>
   <body>
     <main>
-      <header>
-        <p class="eyebrow">ELEMENTS RUNTIME</p>
-        <h1>Stateful SVG elements, composed by the browser.</h1>
-        <p class="lede">Attributes drive state. Parts expose the visual contract. Motion is coordinated without a render loop.</p>
+      <header class="hero">
+        <div>
+          <p class="eyebrow">ELEMENTS RUNTIME</p>
+          <h1>Native elements for visual systems.</h1>
+        </div>
+        <p class="lede">Attributes drive state, keyed fragments build geometry, and browser-native timelines coordinate motion.</p>
       </header>
 
-      <section class="stage" aria-label="Live elements">
-        <article>
-          <div class="element-frame">
-            <pe-pump id="pump" label="P-101" running speed="1450" value="6.2" unit="bar" status="normal"></pe-pump>
+      <section class="stage-grid" aria-label="Live element controls">
+        <article class="stage-card pump-card">
+          <div class="stage-heading">
+            <div><span class="tag">PROCESS</span><h2>Centrifugal pump</h2></div>
+            <code>&lt;pe-pump&gt;</code>
+          </div>
+          <div class="canvas pump-canvas">
+            <pe-pump id="pump" label="P-101" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" detail="full"></pe-pump>
           </div>
           <div class="controls">
-            <label>Speed <input id="speed" type="range" min="0" max="2900" value="1450" /></label>
-            <button id="pump-toggle" type="button">Stop pump</button>
-            <button id="pump-alarm" type="button">Toggle alarm</button>
+            <label>Speed <output id="speed-value">1450 rpm</output><input id="speed" type="range" min="0" max="2900" step="10" value="1450" /></label>
+            <label>Status <select id="pump-status"><option>normal</option><option>warning</option><option>alarm</option><option>idle</option></select></label>
+            <label>Quality <select id="pump-quality"><option>good</option><option>stale</option><option>bad</option></select></label>
+            <button id="pump-toggle" type="button">Stop</button>
           </div>
         </article>
 
-        <article>
-          <div class="element-frame controller-frame">
-            <pe-controller
-              id="controller"
-              label="PLC-01"
-              running
-              inputs="8"
-              outputs="4"
-              input-state="10110100"
-              output-state="1010"
-              scan-rate="10"
-              load="42"
-              activity="1"
-              status="normal">
-            </pe-controller>
+        <article class="stage-card controller-card">
+          <div class="stage-heading">
+            <div><span class="tag">CONTROL</span><h2>Programmable controller</h2></div>
+            <code>&lt;pe-controller&gt;</code>
+          </div>
+          <div class="canvas controller-canvas">
+            <pe-controller id="controller" label="PLC-X2" running inputs="16" outputs="16" input-state="1011010101011011" output-state="1100101000110101" scan-rate="10" load="62" activity="1" status="normal" quality="good" detail="full"></pe-controller>
           </div>
           <div class="controls">
-            <label>Load <input id="load" type="range" min="0" max="100" value="42" /></label>
-            <button id="activity" type="button">Network activity</button>
-            <button id="channels" type="button">Add I/O bank</button>
+            <label>I/O channels <select id="channels"><option value="8">8 + 8</option><option value="16" selected>16 + 16</option><option value="24">24 + 24</option><option value="32">32 + 32</option></select></label>
+            <label>CPU load <output id="load-value">62%</output><input id="load" type="range" min="0" max="100" value="62" /></label>
+            <button id="activity" type="button">Pulse network</button>
+            <button id="controller-alarm" type="button">Toggle fault</button>
           </div>
         </article>
       </section>
 
-      <section class="architecture">
-        <div><strong>Composition</strong><span>keyed SVG fragments</span></div>
-        <div><strong>State</strong><span>attributes → derived states</span></div>
-        <div><strong>Motion</strong><span>loop · transition · scrub</span></div>
-        <div><strong>Registry</strong><span>manifest · parts · ports</span></div>
+      <section class="quality-grid" aria-label="Responsive and state variants">
+        <article><span>Auto LOD · 180 px</span><pe-pump running speed="1100" value="4.8" unit="bar" status="normal"></pe-pump></article>
+        <article><span>Warning</span><pe-pump running speed="900" value="5.4" unit="bar" status="warning" detail="compact"></pe-pump></article>
+        <article><span>Alarm</span><pe-pump running speed="1450" value="8.7" unit="bar" status="alarm" detail="compact"></pe-pump></article>
+        <article class="compact-controller"><span>Dynamic viewport · 8 + 8</span><pe-controller running inputs="8" outputs="8" input-state="10110101" output-state="11001010" load="34" status="normal"></pe-controller></article>
       </section>
     </main>
     <script type="module" src="./src/main.ts"></script>

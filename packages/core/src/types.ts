@@ -31,7 +31,10 @@ export interface PortDefinition {
   readonly kind?: string;
 }
 
+export type VisualDetail = 'essential' | 'standard' | 'fine';
+
 export interface CssPartDefinition {
   readonly name: string;
   readonly description?: string;
+  readonly detail?: VisualDetail;
 }

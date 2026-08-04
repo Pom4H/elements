@@ -1,34 +1,77 @@
 :root {
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  color: #d8e2f0;
-  background: #071019;
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #060b12;
+  color: #dbe7f3;
   font-synthesis: none;
-  --elements-surface: #162231;
-  --elements-ink: #d8e2f0;
-  --elements-accent: #63d2ff;
-  --elements-warning: #ffc247;
-  --elements-alarm: #ff5f78;
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; min-height: 100vh; }
-button, input { font: inherit; }
-main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 72px 0; }
-header { max-width: 780px; margin-bottom: 56px; }
-.eyebrow { color: #63d2ff; font: 700 12px/1 ui-monospace, monospace; letter-spacing: .18em; }
-h1 { margin: 16px 0; font-size: clamp(40px, 7vw, 78px); line-height: .98; letter-spacing: -.055em; }
-.lede { max-width: 650px; color: #93a6ba; font-size: 18px; line-height: 1.6; }
-.stage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
-article { border: 1px solid #26384b; border-radius: 18px; overflow: hidden; background: #0c1621; }
-.element-frame { min-height: 360px; display: grid; place-items: center; padding: 36px; background-image: linear-gradient(#14202d 1px, transparent 1px), linear-gradient(90deg, #14202d 1px, transparent 1px); background-size: 24px 24px; }
-.controller-frame { min-height: 440px; }
-.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px; border-top: 1px solid #26384b; }
-.controls label { display: flex; align-items: center; gap: 8px; color: #93a6ba; }
-.controls button { border: 1px solid #344a60; border-radius: 9px; padding: 8px 12px; color: inherit; background: #142231; cursor: pointer; }
-.controls button:hover { border-color: #63d2ff; }
-.architecture { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 20px; border: 1px solid #26384b; border-radius: 14px; overflow: hidden; background: #26384b; }
-.architecture div { display: grid; gap: 8px; padding: 20px; background: #0c1621; }
-.architecture strong { font-size: 14px; }
-.architecture span { color: #7f93a8; font: 12px/1.4 ui-monospace, monospace; }
-@media (max-width: 820px) { .stage { grid-template-columns: 1fr; } .architecture { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 480px) { main { padding-top: 40px; } .architecture { grid-template-columns: 1fr; } .element-frame { padding: 16px; } }
+html, body { margin: 0; min-height: 100%; }
+body {
+  min-width: 320px;
+  background:
+    radial-gradient(1000px 560px at 50% -12%, #1a2c41 0%, #0b1522 54%, #060b12 100%),
+    #060b12;
+}
+button, select, input { font: inherit; }
+button, select {
+  min-height: 38px;
+  border: 1px solid #354b61;
+  border-radius: 9px;
+  background: #142235;
+  color: #dbe7f3;
+}
+button { padding: 0 15px; cursor: pointer; }
+button:hover { border-color: #5f7d98; background: #1a2c42; }
+select { padding: 0 32px 0 11px; }
+input[type="range"] { width: 100%; accent-color: #52c8ff; }
+
+main { width: min(1540px, calc(100% - 48px)); margin: 0 auto; padding: 38px 0 64px; }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 560px); gap: 40px; align-items: end; margin-bottom: 26px; }
+.eyebrow { margin: 0 0 10px; color: #6e879f; font: 700 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .15em; }
+h1 { margin: 0; font-size: clamp(30px, 4vw, 58px); line-height: .98; letter-spacing: -.045em; max-width: 800px; }
+.lede { margin: 0; color: #8195aa; line-height: 1.65; max-width: 560px; }
+
+.stage-grid { display: grid; grid-template-columns: .9fr 1.45fr; gap: 20px; }
+.stage-card, .quality-grid article {
+  border: 1px solid #26394e;
+  background: linear-gradient(180deg, rgba(18, 31, 46, .97), rgba(8, 15, 25, .98));
+  box-shadow: 0 26px 80px rgba(0, 0, 0, .35), inset 0 1px rgba(255, 255, 255, .025);
+}
+.stage-card { border-radius: 22px; overflow: hidden; }
+.stage-heading { display: flex; align-items: start; justify-content: space-between; gap: 20px; padding: 22px 24px 0; }
+.stage-heading h2 { margin: 6px 0 0; font-size: 18px; }
+.tag { color: #6f879f; font: 700 9px/1 ui-monospace, monospace; letter-spacing: .13em; }
+code { color: #587088; font: 600 11px/1.4 ui-monospace, monospace; }
+.canvas { min-height: 480px; display: grid; place-items: center; padding: 28px; overflow: hidden; }
+.pump-canvas pe-pump { width: min(500px, 94%); }
+.controller-canvas pe-controller { width: min(900px, 98%); }
+.controls { border-top: 1px solid #24364a; background: rgba(6, 12, 20, .5); padding: 16px 18px 18px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: end; }
+.controls label { display: grid; grid-template-columns: 1fr auto; gap: 8px; color: #7890a7; font: 600 10px/1.2 ui-monospace, monospace; }
+.controls label input, .controls label select { grid-column: 1 / -1; }
+.controls output { color: #b5c6d7; }
+
+.quality-grid { display: grid; grid-template-columns: .7fr .8fr .8fr 1.7fr; gap: 16px; margin-top: 20px; }
+.quality-grid article { min-height: 250px; border-radius: 18px; display: grid; place-items: center; position: relative; overflow: hidden; padding: 28px 20px 18px; }
+.quality-grid article > span { position: absolute; top: 16px; left: 18px; color: #637b92; font: 650 9px/1 ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.quality-grid pe-pump { width: min(250px, 92%); }
+.quality-grid article:first-child pe-pump { width: 180px; }
+.compact-controller pe-controller { width: min(480px, 96%); }
+
+@media (max-width: 1100px) {
+  .hero, .stage-grid { grid-template-columns: 1fr; }
+  .canvas { min-height: 420px; }
+  .quality-grid { grid-template-columns: repeat(2, 1fr); }
+  .controls { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  main { width: min(100% - 24px, 1540px); padding-top: 24px; }
+  .hero { gap: 18px; }
+  .lede { font-size: 14px; }
+  .canvas { min-height: 320px; padding: 18px 10px; }
+  .quality-grid, .controls { grid-template-columns: 1fr; }
+  .stage-heading { padding-inline: 18px; }
+  .stage-heading code { display: none; }
+}
