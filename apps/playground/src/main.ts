@@ -1,3 +1,4 @@
+import { ControlValveSimulation } from '@pom4h/process-elements';
 import { registerProcessElements } from '@pom4h/process-elements/register';
 import './style.css';
 
@@ -32,12 +33,16 @@ const flowToggle = required<HTMLButtonElement>('#flow-toggle');
 const flowDirection = required<HTMLButtonElement>('#flow-direction');
 const pipeStatus = required<HTMLSelectElement>('#pipe-status');
 const controlValve = required<HTMLElement>('#control-valve');
-const valvePosition = required<HTMLInputElement>('#valve-position');
-const valvePositionValue = required<HTMLOutputElement>('#valve-position-value');
 const valveCommand = required<HTMLInputElement>('#valve-command');
 const valveCommandValue = required<HTMLOutputElement>('#valve-command-value');
-const valveStatus = required<HTMLSelectElement>('#valve-status');
-const valveFollow = required<HTMLButtonElement>('#valve-follow');
+const valveSupply = required<HTMLInputElement>('#valve-supply');
+const valveSupplyValue = required<HTMLOutputElement>('#valve-supply-value');
+const valveStiction = required<HTMLInputElement>('#valve-stiction');
+const valveStictionValue = required<HTMLOutputElement>('#valve-stiction-value');
+const valvePositionValue = required<HTMLOutputElement>('#valve-position-value');
+const valveFlowValue = required<HTMLOutputElement>('#valve-flow-value');
+const valvePressureValue = required<HTMLOutputElement>('#valve-pressure-value');
+const valveSeverityValue = required<HTMLOutputElement>('#valve-severity-value');
 const valvePower = required<HTMLButtonElement>('#valve-power');
 
 speed.addEventListener('input', () => {
@@ -103,45 +108,17 @@ flowDirection.addEventListener('click', () => {
 
 pipeStatus.addEventListener('change', () => processPipe.setAttribute('status', pipeStatus.value));
 
-function setValvePosition(value: number): void {
-  const position = Math.min(100, Math.max(0, value));
-  const serialized = position.toFixed(1);
-  controlValve.setAttribute('position', serialized);
-  controlValve.setAttribute('flow', (position * .62).toFixed(1));
-  valvePosition.value = serialized;
-  valvePositionValue.value = `${Math.round(position)}%`;
-}
-
-valvePosition.addEventListener('input', () => setValvePosition(Number(valvePosition.value)));
-
 valveCommand.addEventListener('input', () => {
   controlValve.setAttribute('command', valveCommand.value);
   valveCommandValue.value = `${valveCommand.value}%`;
 });
 
-valveStatus.addEventListener('change', () => controlValve.setAttribute('status', valveStatus.value));
+valveSupply.addEventListener('input', () => {
+  valveSupplyValue.value = `${Number(valveSupply.value).toFixed(1)} bar`;
+});
 
-let valveMotion: number | undefined;
-valveFollow.addEventListener('click', () => {
-  if (!controlValve.hasAttribute('powered')) return;
-  if (valveMotion !== undefined) cancelAnimationFrame(valveMotion);
-
-  const initial = Number(controlValve.getAttribute('position') ?? 0);
-  const target = Number(controlValve.getAttribute('command') ?? 0);
-  const startedAt = performance.now();
-  const duration = 1100;
-
-  const step = (now: number): void => {
-    const progress = Math.min(1, (now - startedAt) / duration);
-    const eased = progress < .5
-      ? 4 * progress ** 3
-      : 1 - (-2 * progress + 2) ** 3 / 2;
-    setValvePosition(initial + (target - initial) * eased);
-    if (progress < 1) valveMotion = requestAnimationFrame(step);
-    else valveMotion = undefined;
-  };
-
-  valveMotion = requestAnimationFrame(step);
+valveStiction.addEventListener('input', () => {
+  valveStictionValue.value = `${Number(valveStiction.value).toFixed(1)}%`;
 });
 
 valvePower.addEventListener('click', () => {
@@ -149,3 +126,51 @@ valvePower.addEventListener('click', () => {
   controlValve.toggleAttribute('powered', powered);
   valvePower.textContent = powered ? 'Remove control air' : 'Restore control air';
 });
+
+const valveSimulation = new ControlValveSimulation({
+  initialPosition: Number(controlValve.getAttribute('position') ?? 0),
+  warningDeviation: 5,
+  alarmDeviation: 15,
+  warningDelay: .7,
+  alarmDelay: 2,
+  maximumPressureDrop: 8,
+});
+
+let previousSimulationTime = performance.now();
+function simulateValve(now: number): void {
+  const deltaSeconds = Math.min(.05, Math.max(0, (now - previousSimulationTime) / 1000));
+  previousSimulationTime = now;
+
+  const snapshot = valveSimulation.step({
+    command: Number(valveCommand.value),
+    powered: controlValve.hasAttribute('powered'),
+    supplyPressure: Number(valveSupply.value),
+    outletPressure: 1,
+    capacity: 16,
+    characteristic: 'equal-percentage',
+    rangeability: 50,
+    leakage: .0005,
+    upstreamResistance: .05,
+    travelTime: 2.4,
+    failPosition: 0,
+    deadband: .25,
+    stiction: Number(valveStiction.value),
+  }, deltaSeconds);
+
+  controlValve.setAttribute('position', snapshot.position.toFixed(2));
+  controlValve.setAttribute('flow', Math.max(0, snapshot.flow).toFixed(2));
+  controlValve.setAttribute('status', snapshot.severity);
+  controlValve.toggleAttribute('data-sim-moving', snapshot.moving);
+  controlValve.setAttribute('data-pressure-in', snapshot.pressureIn.toFixed(3));
+  controlValve.setAttribute('data-pressure-out', snapshot.pressureOut.toFixed(3));
+
+  valvePositionValue.value = `${Math.round(snapshot.position)}%`;
+  valveFlowValue.value = `${Math.max(0, snapshot.flow).toFixed(1)} m³/h`;
+  valvePressureValue.value = `${snapshot.pressureDrop.toFixed(2)} bar`;
+  valveSeverityValue.value = snapshot.severity.toUpperCase();
+  valveSeverityValue.title = snapshot.activeRules.map((entry) => entry.message).join('\n');
+
+  requestAnimationFrame(simulateValve);
+}
+
+requestAnimationFrame(simulateValve);
