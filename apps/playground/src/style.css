@@ -52,8 +52,19 @@ code { color: #587088; font: 600 11px/1.4 ui-monospace, monospace; }
 .controls label input, .controls label select { grid-column: 1 / -1; }
 .controls output { color: #b5c6d7; }
 
-.flow-bench { margin-top: 20px; }
-.flow-card { overflow: hidden; }
+.valve-bench, .flow-bench { margin-top: 20px; }
+.valve-card, .flow-card { overflow: hidden; }
+.valve-canvas {
+  min-height: 560px;
+  background:
+    linear-gradient(rgb(45 69 91 / .13) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(45 69 91 / .13) 1px, transparent 1px),
+    radial-gradient(circle at 50% 48%, rgb(25 49 70 / .28), transparent 58%);
+  background-size: 24px 24px, 24px 24px, auto;
+}
+.valve-canvas pe-control-valve { width: min(560px, 94%); }
+.valve-controls { grid-template-columns: 1.15fr 1.15fr 1fr repeat(2, minmax(150px, .8fr)); }
+
 .process-scene {
   display: block;
   height: 440px;
@@ -84,7 +95,7 @@ code { color: #587088; font: 600 11px/1.4 ui-monospace, monospace; }
   .hero, .stage-grid { grid-template-columns: 1fr; }
   .canvas { min-height: 420px; }
   .quality-grid { grid-template-columns: repeat(2, 1fr); }
-  .controls { grid-template-columns: repeat(2, 1fr); }
+  .controls, .valve-controls { grid-template-columns: repeat(2, 1fr); }
   .flow-controls { grid-template-columns: repeat(2, 1fr); }
   .process-scene { height: 380px; }
   .process-scene pe-pump { width: min(300px, 39%); }
@@ -95,7 +106,8 @@ code { color: #587088; font: 600 11px/1.4 ui-monospace, monospace; }
   .hero { gap: 18px; }
   .lede { font-size: 14px; }
   .canvas { min-height: 320px; padding: 18px 10px; }
-  .quality-grid, .controls, .flow-controls { grid-template-columns: 1fr; }
+  .valve-canvas { min-height: 390px; }
+  .quality-grid, .controls, .flow-controls, .valve-controls { grid-template-columns: 1fr; }
   .stage-heading { padding-inline: 18px; }
   .stage-heading code { display: none; }
   .process-scene { height: 300px; }
