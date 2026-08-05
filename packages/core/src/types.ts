@@ -18,6 +18,8 @@ export type ContextReader<T> = (context: ElementContext) => T;
 
 export type PortDirection = 'left' | 'right' | 'top' | 'bottom';
 
+export type PortRole = 'inlet' | 'outlet' | 'bidirectional';
+
 export interface Point {
   readonly x: number;
   readonly y: number;
@@ -29,6 +31,9 @@ export interface PortDefinition {
   readonly y: number;
   readonly direction: PortDirection;
   readonly kind?: string;
+  readonly role?: PortRole;
+  readonly medium?: string;
+  readonly label?: string;
 }
 
 export type VisualDetail = 'essential' | 'standard' | 'fine';

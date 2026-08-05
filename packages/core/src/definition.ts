@@ -47,6 +47,57 @@ export function viewBox(
   return Object.freeze({ initial, read });
 }
 
+export interface DynamicPorts {
+  readonly initial: readonly PortDefinition[];
+  readonly read: (context: ElementContext) => readonly PortDefinition[];
+}
+
+export type PortsDefinition = readonly PortDefinition[] | DynamicPorts;
+
+function validatePorts(list: readonly PortDefinition[]): readonly PortDefinition[] {
+  const seen = new Set<string>();
+  for (const port of list) {
+    if (port.id === '') throw new TypeError('Port identifiers must not be empty.');
+    if (seen.has(port.id)) throw new TypeError(`Duplicate port identifier: ${port.id}`);
+    seen.add(port.id);
+    if (!Number.isFinite(port.x) || !Number.isFinite(port.y)) {
+      throw new TypeError(`Port ${port.id} must have finite coordinates.`);
+    }
+  }
+  return list;
+}
+
+function isDynamicPorts(definition: PortsDefinition): definition is DynamicPorts {
+  return !Array.isArray(definition);
+}
+
+export function initialPorts(definition: PortsDefinition | undefined): readonly PortDefinition[] {
+  if (definition === undefined) return [];
+  return validatePorts(isDynamicPorts(definition) ? definition.initial : definition);
+}
+
+export function resolvePorts(
+  definition: PortsDefinition | undefined,
+  context: ElementContext,
+): readonly PortDefinition[] {
+  if (definition === undefined) return [];
+  return validatePorts(isDynamicPorts(definition) ? definition.read(context) : definition);
+}
+
+export function ports(
+  initial: readonly PortDefinition[],
+  read: DynamicPorts['read'],
+): DynamicPorts {
+  validatePorts(initial);
+  return Object.freeze({ initial, read });
+}
+
+export function portSignature(list: readonly PortDefinition[]): string {
+  return list
+    .map((port) => `${port.id}@${port.x},${port.y},${port.direction},${port.kind ?? ''},${port.role ?? ''},${port.medium ?? ''}`)
+    .join('|');
+}
+
 export interface ElementDefinition {
   readonly tagName: ElementTagName;
   readonly displayName: string;
@@ -59,11 +110,12 @@ export interface ElementDefinition {
   readonly bindings?: readonly BindingDefinition[];
   readonly collections?: readonly CollectionDefinition[];
   readonly motions?: readonly MotionDefinition[];
-  readonly ports?: readonly PortDefinition[];
+  readonly ports?: PortsDefinition;
   readonly parts?: readonly CssPartDefinition[];
 }
 
 export function defineElementDefinition(definition: ElementDefinition): ElementDefinition {
   initialViewBox(definition.viewBox);
+  initialPorts(definition.ports);
   return Object.freeze(definition);
 }

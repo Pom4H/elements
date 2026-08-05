@@ -1,3 +1,5 @@
+export { controlValveDefinition } from './elements/control-valve.js';
 export { controllerDefinition } from './elements/controller.js';
 export { pumpDefinition } from './elements/pump.js';
+export { tankDefinition } from './elements/tank.js';
 export { processElementsManifest } from './manifest.js';

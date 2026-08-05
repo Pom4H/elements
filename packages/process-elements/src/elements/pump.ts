@@ -162,7 +162,7 @@ export const pumpDefinition = defineElementDefinition({
   attributes: {
     label: attribute.string('label', { defaultValue: 'P-101', description: 'Equipment label.' }),
     running: attribute.boolean('running', { description: 'Whether the pump is commanded to run.' }),
-    speed: attribute.number('speed', { defaultValue: 0, cssVariable: '--pump-speed', description: 'Shaft speed in rpm.' }),
+    speed: attribute.number('speed', { defaultValue: 0, minimum: 0, maximum: 3600, step: 10, unit: 'rpm', cssVariable: '--pump-speed', description: 'Shaft speed in rpm.' }),
     value: attribute.number('value', { defaultValue: 0, description: 'Primary process value.' }),
     unit: attribute.string('unit', { defaultValue: 'bar', description: 'Primary process value unit.' }),
     status: attribute.enum('status', ['idle', 'normal', 'warning', 'alarm'] as const, { defaultValue: 'idle', description: 'Process status independent from data quality.' }),
