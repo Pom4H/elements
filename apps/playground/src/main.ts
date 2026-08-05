@@ -31,6 +31,14 @@ const flowSpeedValue = required<HTMLOutputElement>('#flow-speed-value');
 const flowToggle = required<HTMLButtonElement>('#flow-toggle');
 const flowDirection = required<HTMLButtonElement>('#flow-direction');
 const pipeStatus = required<HTMLSelectElement>('#pipe-status');
+const controlValve = required<HTMLElement>('#control-valve');
+const valvePosition = required<HTMLInputElement>('#valve-position');
+const valvePositionValue = required<HTMLOutputElement>('#valve-position-value');
+const valveCommand = required<HTMLInputElement>('#valve-command');
+const valveCommandValue = required<HTMLOutputElement>('#valve-command-value');
+const valveStatus = required<HTMLSelectElement>('#valve-status');
+const valveFollow = required<HTMLButtonElement>('#valve-follow');
+const valvePower = required<HTMLButtonElement>('#valve-power');
 
 speed.addEventListener('input', () => {
   const value = Number(speed.value);
@@ -94,3 +102,50 @@ flowDirection.addEventListener('click', () => {
 });
 
 pipeStatus.addEventListener('change', () => processPipe.setAttribute('status', pipeStatus.value));
+
+function setValvePosition(value: number): void {
+  const position = Math.min(100, Math.max(0, value));
+  const serialized = position.toFixed(1);
+  controlValve.setAttribute('position', serialized);
+  controlValve.setAttribute('flow', (position * .62).toFixed(1));
+  valvePosition.value = serialized;
+  valvePositionValue.value = `${Math.round(position)}%`;
+}
+
+valvePosition.addEventListener('input', () => setValvePosition(Number(valvePosition.value)));
+
+valveCommand.addEventListener('input', () => {
+  controlValve.setAttribute('command', valveCommand.value);
+  valveCommandValue.value = `${valveCommand.value}%`;
+});
+
+valveStatus.addEventListener('change', () => controlValve.setAttribute('status', valveStatus.value));
+
+let valveMotion: number | undefined;
+valveFollow.addEventListener('click', () => {
+  if (!controlValve.hasAttribute('powered')) return;
+  if (valveMotion !== undefined) cancelAnimationFrame(valveMotion);
+
+  const initial = Number(controlValve.getAttribute('position') ?? 0);
+  const target = Number(controlValve.getAttribute('command') ?? 0);
+  const startedAt = performance.now();
+  const duration = 1100;
+
+  const step = (now: number): void => {
+    const progress = Math.min(1, (now - startedAt) / duration);
+    const eased = progress < .5
+      ? 4 * progress ** 3
+      : 1 - (-2 * progress + 2) ** 3 / 2;
+    setValvePosition(initial + (target - initial) * eased);
+    if (progress < 1) valveMotion = requestAnimationFrame(step);
+    else valveMotion = undefined;
+  };
+
+  valveMotion = requestAnimationFrame(step);
+});
+
+valvePower.addEventListener('click', () => {
+  const powered = !controlValve.hasAttribute('powered');
+  controlValve.toggleAttribute('powered', powered);
+  valvePower.textContent = powered ? 'Remove control air' : 'Restore control air';
+});
