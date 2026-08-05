@@ -13,7 +13,7 @@
           <p class="eyebrow">ELEMENTS RUNTIME</p>
           <h1>Native elements for visual systems.</h1>
         </div>
-        <p class="lede">Attributes drive state, keyed fragments build geometry, and browser-native timelines coordinate motion.</p>
+        <p class="lede">High-level equipment parameters feed local models, connected systems produce process signals, and SVG renders the resulting state.</p>
       </header>
 
       <section class="stage-grid" aria-label="Live element controls">
@@ -50,20 +50,23 @@
         </article>
       </section>
 
-      <section class="valve-bench" aria-label="Control valve visual benchmark">
+      <section class="valve-bench" aria-label="Emergent control valve simulation">
         <article class="stage-card valve-card">
           <div class="stage-heading">
-            <div><span class="tag">FINAL CONTROL ELEMENT</span><h2>Pneumatic globe control valve</h2></div>
-            <code>&lt;pe-control-valve&gt;</code>
+            <div><span class="tag">EMERGENT PROCESS MODEL</span><h2>Pneumatic globe control valve</h2></div>
+            <code>parameters → actuator → hydraulic network → rules → SVG</code>
           </div>
           <div class="canvas valve-canvas">
-            <pe-control-valve id="control-valve" label="CV-101" position="68" command="72" flow="42" flow-unit="m³/h" powered status="normal" quality="good" detail="full"></pe-control-valve>
+            <pe-control-valve id="control-valve" label="CV-101" position="68" command="72" flow="0" flow-unit="m³/h" powered status="normal" quality="good" detail="full"></pe-control-valve>
           </div>
           <div class="controls valve-controls">
-            <label>Actual <output id="valve-position-value">68%</output><input id="valve-position" type="range" min="0" max="100" step="1" value="68" /></label>
             <label>Command <output id="valve-command-value">72%</output><input id="valve-command" type="range" min="0" max="100" step="1" value="72" /></label>
-            <label>Status <select id="valve-status"><option>normal</option><option>warning</option><option>alarm</option><option>idle</option></select></label>
-            <button id="valve-follow" type="button">Move to command</button>
+            <label>Supply pressure <output id="valve-supply-value">5.0 bar</output><input id="valve-supply" type="range" min="1" max="12" step="0.1" value="5" /></label>
+            <label>Stem stiction <output id="valve-stiction-value">0.6%</output><input id="valve-stiction" type="range" min="0" max="20" step="0.1" value="0.6" /></label>
+            <label>Actual position <output id="valve-position-value">68%</output></label>
+            <label>Emergent flow <output id="valve-flow-value">0.0 m³/h</output></label>
+            <label>Pressure drop <output id="valve-pressure-value">0.0 bar</output></label>
+            <label>Severity <output id="valve-severity-value">NORMAL</output></label>
             <button id="valve-power" type="button">Remove control air</button>
           </div>
         </article>
