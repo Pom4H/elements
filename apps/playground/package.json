@@ -1,0 +1,15 @@
+{
+  "name": "@pom4h/elements-playground",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun ./index.html --console",
+    "build": "bun run build.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@pom4h/elements-core": "workspace:*",
+    "@pom4h/process-elements": "workspace:*"
+  }
+}

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Elements</title>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <div>
+          <p class="eyebrow">ELEMENTS RUNTIME</p>
+          <h1>Native elements for visual systems.</h1>
+        </div>
+        <p class="lede">Attributes drive state, keyed fragments build geometry, and browser-native timelines coordinate motion.</p>
+      </header>
+
+      <section class="stage-grid" aria-label="Live element controls">
+        <article class="stage-card pump-card">
+          <div class="stage-heading">
+            <div><span class="tag">PROCESS</span><h2>Centrifugal pump</h2></div>
+            <code>&lt;pe-pump&gt;</code>
+          </div>
+          <div class="canvas pump-canvas">
+            <pe-pump id="pump" label="P-101" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" detail="auto"></pe-pump>
+          </div>
+          <div class="controls">
+            <label>Speed <output id="speed-value">1450 rpm</output><input id="speed" type="range" min="0" max="2900" step="10" value="1450" /></label>
+            <label>Status <select id="pump-status"><option>normal</option><option>warning</option><option>alarm</option><option>idle</option></select></label>
+            <label>Quality <select id="pump-quality"><option>good</option><option>stale</option><option>bad</option></select></label>
+            <button id="pump-toggle" type="button">Stop</button>
+          </div>
+        </article>
+
+        <article class="stage-card controller-card">
+          <div class="stage-heading">
+            <div><span class="tag">CONTROL</span><h2>Programmable controller</h2></div>
+            <code>&lt;pe-controller&gt;</code>
+          </div>
+          <div class="canvas controller-canvas">
+            <pe-controller id="controller" label="PLC-X2" running inputs="16" outputs="16" input-state="1011010101011011" output-state="1100101000110101" scan-rate="10" load="62" activity="1" status="normal" quality="good" detail="auto"></pe-controller>
+          </div>
+          <div class="controls">
+            <label>I/O channels <select id="channels"><option value="8">8 + 8</option><option value="16" selected>16 + 16</option><option value="24">24 + 24</option><option value="32">32 + 32</option></select></label>
+            <label>CPU load <output id="load-value">62%</output><input id="load" type="range" min="0" max="100" value="62" /></label>
+            <button id="activity" type="button">Pulse network</button>
+            <button id="controller-alarm" type="button">Toggle fault</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="flow-bench" aria-label="Connected process scene">
+        <article class="stage-card flow-card">
+          <div class="stage-heading">
+            <div><span class="tag">SCENE COMPOSITION</span><h2>Port-routed process flow</h2></div>
+            <code>&lt;elements-scene&gt; + &lt;el-connection&gt;</code>
+          </div>
+          <elements-scene class="process-scene">
+            <pe-pump id="scene-pump-a" label="P-201" running speed="1450" value="5.1" unit="bar" status="normal" detail="compact"></pe-pump>
+            <pe-pump id="scene-pump-b" label="P-202" running speed="1120" value="7.4" unit="bar" status="normal" detail="compact"></pe-pump>
+            <el-connection id="process-pipe" from="scene-pump-a:out" to="scene-pump-b:in" kind="pipe" active speed="1" diameter="18" label="P-201 discharge to P-202 suction"></el-connection>
+          </elements-scene>
+          <div class="controls flow-controls">
+            <label>Flow speed <output id="flow-speed-value">1.00×</output><input id="flow-speed" type="range" min="0" max="2.5" step="0.05" value="1" /></label>
+            <button id="flow-toggle" type="button">Stop flow</button>
+            <button id="flow-direction" type="button">Reverse flow</button>
+            <label>Pipe status <select id="pipe-status"><option>normal</option><option>warning</option><option>alarm</option></select></label>
+          </div>
+        </article>
+      </section>
+
+      <section class="quality-grid" aria-label="Responsive and state variants">
+        <article><span>Auto LOD · 180 px</span><pe-pump running speed="1100" value="4.8" unit="bar" status="normal"></pe-pump></article>
+        <article><span>Warning</span><pe-pump running speed="900" value="5.4" unit="bar" status="warning" detail="compact"></pe-pump></article>
+        <article><span>Alarm</span><pe-pump running speed="1450" value="8.7" unit="bar" status="alarm" detail="compact"></pe-pump></article>
+        <article class="compact-controller"><span>Dynamic viewport · 8 + 8</span><pe-controller running inputs="8" outputs="8" input-state="10110101" output-state="11001010" load="34" status="normal"></pe-controller></article>
+      </section>
+    </main>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
