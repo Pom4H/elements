@@ -50,6 +50,26 @@
         </article>
       </section>
 
+      <section class="flow-bench" aria-label="Connected process scene">
+        <article class="stage-card flow-card">
+          <div class="stage-heading">
+            <div><span class="tag">SCENE COMPOSITION</span><h2>Port-routed process flow</h2></div>
+            <code>&lt;elements-scene&gt; + &lt;el-connection&gt;</code>
+          </div>
+          <elements-scene class="process-scene">
+            <pe-pump id="scene-pump-a" label="P-201" running speed="1450" value="5.1" unit="bar" status="normal" detail="compact"></pe-pump>
+            <pe-pump id="scene-pump-b" label="P-202" running speed="1120" value="7.4" unit="bar" status="normal" detail="compact"></pe-pump>
+            <el-connection id="process-pipe" from="scene-pump-a:out" to="scene-pump-b:in" kind="pipe" active speed="1" diameter="18" label="P-201 discharge to P-202 suction"></el-connection>
+          </elements-scene>
+          <div class="controls flow-controls">
+            <label>Flow speed <output id="flow-speed-value">1.00×</output><input id="flow-speed" type="range" min="0" max="2.5" step="0.05" value="1" /></label>
+            <button id="flow-toggle" type="button">Stop flow</button>
+            <button id="flow-direction" type="button">Reverse flow</button>
+            <label>Pipe status <select id="pipe-status"><option>normal</option><option>warning</option><option>alarm</option></select></label>
+          </div>
+        </article>
+      </section>
+
       <section class="quality-grid" aria-label="Responsive and state variants">
         <article><span>Auto LOD · 180 px</span><pe-pump running speed="1100" value="4.8" unit="bar" status="normal"></pe-pump></article>
         <article><span>Warning</span><pe-pump running speed="900" value="5.4" unit="bar" status="warning" detail="compact"></pe-pump></article>

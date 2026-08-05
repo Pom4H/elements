@@ -9,6 +9,7 @@
     "sourceMap": true,
     "paths": {
       "@pom4h/elements-core": ["../core/src/index.ts"],
+      "@pom4h/elements-core/register": ["../core/src/register.ts"],
       "@pom4h/elements-core/runtime": ["../core/src/runtime.ts"]
     }
   },

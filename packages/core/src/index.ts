@@ -27,6 +27,20 @@ export type {
   ScrubMotionDefinition,
   TransitionMotionDefinition,
 } from './motion/index.js';
+export {
+  connectionKinds,
+  connectionVisualMetrics,
+  flowDirections,
+  parseEndpointReference,
+  readConnectionDiameter,
+  readConnectionKind,
+  readConnectionSpeed,
+  readFlowDirection,
+  type ConnectionKind,
+  type ConnectionVisualMetrics,
+  type EndpointReference,
+  type FlowDirection,
+} from './scene/model.js';
 export { svg, type SvgTemplate } from './template.js';
 export type {
   AttributeValueMap,

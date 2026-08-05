@@ -52,6 +52,27 @@ code { color: #587088; font: 600 11px/1.4 ui-monospace, monospace; }
 .controls label input, .controls label select { grid-column: 1 / -1; }
 .controls output { color: #b5c6d7; }
 
+.flow-bench { margin-top: 20px; }
+.flow-card { overflow: hidden; }
+.process-scene {
+  display: block;
+  height: 440px;
+  margin-top: 12px;
+  overflow: hidden;
+  background:
+    linear-gradient(rgb(45 69 91 / .18) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(45 69 91 / .18) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, rgb(25 49 70 / .34), transparent 62%);
+  background-size: 24px 24px, 24px 24px, auto;
+  --elements-pipe-shell: #5f7489;
+  --elements-pipe-bore: #081722;
+  --elements-process-flow: #55d8ff;
+}
+.process-scene pe-pump { position: absolute; width: min(340px, 36%); }
+#scene-pump-a { left: 5%; top: 34%; }
+#scene-pump-b { right: 5%; top: 13%; }
+.flow-controls { grid-template-columns: 1.4fr repeat(2, minmax(120px, .7fr)) 1fr; }
+
 .quality-grid { display: grid; grid-template-columns: .7fr .8fr .8fr 1.7fr; gap: 16px; margin-top: 20px; }
 .quality-grid article { min-height: 250px; border-radius: 18px; display: grid; place-items: center; position: relative; overflow: hidden; padding: 28px 20px 18px; }
 .quality-grid article > span { position: absolute; top: 16px; left: 18px; color: #637b92; font: 650 9px/1 ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; }
@@ -64,6 +85,9 @@ code { color: #587088; font: 600 11px/1.4 ui-monospace, monospace; }
   .canvas { min-height: 420px; }
   .quality-grid { grid-template-columns: repeat(2, 1fr); }
   .controls { grid-template-columns: repeat(2, 1fr); }
+  .flow-controls { grid-template-columns: repeat(2, 1fr); }
+  .process-scene { height: 380px; }
+  .process-scene pe-pump { width: min(300px, 39%); }
 }
 
 @media (max-width: 640px) {
@@ -71,7 +95,11 @@ code { color: #587088; font: 600 11px/1.4 ui-monospace, monospace; }
   .hero { gap: 18px; }
   .lede { font-size: 14px; }
   .canvas { min-height: 320px; padding: 18px 10px; }
-  .quality-grid, .controls { grid-template-columns: 1fr; }
+  .quality-grid, .controls, .flow-controls { grid-template-columns: 1fr; }
   .stage-heading { padding-inline: 18px; }
   .stage-heading code { display: none; }
+  .process-scene { height: 300px; }
+  .process-scene pe-pump { width: 46%; }
+  #scene-pump-a { left: -1%; top: 41%; }
+  #scene-pump-b { right: -1%; top: 12%; }
 }
