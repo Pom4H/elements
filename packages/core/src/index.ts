@@ -41,6 +41,7 @@ export {
   type EndpointReference,
   type FlowDirection,
 } from './scene/model.js';
+export * from './simulation/index.js';
 export { svg, type SvgTemplate } from './template.js';
 export type {
   AttributeValueMap,
