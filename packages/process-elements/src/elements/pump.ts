@@ -35,9 +35,11 @@ const hydraulic = defineFragment({
   <path class="flow-under" d="M8 151 H145 C157 151 169 151 180 148 C199 143 215 130 224 111 C236 87 253 76 278 76 H301 V24"/>
   <path class="flow-path" data-part="flow-path" d="M8 151 H145 C157 151 169 151 180 148 C199 143 215 130 224 111 C236 87 253 76 278 76 H301 V24"/>
 
-  <g class="status-beacon" data-part="status-beacon" transform="translate(275 104)">
-    <circle class="status-halo" data-part="status-halo" r="10"/>
-    <circle class="status-dot" r="3.5"/>
+  <g transform="translate(275 104)">
+    <g class="status-beacon" data-part="status-beacon">
+      <circle class="status-halo" data-part="status-halo" r="10"/>
+      <circle class="status-dot" r="3.5"/>
+    </g>
   </g>
 </g>
 
@@ -49,15 +51,17 @@ const hydraulic = defineFragment({
 const impeller = defineFragment({
   name: 'pump-impeller',
   template: svg`
-<g class="rotor" data-part="rotor" transform="translate(190 152)">
-  <circle class="impeller-shroud" r="34"/>
-  <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32"/>
-  <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(60)"/>
-  <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(120)"/>
-  <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(180)"/>
-  <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(240)"/>
-  <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(300)"/>
-  <circle class="eye" r="10"/>
+<g transform="translate(190 152)">
+  <g class="rotor" data-part="rotor">
+    <circle class="impeller-shroud" r="34"/>
+    <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32"/>
+    <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(60)"/>
+    <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(120)"/>
+    <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(180)"/>
+    <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(240)"/>
+    <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(300)"/>
+    <circle class="eye" r="10"/>
+  </g>
 </g>
 `,
 });
@@ -68,10 +72,12 @@ const drive = defineFragment({
 <path class="bearing" d="M244 135 H285 V169 H244 C250 159 251 146 244 135 Z"/>
 <rect class="shaft" x="274" y="145" width="43" height="14" rx="4" data-part="shaft"/>
 
-<g class="coupling" data-part="coupling" transform="translate(312 152)">
-  <circle class="coupling-rim" r="14"/>
-  <circle class="coupling-hub" r="7"/>
-  <path class="coupling-mark" d="M-10 0 H10 M0 -10 V10"/>
+<g transform="translate(312 152)">
+  <g class="coupling" data-part="coupling">
+    <circle class="coupling-rim" r="14"/>
+    <circle class="coupling-hub" r="7"/>
+    <path class="coupling-mark" d="M-10 0 H10 M0 -10 V10"/>
+  </g>
 </g>
 
 <path class="guard" d="M298 126 H344 C354 126 361 134 361 144 V166 C361 176 354 184 344 184 H298 Z"/>
