@@ -10,6 +10,7 @@ import {
   initialPorts,
   initialViewBox,
   portSignature,
+  resolveDetailLevel,
   resolvePorts,
   resolveViewBox,
   type ElementDefinition,
@@ -17,7 +18,7 @@ import {
 import { MotionController } from './motion/index.js';
 import { PartMap } from './parts.js';
 import { createStyleSheet, instantiateSvg } from './template.js';
-import type { ElementContext, PortDefinition, StateValueMap } from './types.js';
+import type { DetailLevel, ElementContext, PortDefinition, StateValueMap } from './types.js';
 
 type StateInternals = ElementInternals & {
   readonly states?: CustomStateSet;
@@ -46,8 +47,14 @@ export abstract class ElementsElement extends HTMLElement {
   #states: StateValueMap = {};
   #ports: readonly PortDefinition[];
   #portSignature: string;
+  #detail: DetailLevel = 'full';
   #scheduled = false;
   #connected = false;
+
+  /** Width decides which drawing is shown, so the element watches its own box. */
+  readonly #resizeObserver = new ResizeObserver(() => {
+    if (this.#resolveDetail() !== this.#detail) this.#schedule('detail');
+  });
 
   protected constructor() {
     super();
@@ -86,7 +93,12 @@ export abstract class ElementsElement extends HTMLElement {
   }
 
   get context(): ElementContext {
-    return { host: this, attributes: this.#attributes, states: this.#states };
+    return { host: this, attributes: this.#attributes, states: this.#states, detail: this.#detail };
+  }
+
+  /** The drawing currently on screen, once the declared detail and size agree. */
+  get detailLevel(): DetailLevel {
+    return this.#detail;
   }
 
   /**
@@ -110,12 +122,14 @@ export abstract class ElementsElement extends HTMLElement {
     this.#connected = true;
     this.#upgradeProperties();
     this.#motions.connect();
+    if (this.#definition.detailBreakpoints !== undefined) this.#resizeObserver.observe(this);
     this.#schedule('*');
   }
 
   disconnectedCallback(): void {
     this.#connected = false;
     this.#motions.disconnect();
+    this.#resizeObserver.disconnect();
   }
 
   attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
@@ -151,7 +165,13 @@ export abstract class ElementsElement extends HTMLElement {
 
     const previousStates = this.#states;
     this.#attributes = readAttributes(this, this.#definition.attributes);
-    const provisional: ElementContext = { host: this, attributes: this.#attributes, states: previousStates };
+    this.#updateDetail();
+    const provisional: ElementContext = {
+      host: this,
+      attributes: this.#attributes,
+      states: previousStates,
+      detail: this.#detail,
+    };
     const nextStates: StateValueMap = {};
     for (const [name, derive] of Object.entries(this.#definition.states ?? {})) {
       nextStates[name] = Boolean(derive(provisional));
@@ -180,6 +200,22 @@ export abstract class ElementsElement extends HTMLElement {
       composed: true,
       detail: { changed, attributes: this.#attributes, states: this.#states, ports: this.#ports },
     }));
+  }
+
+  #resolveDetail(): DetailLevel {
+    return resolveDetailLevel(
+      this.getAttribute('detail'),
+      this.clientWidth,
+      this.#definition.detailBreakpoints,
+    );
+  }
+
+  #updateDetail(): void {
+    const next = this.#resolveDetail();
+    if (next === this.#detail && this.dataset.detailLevel === next) return;
+    this.#detail = next;
+    this.dataset.detailLevel = next;
+    this.#changed.add('detail');
   }
 
   #updatePorts(context: ElementContext): void {

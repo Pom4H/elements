@@ -5,7 +5,6 @@ import {
   defineFragment,
   detailStyles,
   mediumIds,
-  mediumStyles,
   ports,
   svg,
   type ElementContext,
@@ -14,179 +13,155 @@ import {
 } from '@pom4h/elements-core';
 import { booleanValue, clamp, numberValue, stateValue, stringValue } from '../shared.js';
 
+/**
+ * A globe control valve, drawn as an operator sees it standing in front of the
+ * machine: a body between two flange faces, a bonnet, a yoke with the stem
+ * running up it, an actuator on top and a positioner on the side.
+ *
+ * What is deliberately absent: the plug and seat (you cannot see inside a valve
+ * body), any pipe beyond the flange faces, and any flow — the scene owns the
+ * lines and what moves through them.
+ */
 const geometry = Object.freeze({
-  centerX: 180,
-  /** Vertical stroke of the plug and stem, in user units. */
-  stroke: 28,
-  /** Travel scale: 0% sits at the bottom, 100% at the top. */
-  scaleBottom: 188,
-  scaleHeight: 60,
-  lineY: 252,
-  inletX: 8,
-  outletX: 352,
-  signalX: 44,
-  signalY: 168,
-  supplyX: 312,
-  supplyY: 96,
-  powerY: 70,
+  /** Process centreline. Both flange faces and both ports sit on it. */
+  lineY: 190,
+  inletX: 42,
+  outletX: 158,
+  /** Stem travel between shut and fully open, in user units. */
+  stroke: 30,
+  signalX: 18,
+  signalY: 123,
+  auxiliaryX: 174,
+  supplyY: 78,
+  powerY: 62,
 });
-
-/** Flow dipping under the seat throat: the S-bend is what makes it read as a globe body. */
-const flowChannel = 'M26 252 H110 C134 252 144 266 162 266 H198 C216 266 226 252 250 252 H334';
 
 const body = defineFragment({
   name: 'valve-body',
   template: svg`
-<rect class="flange" x="8" y="230" width="18" height="44" rx="3"/>
-<rect class="flange" x="334" y="230" width="18" height="44" rx="3"/>
-<circle class="bolt" cx="17" cy="238" r="2" data-detail="fine"/>
-<circle class="bolt" cx="17" cy="266" r="2" data-detail="fine"/>
-<circle class="bolt" cx="343" cy="238" r="2" data-detail="fine"/>
-<circle class="bolt" cx="343" cy="266" r="2" data-detail="fine"/>
-<rect class="nozzle" x="24" y="238" width="86" height="28"/>
-<rect class="nozzle" x="250" y="238" width="86" height="28"/>
-
-<path class="body-shell" data-part="body-shell" d="M104 236 C108 218 132 208 180 208 C228 208 252 218 256 236 V268 C252 286 228 296 180 296 C132 296 108 286 104 268 Z"/>
-<path class="body-cavity" d="M114 238 C118 224 138 216 180 216 C222 216 242 224 246 238 V266 C242 280 222 288 180 288 C138 288 118 280 114 266 Z"/>
-
-<g class="channel" data-part="channel">
-  <path class="channel-bore" d="${flowChannel}"/>
-  <path class="channel-stream" data-part="flow-stream" d="${flowChannel}"/>
-</g>
-
-<path class="seat" d="M148 240 H170 L176 264 H148 Z"/>
-<path class="seat" d="M212 240 H190 L184 264 H212 Z"/>
-<path class="body-web" d="M128 234 C140 248 140 262 130 274 M232 234 C220 248 220 262 230 274" data-detail="fine"/>
-
-<g class="flow-arrows" data-part="flow-arrows" data-detail="standard">
-  <path d="M56 246 L70 252 L56 258 Z"/>
-  <path d="M290 246 L304 252 L290 258 Z"/>
-</g>
-`,
-});
-
-/**
- * Plug and stem. This whole group is the scrub target, so nothing inside it may
- * carry a competing transform — the shudder lives one level down.
- */
-const trim = defineFragment({
-  name: 'valve-trim',
-  template: svg`
-<g data-part="stem-travel">
-  <g data-part="stem-shudder">
-    <rect class="stem" x="173" y="118" width="14" height="110" rx="2"/>
-    <path class="plug" d="M167 220 H193 V238 L184 270 H176 L167 238 Z"/>
-    <rect class="plug-guide" x="163" y="224" width="34" height="6" rx="3" data-detail="fine"/>
-  </g>
-</g>
+<rect class="flange" x="42" y="172" width="16" height="36"/>
+<rect class="flange" x="142" y="172" width="16" height="36"/>
+<path class="body" data-part="body" d="M56 178 C56 168 70 162 100 162 C130 162 144 168 144 178 V202 C144 212 130 218 100 218 C70 218 56 212 56 202 Z"/>
+<path class="bonnet" d="M84 146 H116 L112 164 H88 Z"/>
+<rect class="packing" x="86" y="137" width="28" height="9" rx="1"/>
 `,
 });
 
 const yoke = defineFragment({
   name: 'valve-yoke',
   template: svg`
-<path class="bonnet" d="M146 190 H214 L208 216 H152 Z"/>
-<rect class="packing" x="152" y="180" width="56" height="14" rx="3"/>
-<rect class="packing-nut" x="160" y="172" width="40" height="10" rx="3" data-detail="fine"/>
-<path class="yoke-leg" d="M150 182 L136 124 H150 L162 182 Z"/>
-<path class="yoke-leg" d="M210 182 L224 124 H210 L198 182 Z"/>
-<rect class="yoke-cap" x="130" y="116" width="100" height="12" rx="4"/>
+<path class="yoke-leg" d="M88 144 L78 98 H88 L96 144 Z"/>
+<path class="yoke-leg" d="M112 144 L122 98 H112 L104 144 Z"/>
+<rect class="yoke-cap" x="74" y="89" width="52" height="10" rx="2"/>
 
-<g class="scale" data-part="scale" data-detail="standard">
-  <rect class="scale-track" x="238" y="126" width="9" height="62" rx="4.5"/>
-  <path class="scale-tick" d="M249 128 H258 M249 143 H255 M249 158 H258 M249 173 H255 M249 187 H258" data-detail="fine"/>
-  <text class="scale-label" x="262" y="131" data-detail="fine">100</text>
-  <text class="scale-label" x="262" y="190" data-detail="fine">0</text>
-  <path class="fail-mark" data-part="fail-mark" d="M232 188 L224 183 L224 193 Z"/>
+<g class="scale" data-part="travel-scale" data-detail="standard">
+  <rect class="scale-track" x="128" y="98" width="8" height="44" rx="2"/>
+  <text class="scale-label" x="138" y="103" data-detail="fine">100</text>
+  <text class="scale-label" x="138" y="144" data-detail="fine">0</text>
   <g data-part="command-marker">
-    <path class="command-mark" d="M236 188 L227 182 V194 Z"/>
-  </g>
-  <g data-part="position-marker">
-    <path class="position-mark" d="M250 188 H268 L262 182 H250 Z"/>
+    <path class="command-mark" d="M144 135 L151 130 V140 Z"/>
   </g>
 </g>
 
-<g class="travel-arrow" data-part="travel-arrow" transform="translate(242 206)">
-  <path class="travel-glyph" d="M0 -8 L6 2 H-6 Z"/>
+<!-- The stem and the pointer clamped to it are the one thing that really
+     moves, and the only travel reading an operator has on the machine. -->
+<g data-part="stem-travel">
+  <rect class="stem" x="96" y="95" width="8" height="50"/>
+  <rect class="travel-pointer" data-part="travel-pointer" x="104" y="132" width="24" height="6" rx="1"/>
 </g>
 `,
 });
 
 const pneumaticActuator = defineFragment({
   name: 'valve-actuator-pneumatic',
-  ports: [{ id: 'supply', x: geometry.supplyX, y: geometry.supplyY, direction: 'right', kind: 'process', role: 'inlet', medium: 'air' }],
+  ports: [{ id: 'supply', x: geometry.auxiliaryX, y: geometry.supplyY, direction: 'right', kind: 'process', role: 'inlet', medium: 'air' }],
   template: svg`
-<rect class="supply-tube" x="264" y="91" width="42" height="11" rx="4"/>
-<rect class="supply-gland" x="298" y="86" width="14" height="21" rx="3"/>
-<path class="diaphragm-dome" d="M92 100 C92 34 268 34 268 100 Z"/>
-<path class="dome-highlight" d="M112 88 C118 54 158 44 186 46" data-detail="fine"/>
-<rect class="diaphragm-rim" x="86" y="98" width="188" height="14" rx="5"/>
-<rect class="diaphragm-case" x="94" y="110" width="172" height="16" rx="5"/>
-<g class="case-bolts" data-detail="fine">
-  <circle cx="104" cy="105" r="2.6"/><circle cx="134" cy="105" r="2.6"/><circle cx="164" cy="105" r="2.6"/>
-  <circle cx="196" cy="105" r="2.6"/><circle cx="226" cy="105" r="2.6"/><circle cx="256" cy="105" r="2.6"/>
-</g>
-<g data-part="actuator-breath">
-  <path class="spring-coil" data-part="spring" d="M158 54 H202 M156 64 H204 M158 74 H202 M156 84 H204" data-detail="fine"/>
-</g>
-<text class="actuator-mark" x="180" y="95" text-anchor="middle" data-detail="fine">AIR TO MOVE</text>
+<rect class="supply-stub" x="156" y="74" width="16" height="9"/>
+<path class="actuator" d="M44 87 C44 44 156 44 156 87 Z"/>
+<rect class="actuator-rim" x="40" y="85" width="120" height="12" rx="3"/>
 `,
 });
 
 const electricActuator = defineFragment({
   name: 'valve-actuator-electric',
-  ports: [{ id: 'power', x: geometry.supplyX, y: geometry.powerY, direction: 'right', kind: 'electrical', role: 'inlet' }],
+  ports: [{ id: 'power', x: geometry.auxiliaryX, y: geometry.powerY, direction: 'right', kind: 'electrical', role: 'inlet' }],
   template: svg`
-<rect class="power-conduit" x="242" y="65" width="58" height="11" rx="4"/>
-<rect class="power-gland" x="294" y="60" width="18" height="21" rx="3"/>
-<rect class="actuator-case" x="116" y="46" width="128" height="80" rx="10"/>
-<rect class="actuator-lid" x="126" y="38" width="108" height="12" rx="5"/>
-<rect class="motor-can" x="184" y="14" width="36" height="32" rx="9"/>
-<path class="motor-fin" d="M188 18 V42 M196 16 V44 M204 16 V44 M212 18 V42" data-detail="fine"/>
-<g transform="translate(202 30)">
-  <g class="fan" data-part="actuator-fan">
-    <path class="fan-blade" d="M0 -9 C5 -6 5 -2 0 0 Z M9 0 C6 5 2 5 0 0 Z M0 9 C-5 6 -5 2 0 0 Z M-9 0 C-6 -5 -2 -5 0 0 Z"/>
+<rect class="power-stub" x="154" y="58" width="18" height="9"/>
+<rect class="actuator" x="64" y="44" width="90" height="46" rx="4"/>
+<rect class="actuator-rim" x="58" y="85" width="104" height="12" rx="3"/>
+<rect class="motor" x="128" y="24" width="28" height="22" rx="3"/>
+
+<!-- A handwheel is a control an operator actually puts a hand on. -->
+<g transform="translate(46 66)">
+  <g class="handwheel" data-part="handwheel">
+    <circle class="handwheel-rim" r="17"/>
+    <path class="handwheel-spoke" d="M-17 0 H17 M0 -17 V17 M-12 -12 L12 12 M-12 12 L12 -12"/>
+    <circle class="handwheel-hub" r="4"/>
   </g>
 </g>
-<rect class="gear-window" x="130" y="60" width="54" height="36" rx="4"/>
-<circle class="gear" data-part="gear" cx="149" cy="78" r="12"/>
-<circle class="gear-small" data-part="gear-small" cx="172" cy="83" r="7"/>
-<rect class="handwheel-shaft" x="94" y="83" width="26" height="8" rx="3"/>
-<g data-part="handwheel" transform="translate(92 87)">
-  <circle class="handwheel-rim" r="19"/>
-  <circle class="handwheel-hub" r="5"/>
-  <path class="handwheel-spoke" d="M-19 0 H19 M0 -19 V19 M-13 -13 L13 13 M-13 13 L13 -13"/>
-</g>
-<text class="actuator-mark" x="196" y="114" text-anchor="middle" data-detail="fine">MOV</text>
 `,
 });
 
 const positioner = defineFragment({
   name: 'valve-positioner',
   template: svg`
-<rect class="bracket" x="98" y="160" width="44" height="10" rx="3"/>
-<rect class="positioner-case" x="44" y="140" width="58" height="50" rx="6"/>
-<rect class="positioner-screen" x="51" y="147" width="44" height="20" rx="3"/>
-<text class="positioner-readout" x="73" y="162" text-anchor="middle" data-part="positioner-readout">68%</text>
-<circle class="positioner-led" data-part="positioner-led" cx="56" cy="180" r="4"/>
-<text class="positioner-mode" x="66" y="184" data-part="mode-readout" data-detail="fine">AUTO</text>
-<rect class="signal-gland" x="34" y="160" width="12" height="16" rx="3"/>
+<rect class="bracket" x="54" y="119" width="28" height="6"/>
+<rect class="positioner" x="20" y="106" width="36" height="32" rx="2"/>
+<rect class="positioner-screen" x="24" y="110" width="28" height="13" rx="1"/>
+<text class="positioner-readout" x="38" y="120" text-anchor="middle" data-part="positioner-readout">68</text>
+<circle class="positioner-led" data-part="positioner-led" cx="27" cy="131" r="3.2"/>
+<text class="positioner-mode" x="34" y="134" data-part="mode-readout" data-detail="fine">AUTO</text>
+`,
+});
+
+/**
+ * At symbol size the drawing stops being a machine and becomes the P&ID symbol,
+ * because that is what stays readable — and what an engineer already knows.
+ *
+ * The two actuators are separate fragments rather than one drawing with parts
+ * switched off: visibility is contested by the shared detail stylesheet, while
+ * a fragment choice is not.
+ */
+const symbolTrim = `
+<path class="symbol-body" data-part="body" d="M56 168 L100 190 L56 212 Z"/>
+<path class="symbol-body" d="M144 168 L100 190 L144 212 Z"/>
+<rect class="symbol-stem" x="97" y="140" width="6" height="30"/>`;
+
+const pneumaticSymbol = defineFragment({
+  name: 'valve-symbol-pneumatic',
+  template: svg`${symbolTrim}
+<path class="symbol-actuator" d="M64 142 A36 27 0 0 1 136 142 Z"/>
+`,
+});
+
+const electricSymbol = defineFragment({
+  name: 'valve-symbol-electric',
+  template: svg`${symbolTrim}
+<rect class="symbol-actuator" x="70" y="114" width="60" height="28" rx="3"/>
+<text class="symbol-mark" x="100" y="134" text-anchor="middle">M</text>
 `,
 });
 
 const actuators = { pneumatic: pneumaticActuator, electric: electricActuator } as const;
+const symbols = { pneumatic: pneumaticSymbol, electric: electricSymbol } as const;
 
 function actuatorKind(context: ElementContext): keyof typeof actuators {
   return stringValue(context, 'actuator') === 'electric' ? 'electric' : 'pneumatic';
 }
 
+function isSymbol(context: ElementContext): boolean {
+  // The runtime resolves this from the declared detail and the measured width;
+  // the attribute is the fallback when the context was built by hand.
+  return (context.detail ?? stringValue(context, 'detail')) === 'symbol';
+}
+
 function valveAssembly(context: ElementContext): readonly FragmentPlacement[] {
+  // A symbol is a different drawing, not a smaller one, so it replaces the
+  // machine outright rather than hiding parts of it.
+  if (isSymbol(context)) return [{ key: 'symbol', fragment: symbols[actuatorKind(context)] }];
   return [
     { key: 'body', fragment: body },
-    { key: 'trim', fragment: trim },
     { key: 'yoke', fragment: yoke },
-    // Keyed by role rather than by kind, so swapping the actuator replaces the
-    // fragment in place instead of stacking a second one beside it.
     { key: 'actuator', fragment: actuators[actuatorKind(context)] },
     { key: 'positioner', fragment: positioner },
   ];
@@ -208,139 +183,101 @@ function failOpen(context: ElementContext): boolean {
   return stringValue(context, 'action') === 'normally-open';
 }
 
-const processPorts = (context: ElementContext): readonly PortDefinition[] => {
+function valvePorts(context: ElementContext): readonly PortDefinition[] {
   const medium = stringValue(context, 'medium', 'water');
   return [
-    { id: 'in', x: geometry.inletX, y: geometry.lineY, direction: 'left', kind: 'process', role: 'inlet', medium, label: 'Inlet' },
-    { id: 'out', x: geometry.outletX, y: geometry.lineY, direction: 'right', kind: 'process', role: 'outlet', medium, label: 'Outlet' },
-    { id: 'signal', x: geometry.signalX, y: geometry.signalY, direction: 'left', kind: 'signal', role: 'inlet', label: 'Control signal' },
+    { id: 'in', x: geometry.inletX, y: geometry.lineY, direction: 'left', kind: 'process', role: 'inlet', medium, label: 'Inlet flange' },
+    { id: 'out', x: geometry.outletX, y: geometry.lineY, direction: 'right', kind: 'process', role: 'outlet', medium, label: 'Outlet flange' },
+    { id: 'signal', x: geometry.signalX, y: geometry.signalY, direction: 'left', kind: 'signal', role: 'inlet', label: 'Positioner signal' },
+    ...(actuators[actuatorKind(context)].ports ?? []),
   ];
-};
+}
 
-const initialPortList: readonly PortDefinition[] = [
-  { id: 'in', x: geometry.inletX, y: geometry.lineY, direction: 'left', kind: 'process', role: 'inlet', medium: 'water', label: 'Inlet' },
-  { id: 'out', x: geometry.outletX, y: geometry.lineY, direction: 'right', kind: 'process', role: 'outlet', medium: 'water', label: 'Outlet' },
-  { id: 'signal', x: geometry.signalX, y: geometry.signalY, direction: 'left', kind: 'signal', role: 'inlet', label: 'Control signal' },
-  ...(pneumaticActuator.ports ?? []),
-];
+const defaultPorts: readonly PortDefinition[] = valvePorts({
+  host: undefined as unknown as HTMLElement,
+  attributes: { actuator: 'pneumatic', medium: 'water' },
+  states: {},
+});
 
 export const controlValveDefinition = defineElementDefinition({
   tagName: 'pe-control-valve',
   displayName: 'Control valve',
-  description: 'A globe control valve with a swappable pneumatic or electric actuator, separate actual and commanded travel, and an actuator-dependent port set.',
-  viewBox: '0 0 360 344',
-  template: svg`<defs>
-<linearGradient id="valve-shell" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4d6880"/><stop offset=".5" stop-color="#2a4155"/><stop offset="1" stop-color="#152838"/></linearGradient>
-<linearGradient id="valve-steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8196a8"/><stop offset=".42" stop-color="#41586c"/><stop offset="1" stop-color="#1d3042"/></linearGradient>
-<radialGradient id="valve-cavity"><stop stop-color="#14344a"/><stop offset=".74" stop-color="#0a1c2b"/><stop offset="1" stop-color="#06121d"/></radialGradient>
-<linearGradient id="valve-stem" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#eef6fb"/><stop offset=".44" stop-color="#8fa3b5"/><stop offset="1" stop-color="#304659"/></linearGradient>
-<filter id="valve-green" x="-150%" y="-150%" width="400%" height="400%"><feDropShadow dx="0" dy="0" stdDeviation="2.4" flood-color="#56e29a" flood-opacity=".7"/></filter>
-<filter id="valve-amber" x="-150%" y="-150%" width="400%" height="400%"><feDropShadow dx="0" dy="0" stdDeviation="2.4" flood-color="#ffbe4a" flood-opacity=".68"/></filter>
-<filter id="valve-red" x="-150%" y="-150%" width="400%" height="400%"><feDropShadow dx="0" dy="0" stdDeviation="2.6" flood-color="#ff5c74" flood-opacity=".74"/></filter>
-<filter id="valve-cyan" x="-150%" y="-150%" width="400%" height="400%"><feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#52c8ff" flood-opacity=".66"/></filter>
-</defs>
-
-<g data-mount="assembly"/>
-
-<g class="tag-panel" transform="translate(50 304)" data-part="tag-panel">
-  <rect class="tag-plate" width="260" height="34" rx="7" data-detail="standard"/>
-  <rect class="status-strip" data-part="status-strip" width="5" height="34" rx="2.5" data-detail="standard"/>
-  <text class="tag" x="16" y="22" data-detail="standard" data-part="label">FV-101</text>
-  <text class="meta" x="88" y="21" data-detail="standard" data-part="meta">FC · PNEUMATIC</text>
-  <text class="readout" x="248" y="22" text-anchor="end" data-detail="standard" data-part="readout">68 / 75 %</text>
+  description: 'A globe control valve drawn as an operator sees it: body, yoke, stem travel, actuator and positioner. Piping and flow belong to the scene.',
+  viewBox: '0 0 200 250',
+  // Below this the machine drawing stops being readable and the symbol is the
+  // honest rendering; measured at 96, 128 and 160 px.
+  detailBreakpoints: { symbol: 132, compact: 200 },
+  template: svg`<g data-mount="assembly"/>
+<g class="tag" data-part="tag" transform="translate(20 224)" data-detail="standard">
+  <rect class="tag-strip" data-part="status-strip" width="4" height="22" rx="1"/>
+  <text class="tag-label" x="12" y="16" data-part="label">FV-101</text>
+  <text class="tag-meta" x="72" y="15" data-part="meta" data-detail="fine">FC · AIR</text>
+  <text class="tag-readout" x="160" y="16" text-anchor="end" data-part="readout">68 / 75</text>
 </g>
 `,
   styles: `
-:host{display:inline-block;width:360px;max-width:100%;aspect-ratio:90/86;color:var(--elements-ink,#dbe7f3);container-type:inline-size;contain:layout style}
+:host{display:inline-block;width:200px;max-width:100%;aspect-ratio:4/5;color:var(--elements-ink,#dbe7f3);container-type:inline-size;contain:layout style}
 svg{width:100%;height:100%;overflow:visible}
 
-.nozzle,.bonnet,.packing,.packing-nut,.yoke-leg,.yoke-cap,.supply-tube,.power-conduit,.bracket,.handwheel-shaft{fill:url(#valve-steel);stroke:#a3b6c5;stroke-width:1.4}
-.flange{fill:url(#valve-steel);stroke:#c0ccd6;stroke-width:1.7}
-.bolt{fill:#263a4d;stroke:#bbc9d4;stroke-width:.7}
-.body-shell{fill:url(#valve-shell);stroke:#a7bac9;stroke-width:2.2}
-.body-cavity{fill:url(#valve-cavity);stroke:#6f8aa0;stroke-width:1.3}
-.body-web{fill:none;stroke:#54728a;stroke-width:1.4;stroke-opacity:.55}
-.seat{fill:#24425a;stroke:#9fd2ea;stroke-width:1.2}
-.channel-bore{fill:none;stroke:#071521;stroke-width:13;stroke-linecap:round}
-.channel-stream{fill:none;stroke:${'var(--elements-medium-water, #59d8ff)'};stroke-width:7;stroke-linecap:round;stroke-dasharray:11 9;opacity:.14;transition:opacity 200ms ease}
-.flow-arrows path{fill:#7fd6ff;fill-opacity:.5}
-.stem{fill:url(#valve-stem);stroke:#c8d4dd;stroke-width:1}
-.plug{fill:url(#valve-steel);stroke:#cfe4f0;stroke-width:1.4}
-.plug-guide{fill:#0d2030;stroke:#7d95a8;stroke-width:.8}
-.diaphragm-dome{fill:url(#valve-shell);stroke:#a7bac9;stroke-width:2}
-.dome-highlight{fill:none;stroke:#cfe9f8;stroke-opacity:.34;stroke-width:4;stroke-linecap:round}
-.diaphragm-rim,.diaphragm-case{fill:url(#valve-steel);stroke:#b3c4d1;stroke-width:1.5}
-.case-bolts circle{fill:#132435;stroke:#9fb2c2;stroke-width:.7}
-.spring-coil{fill:none;stroke:#8fb3cc;stroke-opacity:.6;stroke-width:2.4;stroke-linecap:round}
-.supply-gland,.power-gland,.signal-gland{fill:#16283a;stroke:#8ba0b3;stroke-width:1.2}
-.actuator-case,.actuator-lid,.motor-can,.gear-window{fill:url(#valve-shell);stroke:#a3b6c5;stroke-width:1.5}
-.gear-window{fill:#08151f}
-.motor-fin{stroke:#8ba0b3;stroke-width:1}
-.fan,.gear,.gear-small{transform-box:fill-box;transform-origin:center}
-.fan-blade{fill:#7fb6d4;fill-opacity:.62;stroke:#cbe6f5;stroke-width:.7}
-.gear,.gear-small{fill:none;stroke:#6fd0f2;stroke-width:2.6;stroke-dasharray:4 3.4;opacity:.72}
-.handwheel-rim{fill:none;stroke:#9fb6c8;stroke-width:3.4}
-.handwheel-hub{fill:#16283a;stroke:#9fb6c8;stroke-width:1.2}
-.handwheel-spoke{stroke:#7f97aa;stroke-width:1.4}
-.positioner-case{fill:url(#valve-shell);stroke:#a3b6c5;stroke-width:1.4}
-.positioner-screen{fill:#06120f;stroke:#3f6c5b;stroke-width:1.1}
-.positioner-readout{fill:#8df7c4;font:800 12px/1 ui-monospace,monospace}
-.positioner-led{fill:#25374b;stroke:#71879d;stroke-width:.8}
-.positioner-mode{fill:#7d93a8;font:700 7px/1 ui-monospace,monospace;letter-spacing:.08em}
-.actuator-mark{fill:#8ba0b4;font:700 6.4px/1 ui-monospace,monospace;letter-spacing:.12em}
-.scale-track{fill:#0d1e2c;stroke:#5c748a;stroke-width:1}
-.scale-tick{stroke:#7d93a8;stroke-width:1}
-.scale-label{fill:#7d93a8;font:700 6px/1 ui-monospace,monospace}
-.position-mark{fill:#6fe0ff;stroke:#d5f4ff;stroke-width:.8;filter:url(#valve-cyan)}
-.command-mark{fill:none;stroke:#ffd77a;stroke-width:1.6}
-.fail-mark{fill:#7d93a8;fill-opacity:.75}
-.travel-arrow{opacity:0}
-.travel-glyph{fill:#6fe0ff;filter:url(#valve-cyan)}
-.tag-plate{fill:#07121e;stroke:#4e6579;stroke-width:1}
-.status-strip{fill:#56e29a;filter:url(#valve-green)}
-.tag{fill:#edf4fa;font:700 14px/1 ui-monospace,monospace;letter-spacing:.08em}
-.meta{fill:#72889d;font:600 7px/1 ui-monospace,monospace;letter-spacing:.09em}
-.readout{fill:#71d8ff;font:700 10px/1 ui-monospace,monospace}
+/* Flat fills only: no gradients, no glows. Form is carried by silhouette and
+   one tone step between the machine and its metal fittings. */
+.body,.bonnet{fill:#2b4155;stroke:#93a9bc;stroke-width:2}
+.flange,.packing,.yoke-cap,.bracket,.supply-stub,.power-stub{fill:#3d566d;stroke:#93a9bc;stroke-width:1.6}
+.yoke-leg{fill:#35506a;stroke:#93a9bc;stroke-width:1.6}
+.actuator{fill:#35506a;stroke:#a3b8c9;stroke-width:2}
+.actuator-rim,.motor{fill:#3d566d;stroke:#a3b8c9;stroke-width:1.6}
+.stem{fill:#c9d8e4;stroke:#eef5fa;stroke-width:1}
+.travel-pointer{fill:#59d8ff;stroke:#d5f0ff;stroke-width:1}
+.scale-track{fill:#132434;stroke:#6d8399;stroke-width:1.4}
+.scale-label{fill:#7d93a8;font:600 7px/1 ui-monospace,monospace}
+.command-mark{fill:none;stroke:#ffbe4a;stroke-width:2}
+.handwheel-rim{fill:none;stroke:#9fb6c8;stroke-width:3}
+.handwheel-spoke{stroke:#7f97aa;stroke-width:1.6}
+.handwheel-hub{fill:#2b4155;stroke:#9fb6c8;stroke-width:1.4}
+.handwheel{transform-box:fill-box;transform-origin:center}
+.positioner{fill:#35506a;stroke:#a3b8c9;stroke-width:1.6}
+.positioner-screen{fill:#08160f;stroke:#3f6c5b;stroke-width:1.2}
+.positioner-readout{fill:#8df7c4;font:700 10px/1 ui-monospace,monospace}
+.positioner-led{fill:#2a3d4f;stroke:#7d93a8;stroke-width:1}
+.positioner-mode{fill:#7d93a8;font:600 6px/1 ui-monospace,monospace;letter-spacing:.1em}
+.tag-strip{fill:#56e29a}
+.tag-label{fill:#edf4fa;font:700 13px/1 ui-monospace,monospace;letter-spacing:.06em}
+.tag-meta{fill:#72889d;font:600 7px/1 ui-monospace,monospace;letter-spacing:.1em}
+.tag-readout{fill:#71d8ff;font:700 10px/1 ui-monospace,monospace}
 
-${mediumStyles((id) => `:host([medium="${id}"]) .channel-stream`, (color) => `stroke:${color}`)}
+.symbol-body{fill:#2b4155;stroke:#a3b8c9;stroke-width:3}
+.symbol-stem{fill:#a3b8c9}
+.symbol-actuator{fill:#35506a;stroke:#a3b8c9;stroke-width:3}
+.symbol-mark{fill:#dbe7f3;font:700 16px/1 ui-monospace,monospace}
 
-:host([data-state~="flowing"]) .channel-stream{opacity:.95}
-:host([data-state~="closed"]) .seat{stroke:#ff9db0}
-:host([data-state~="closed"]) .flow-arrows path{fill-opacity:.14}
-:host([data-state~="reverse"]) .flow-arrows{transform:rotate(180deg);transform-box:fill-box;transform-origin:center}
-:host([data-state~="no-flow"]) .flow-arrows{opacity:.16}
-:host([data-state~="travelling"]) .travel-arrow{opacity:1}
-:host([data-state~="closing"]) .travel-glyph{transform:rotate(180deg);transform-box:fill-box;transform-origin:center}
-:host([data-state~="fail-open"]) .fail-mark{fill:#7fe0b4;fill-opacity:1}
-:host([data-state~="fail-open"]) .body-shell{stroke-dasharray:none;stroke:#8fd7b4}
-:host([data-state~="powered"]) .positioner-led{fill:#56e29a;stroke:#b6ffd6;filter:url(#valve-green)}
+:host([data-state~="open"]) .body,:host([data-state~="open"]) .symbol-body{fill:#1d3346}
+:host([data-state~="fail-open"]) .scale-track{stroke:#7fe0b4}
+:host([data-state~="powered"]) .positioner-led{fill:#56e29a;stroke:#b6ffd6}
 :host([data-state~="manual"]) .positioner-mode{fill:#ffbe4a}
-:host([data-state~="manual"]) .command-mark{stroke:#8ba0b4;stroke-dasharray:3 2}
 :host([data-state~="manual"]) .handwheel-rim{stroke:#ffbe4a}
-:host([data-state~="stuck"]) .stem{stroke:var(--elements-alarm,#ff5c74)}
-:host([data-state~="stuck"]) .position-mark{fill:var(--elements-alarm,#ff5c74);filter:url(#valve-red)}
-:host([data-state~="warning"]) .status-strip{fill:var(--elements-warning,#ffbe4a);filter:url(#valve-amber)}
-:host([data-state~="alarm"]) .status-strip{fill:var(--elements-alarm,#ff5c74);filter:url(#valve-red)}
-:host([data-state~="alarm"]) .body-shell{stroke:var(--elements-alarm,#ff5c74)}
+:host([data-state~="stuck"]) .travel-pointer{fill:var(--elements-alarm,#ff5c74);stroke:#ffd4dc}
+:host([data-state~="stuck"]) .stem{fill:var(--elements-alarm,#ff5c74)}
+:host([data-state~="warning"]) .tag-strip{fill:var(--elements-warning,#ffbe4a)}
+:host([data-state~="alarm"]) .tag-strip{fill:var(--elements-alarm,#ff5c74)}
+:host([data-state~="alarm"]) .body,:host([data-state~="alarm"]) .symbol-body{stroke:var(--elements-alarm,#ff5c74)}
 :host([data-state~="bad-quality"]) svg{opacity:.42;filter:grayscale(1)}
-:host([data-state~="stale"]) svg{opacity:.64;filter:saturate(.35)}
-${detailStyles({ hideFineBelow: 320, hideStandardBelow: 220 })}
+:host([data-state~="stale"]) svg{opacity:.64}
+${detailStyles({ hideFineBelow: 190, hideStandardBelow: 130 })}
 `,
   attributes: {
-    label: attribute.string('label', { defaultValue: 'FV-101', description: 'Equipment label.' }),
-    position: attribute.number('position', { defaultValue: 0, minimum: 0, maximum: 100, step: 1, unit: '%', cssVariable: '--valve-position', description: 'Actual travel from 0 (closed) to 100 (open).' }),
-    command: attribute.number('command', { defaultValue: 0, minimum: 0, maximum: 100, step: 1, unit: '%', description: 'Commanded travel from 0 (closed) to 100 (open).' }),
-    actuator: attribute.enum('actuator', ['pneumatic', 'electric'] as const, { defaultValue: 'pneumatic', description: 'Actuator type. Swaps the actuator fragment and the auxiliary port.' }),
+    label: attribute.string('label', { defaultValue: 'FV-101', description: 'Equipment tag.' }),
+    position: attribute.number('position', { defaultValue: 0, minimum: 0, maximum: 100, step: 1, unit: '%', cssVariable: '--valve-position', description: 'Actual travel from 0 (shut) to 100 (open).' }),
+    command: attribute.number('command', { defaultValue: 0, minimum: 0, maximum: 100, step: 1, unit: '%', description: 'Commanded travel from 0 (shut) to 100 (open).' }),
+    actuator: attribute.enum('actuator', ['pneumatic', 'electric'] as const, { defaultValue: 'pneumatic', description: 'Actuator type. Swaps the actuator and its auxiliary port.' }),
     action: attribute.enum('action', ['normally-closed', 'normally-open'] as const, { defaultValue: 'normally-closed', description: 'Fail position on loss of signal or motive power.' }),
-    flow: attribute.enum('flow', ['forward', 'reverse', 'none'] as const, { defaultValue: 'forward', description: 'Direction of process flow through the body.' }),
     medium: attribute.enum('medium', mediumIds, { defaultValue: 'water', description: 'Process substance. Propagates to the inlet and outlet ports.' }),
-    mode: attribute.enum('mode', ['auto', 'manual'] as const, { defaultValue: 'auto', description: 'Auto follows the command, manual follows local intervention.' }),
+    mode: attribute.enum('mode', ['auto', 'manual'] as const, { defaultValue: 'auto', description: 'Auto follows the command, manual follows the handwheel.' }),
     deadband: attribute.number('deadband', { defaultValue: 0.5, minimum: 0, step: 0.1, unit: '%', description: 'Travel difference below which the valve counts as settled.' }),
-    stuck: attribute.boolean('stuck', { description: 'Whether the trim has stopped responding to the command.' }),
+    stuck: attribute.boolean('stuck', { description: 'Whether the trim has stopped following the command.' }),
     powered: attribute.boolean('powered', { description: 'Whether actuator power or instrument air is available.' }),
     status: attribute.enum('status', ['idle', 'normal', 'warning', 'alarm'] as const, { defaultValue: 'idle', description: 'Process status independent from data quality.' }),
     quality: attribute.enum('quality', ['good', 'stale', 'bad'] as const, { defaultValue: 'good', description: 'Telemetry quality independent from process status.' }),
-    detail: attribute.enum('detail', ['auto', 'full', 'compact', 'symbol'] as const, { defaultValue: 'auto', description: 'Visual level of detail.' }),
+    detail: attribute.enum('detail', ['auto', 'full', 'compact', 'symbol'] as const, { defaultValue: 'auto', description: 'Visual level of detail. Symbol swaps to the P&ID symbol.' }),
   },
   states: {
     open: (context) => position(context) > numberValue(context, 'deadband'),
@@ -353,9 +290,6 @@ ${detailStyles({ hideFineBelow: 320, hideStandardBelow: 220 })}
     powered: (context) => booleanValue(context, 'powered'),
     electric: (context) => stringValue(context, 'actuator') === 'electric',
     'fail-open': failOpen,
-    flowing: (context) => stringValue(context, 'flow') !== 'none' && position(context) > numberValue(context, 'deadband'),
-    reverse: (context) => stringValue(context, 'flow') === 'reverse',
-    'no-flow': (context) => stringValue(context, 'flow') === 'none',
     warning: (context) => stringValue(context, 'status') === 'warning' || booleanValue(context, 'stuck'),
     alarm: (context) => stringValue(context, 'status') === 'alarm',
     stale: (context) => stringValue(context, 'quality') === 'stale',
@@ -364,18 +298,15 @@ ${detailStyles({ hideFineBelow: 320, hideStandardBelow: 220 })}
   collections: [{ mount: 'assembly', items: valveAssembly }],
   bindings: [
     bind.text('label', (context) => stringValue(context, 'label'), ['label']),
-    bind.text('meta', (context) => [
-      failOpen(context) ? 'FO' : 'FC',
-      stringValue(context, 'actuator').toUpperCase(),
-    ].join(' · '), ['action', 'actuator']),
-    bind.text('readout', (context) => `${Math.round(position(context))} / ${Math.round(command(context))} %`, ['position', 'command']),
-    bind.text('positioner-readout', (context) => `${Math.round(position(context))}%`, ['position']),
+    bind.text('meta', (context) => `${failOpen(context) ? 'FO' : 'FC'} · ${stringValue(context, 'actuator') === 'electric' ? 'MOV' : 'AIR'}`, ['action', 'actuator']),
+    bind.text('readout', (context) => `${Math.round(position(context))} / ${Math.round(command(context))}`, ['position', 'command']),
+    bind.text('positioner-readout', (context) => String(Math.round(position(context))), ['position']),
     bind.text('mode-readout', (context) => stringValue(context, 'mode').toUpperCase(), ['mode']),
-    // The fail mark sits at the travel the valve springs to without power.
-    bind.attribute('fail-mark', 'transform', (context) => `translate(0 ${failOpen(context) ? -geometry.scaleHeight : 0})`, ['action']),
   ],
   motions: [
     {
+      // The stem and its pointer are one physical movement, so they share one
+      // motion and travel the same distance.
       id: 'stem-travel', type: 'scrub', target: 'stem-travel',
       progress: (context) => position(context) / 100,
       settle: 420,
@@ -383,105 +314,47 @@ ${detailStyles({ hideFineBelow: 320, hideStandardBelow: 220 })}
       options: { duration: 1000, fill: 'both' }, reducedMotion: 'preserve',
     },
     {
-      id: 'position-marker', type: 'scrub', target: 'position-marker',
-      progress: (context) => position(context) / 100,
-      settle: 420,
-      keyframes: [{ transform: 'translateY(0px)' }, { transform: `translateY(-${geometry.scaleHeight}px)` }],
-      options: { duration: 1000, fill: 'both' }, reducedMotion: 'preserve',
-    },
-    {
-      // The setpoint marker snaps: a command is a step, not a movement.
+      // A setpoint is a step, not a movement: the marker does not settle.
       id: 'command-marker', type: 'scrub', target: 'command-marker',
       progress: (context) => command(context) / 100,
-      keyframes: [{ transform: 'translateY(0px)' }, { transform: `translateY(-${geometry.scaleHeight}px)` }],
+      keyframes: [{ transform: 'translateY(0px)' }, { transform: `translateY(-${geometry.stroke}px)` }],
       options: { duration: 1000, fill: 'both' }, reducedMotion: 'preserve',
     },
     {
-      id: 'seat-flow', type: 'loop', target: 'flow-stream',
-      active: (context) => stateValue(context, 'flowing'),
-      playbackRate: (context) => {
-        const rate = Math.max(0.12, position(context) / 100);
-        return stateValue(context, 'reverse') ? -rate : rate;
-      },
-      phase: 'process-flow',
-      keyframes: [{ strokeDashoffset: 0 }, { strokeDashoffset: -20 }],
-      options: { duration: 620, iterations: Infinity, easing: 'linear' }, reducedMotion: 'freeze',
-    },
-    {
-      id: 'travel-pulse', type: 'loop', target: 'travel-arrow',
-      active: (context) => stateValue(context, 'travelling'),
-      keyframes: [{ opacity: 0.25 }, { opacity: 1 }, { opacity: 0.25 }],
-      options: { duration: 700, iterations: Infinity, easing: 'ease-in-out' }, reducedMotion: 'finish',
-    },
-    {
-      // Nested inside the scrub target so the shudder adds to the travel
-      // instead of overwriting it.
-      id: 'stuck-shudder', type: 'loop', target: 'stem-shudder',
-      active: (context) => stateValue(context, 'stuck'),
-      keyframes: [{ transform: 'translateX(-0.7px)' }, { transform: 'translateX(0.7px)' }],
-      options: { duration: 90, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }, reducedMotion: 'freeze',
-    },
-    {
-      id: 'actuator-breath', type: 'loop', target: 'actuator-breath',
-      active: (context) => stateValue(context, 'travelling') && !stateValue(context, 'electric'),
-      keyframes: [{ transform: 'translateY(-0.9px)' }, { transform: 'translateY(0.9px)' }],
-      options: { duration: 340, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }, reducedMotion: 'freeze',
-    },
-    {
-      id: 'actuator-fan', type: 'loop', target: 'actuator-fan',
-      active: (context) => stateValue(context, 'travelling') && stateValue(context, 'electric'),
-      keyframes: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
-      options: { duration: 260, iterations: Infinity, easing: 'linear' }, reducedMotion: 'freeze',
-    },
-    {
-      id: 'gear-turn', type: 'loop', target: 'gear',
-      active: (context) => stateValue(context, 'travelling') && stateValue(context, 'electric'),
+      // Only turns when somebody is turning it.
+      id: 'handwheel-turn', type: 'loop', target: 'handwheel',
+      active: (context) => stateValue(context, 'manual') && stateValue(context, 'travelling'),
       playbackRate: (context) => (stateValue(context, 'closing') ? -1 : 1),
       keyframes: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
-      options: { duration: 2600, iterations: Infinity, easing: 'linear' }, reducedMotion: 'freeze',
+      options: { duration: 2400, iterations: Infinity, easing: 'linear' }, reducedMotion: 'freeze',
     },
     {
-      id: 'gear-small-turn', type: 'loop', target: 'gear-small',
-      active: (context) => stateValue(context, 'travelling') && stateValue(context, 'electric'),
-      playbackRate: (context) => (stateValue(context, 'closing') ? 1.7 : -1.7),
-      keyframes: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
-      options: { duration: 2600, iterations: Infinity, easing: 'linear' }, reducedMotion: 'freeze',
-    },
-    {
-      id: 'command-step', type: 'transition', target: 'positioner-led',
+      id: 'command-received', type: 'transition', target: 'positioner-led',
       trigger: (context) => Math.round(command(context)),
       enabled: (context) => stateValue(context, 'powered'),
-      keyframes: [{ opacity: 0.3, transform: 'scale(1)' }, { opacity: 1, transform: 'scale(1.5)' }, { opacity: 1, transform: 'scale(1)' }],
-      options: { duration: 260, easing: 'ease-out' }, reducedMotion: 'finish',
+      keyframes: [{ opacity: 0.3 }, { opacity: 1 }],
+      options: { duration: 240, easing: 'ease-out' }, reducedMotion: 'finish',
     },
     {
       id: 'alarm-pulse', type: 'loop', target: 'status-strip',
       active: (context) => stateValue(context, 'alarm'),
       keyframes: [{ opacity: 0.3 }, { opacity: 1 }, { opacity: 0.3 }],
-      options: { duration: 720, iterations: Infinity, easing: 'ease-in-out' }, reducedMotion: 'finish',
+      options: { duration: 760, iterations: Infinity, easing: 'ease-in-out' }, reducedMotion: 'finish',
     },
   ],
-  // The auxiliary port belongs to whichever actuator is mounted, and the
-  // process ports carry the configured medium out to the connected pipes.
-  ports: ports(initialPortList, (context) => [
-    ...processPorts(context),
-    ...(actuators[actuatorKind(context)].ports ?? []),
-  ]),
+  ports: ports(defaultPorts, valvePorts),
   parts: [
-    { name: 'body-shell', description: 'Globe valve body.', detail: 'essential' },
-    { name: 'stem-travel', description: 'Plug and stem assembly driven by actual travel.', detail: 'essential' },
-    { name: 'stem-shudder', description: 'Nested carrier for stuck-trim vibration.', detail: 'essential' },
-    { name: 'flow-stream', description: 'Animated process stream through the seat.', detail: 'essential' },
-    { name: 'position-marker', description: 'Actual travel marker on the travel scale.', detail: 'standard' },
-    { name: 'command-marker', description: 'Commanded travel marker on the travel scale.', detail: 'standard' },
-    { name: 'fail-mark', description: 'Travel the valve springs to without power.', detail: 'standard' },
-    { name: 'travel-arrow', description: 'Direction indicator while the valve strokes.', detail: 'standard' },
+    { name: 'body', description: 'Valve body silhouette.', detail: 'essential' },
+    { name: 'stem-travel', description: 'Stem and the travel pointer clamped to it.', detail: 'essential' },
+    { name: 'travel-pointer', description: 'Actual travel read against the scale.', detail: 'essential' },
+    { name: 'command-marker', description: 'Commanded travel on the same scale.', detail: 'standard' },
+    { name: 'travel-scale', description: 'Travel scale on the yoke.', detail: 'standard' },
     { name: 'positioner-led', description: 'Positioner power and command indicator.', detail: 'essential' },
     { name: 'positioner-readout', detail: 'standard' },
-    { name: 'handwheel', description: 'Manual override handwheel on the electric actuator.', detail: 'standard' },
+    { name: 'handwheel', description: 'Manual override on the electric actuator.', detail: 'standard' },
     { name: 'status-strip', detail: 'standard' },
     { name: 'label', detail: 'standard' },
     { name: 'readout', detail: 'standard' },
-    { name: 'meta', detail: 'standard' },
+    { name: 'meta', detail: 'fine' },
   ],
 });

@@ -2,7 +2,13 @@ import type { AttributeDefinition } from './attributes.js';
 import type { BindingDefinition } from './bindings.js';
 import type { CollectionDefinition } from './composition/index.js';
 import type { MotionDefinition } from './motion/index.js';
-import type { CssPartDefinition, ElementContext, ElementTagName, PortDefinition } from './types.js';
+import type {
+  CssPartDefinition,
+  DetailLevel,
+  ElementContext,
+  ElementTagName,
+  PortDefinition,
+} from './types.js';
 import type { SvgTemplate } from './template.js';
 
 export interface DynamicViewBox {
@@ -92,6 +98,32 @@ export function ports(
   return Object.freeze({ initial, read });
 }
 
+/**
+ * Widths, in CSS pixels, at or below which the element stops showing the
+ * machine and shows a simpler drawing instead. Hiding parts only goes so far:
+ * past a point the honest rendering is a different drawing altogether.
+ */
+export interface DetailBreakpoints {
+  readonly symbol?: number;
+  readonly compact?: number;
+}
+
+/**
+ * An explicit `detail` wins; `auto` asks the measured width. Without
+ * breakpoints, or before the element has been laid out, the answer is `full`.
+ */
+export function resolveDetailLevel(
+  declared: string | null,
+  width: number,
+  breakpoints: DetailBreakpoints | undefined,
+): DetailLevel {
+  if (declared === 'full' || declared === 'compact' || declared === 'symbol') return declared;
+  if (breakpoints === undefined || width <= 0) return 'full';
+  if (breakpoints.symbol !== undefined && width <= breakpoints.symbol) return 'symbol';
+  if (breakpoints.compact !== undefined && width <= breakpoints.compact) return 'compact';
+  return 'full';
+}
+
 export function portSignature(list: readonly PortDefinition[]): string {
   return list
     .map((port) => `${port.id}@${port.x},${port.y},${port.direction},${port.kind ?? ''},${port.role ?? ''},${port.medium ?? ''}`)
@@ -103,6 +135,7 @@ export interface ElementDefinition {
   readonly displayName: string;
   readonly description?: string;
   readonly viewBox: ViewBoxDefinition;
+  readonly detailBreakpoints?: DetailBreakpoints;
   readonly template: SvgTemplate;
   readonly styles?: string;
   readonly attributes: Readonly<Record<string, AttributeDefinition<unknown>>>;

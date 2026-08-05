@@ -197,11 +197,49 @@ const anchor = tapPolyline(trunk, towards);   // { point, direction }
 
 Every polyline of a run is emitted as one multi-subpath `d`, so a tee is a single stroked element per layer and the flow dash restarts on each branch.
 
+## What a device element is
+
+A device element is the functional twin of a machine, not a picture of one. It carries only what a person interacts with:
+
+```text
+recognisable silhouette · physical inlets and outlets · indicators
+display · marking · controls · the parts that really move
+```
+
+and none of what they do not:
+
+```text
+internal mechanism you cannot see · junction boxes · surrounding pipework
+environment · incidental process detail
+```
+
+Piping is never part of a device. The device offers ports; the scene routes the lines and owns everything that flows through them.
+
+```html
+<pe-tank id="tank"></pe-tank>
+<pe-pump id="pump"></pe-pump>
+<el-pipe from="tank:out" to="pump:in"></el-pipe>
+```
+
+The rules that can be checked without eyes are enforced in `packages/process-elements/test/drawing-rules.test.ts`: flat fills only — no gradients, filters or glows; no flow or pipe parts inside a device; every animated part must be a declared part, so each movement had to be justified; and a motion budget. Elements not yet redrawn sit on an explicit legacy list, and a test asserts that list stays exactly what it says, so nothing joins it quietly.
+
+Redrawing a device follows a fixed loop: find real references, pick out what a person touches, draw the silhouette, render `full`/`compact`/`symbol`, check it at 96–160 px, add states, add only motion that a real machine performs, put it in a scene, look at it — and only then change the core. A first version is never rescued with more filters and more paths; if the silhouette is wrong the SVG is drawn again.
+
+### Size chooses the drawing
+
+Hiding parts only goes so far. Below roughly 130 px a machine drawing is mush while the P&ID symbol is still perfectly readable, so past that point the honest rendering is a different drawing, not a smaller one.
+
+```ts
+detailBreakpoints: { symbol: 132, compact: 200 }
+```
+
+The runtime measures the element, resolves an effective level, reflects it as `data-detail-level` and passes it in `ElementContext.detail`, so a collection can swap geometry rather than only toggling visibility. An explicit `detail` attribute always wins over the measurement. Variants are chosen as fragments rather than by hiding parts: visibility is contested by the shared detail stylesheet, a fragment choice is not.
+
 ## Reference elements
 
 `pe-pump` exercises layered hydraulic geometry, mechanical motion, process flow, quality and alarm states, and responsive level of detail.
 
-`pe-control-valve` exercises a swappable actuator fragment whose auxiliary port changes with it, separate actual and commanded travel on one scale, settled stem scrubbing, `opening`/`closing`/`stuck`/`manual` states, and normally-open versus normally-closed rendering.
+`pe-control-valve` is the first element drawn under the rules above, and the reference for the rest. Body between two flange faces, bonnet, yoke, the stem with the travel pointer clamped to it, actuator and positioner — no plug cutaway, no pipe, no flow. Its swappable actuator changes the auxiliary port with it, actual and commanded travel share one scale, and it becomes the P&ID symbol when it gets small.
 
 `pe-tank` exercises clip-path liquid with a nested surface wave, warning bands and alarm marks whose geometry follows the configured limits, a generated nozzle set that adds matching ports, optional agitator and heater, and vertical or horizontal bodies with a context-derived viewport.
 

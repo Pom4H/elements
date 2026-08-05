@@ -5,6 +5,9 @@ export type Primitive = string | number | boolean | null | undefined;
 export type AttributeValueMap = Record<string, unknown>;
 export type StateValueMap = Record<string, boolean>;
 
+/** The drawing an element is currently showing, once size has had its say. */
+export type DetailLevel = 'full' | 'compact' | 'symbol';
+
 export interface ElementContext<
   TAttributes extends AttributeValueMap = AttributeValueMap,
   TStates extends StateValueMap = StateValueMap,
@@ -12,6 +15,11 @@ export interface ElementContext<
   readonly host: HTMLElement;
   readonly attributes: Readonly<TAttributes>;
   readonly states: Readonly<TStates>;
+  /**
+   * Resolved level of detail. The runtime always supplies it; a context built
+   * by hand without a measured host reads as `full`.
+   */
+  readonly detail?: DetailLevel;
 }
 
 export type ContextReader<T> = (context: ElementContext) => T;
