@@ -10,97 +10,159 @@ import { booleanValue, numberValue, stateValue, stringValue } from '../shared.js
 
 const hydraulic = defineFragment({
   name: 'pump-hydraulic',
-  template: svg`<g data-part="process-body"><path class="outlet tech-stroke" d="M118 24 H161 V73 H128 V46 H118 Z"/><rect class="flange tech-stroke" x="112" y="18" width="56" height="12" rx="3"/><circle class="bolt" cx="120" cy="24" r="2" data-detail="fine"/><circle class="bolt" cx="160" cy="24" r="2" data-detail="fine"/>
-<path class="inlet tech-stroke" d="M22 108 H78 V143 H22 Z"/><rect class="flange tech-stroke" x="14" y="101" width="15" height="49" rx="3"/><circle class="bolt" cx="21.5" cy="109" r="2" data-detail="fine"/><circle class="bolt" cx="21.5" cy="142" r="2" data-detail="fine"/>
-<path class="body tech-stroke" d="M74 80 C95 51 139 44 172 62 C198 77 210 104 205 131 C202 148 193 162 177 175 C157 192 125 197 100 187 C72 176 56 151 58 123 C59 106 64 92 74 80 Z M179 91 C190 100 194 113 192 127 C190 140 183 151 172 160 C158 172 137 176 120 169 C101 162 91 146 92 127 C93 109 101 95 116 87 C136 76 162 78 179 91 Z" fill-rule="evenodd" data-part="housing"/>
-<path class="body-highlight" d="M78 83 C98 58 136 51 166 65" data-detail="fine"/><circle class="chamber-inner" cx="139" cy="127" r="47"/>
-<circle class="impeller-ring" cx="139" cy="127" r="37"/><circle class="status-halo" cx="139" cy="127" r="55" data-part="status-halo"/>
+  template: svg`
+<path class="base" d="M103 222 H450 L466 245 H87 Z"/>
+<rect class="base-rail" x="104" y="245" width="344" height="12" rx="4"/>
+
+<g data-part="process-body">
+  <path class="suction" d="M20 137 H102 V165 H20 Z"/>
+  <rect class="flange" x="8" y="128" width="18" height="46" rx="3"/>
+  <circle class="bolt" cx="17" cy="136" r="2" data-detail="fine"/>
+  <circle class="bolt" cx="17" cy="166" r="2" data-detail="fine"/>
+
+  <path class="shell" data-part="housing" fill-rule="evenodd" d="M104 120 C116 76 151 53 193 55 C235 57 269 84 279 124 C287 154 279 184 258 204 C240 221 216 229 189 226 H146 C114 222 92 196 90 164 C89 145 94 131 104 120 Z M132 143 C140 116 162 98 190 98 C221 98 246 122 246 152 C246 182 222 206 191 206 C160 206 136 185 132 157 Z"/>
+  <path class="shell-highlight" d="M113 117 C128 81 158 65 193 67 C231 69 257 93 267 124" data-detail="fine"/>
+
+  <path class="discharge" d="M221 74 C248 87 268 105 279 129 L279 42 H322 V75 H300 V133 H279 C270 105 251 86 221 74 Z"/>
+  <rect class="flange" x="272" y="24" width="58" height="19" rx="3"/>
+  <circle class="bolt" cx="282" cy="33.5" r="2" data-detail="fine"/>
+  <circle class="bolt" cx="320" cy="33.5" r="2" data-detail="fine"/>
+
+  <circle class="cavity" cx="190" cy="152" r="55"/>
+  <circle class="inspection" cx="190" cy="152" r="42"/>
+  <circle class="inspection-ring" cx="190" cy="152" r="47" data-detail="fine"/>
+
+  <path class="flow-under" d="M8 151 H145 C157 151 169 151 180 148 C199 143 215 130 224 111 C236 87 253 76 278 76 H301 V24"/>
+  <path class="flow-path" data-part="flow-path" d="M8 151 H145 C157 151 169 151 180 148 C199 143 215 130 224 111 C236 87 253 76 278 76 H301 V24"/>
+
+  <g class="status-beacon" data-part="status-beacon" transform="translate(275 104)">
+    <circle class="status-halo" data-part="status-halo" r="10"/>
+    <circle class="status-dot" r="3.5"/>
+  </g>
 </g>
 
-<path class="flow-path" d="M31 125 H84 C93 125 95 127 101 127 C112 127 118 119 127 114 C143 105 161 107 170 118 C177 126 175 139 166 146 C158 151 149 154 144 162 C140 169 140 178 140 185 M168 81 C159 75 151 71 145 60 C141 52 140 43 140 30" data-part="flow-path"/>
-
-<path class="direction" d="M50 119 l10 6 -10 6 z"/>
-<path class="direction" d="M134 48 l6 -10 6 10 z"/>
+<path class="foot" d="M125 222 L132 204 H164 L170 222 Z"/>
+<path class="foot" d="M222 222 L228 206 H256 L264 222 Z"/>
 `,
 });
 
-const rotor = defineFragment({
-  name: 'pump-rotor',
-  template: svg`<g data-part="rotor" class="impeller"><path d="M139 91 C150 96 158 107 158 119 C169 112 181 114 188 123 C181 134 169 138 158 133 C162 145 158 157 148 164 C137 158 131 147 133 135 C122 143 110 142 101 133 C105 121 115 113 128 113 C121 103 124 92 139 91 Z"/><circle class="hub" cx="139" cy="127" r="9"/></g>
+const impeller = defineFragment({
+  name: 'pump-impeller',
+  template: svg`
+<g class="rotor" data-part="rotor" transform="translate(190 152)">
+  <circle class="impeller-shroud" r="34"/>
+  <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32"/>
+  <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(60)"/>
+  <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(120)"/>
+  <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(180)"/>
+  <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(240)"/>
+  <path class="vane" d="M7 -5 C18 -13 25 -24 23 -32" transform="rotate(300)"/>
+  <circle class="eye" r="10"/>
+</g>
 `,
 });
 
-const motor = defineFragment({
-  name: 'pump-motor',
-  template: svg`<rect class="shaft" x="184" y="119" width="48" height="16" rx="5" data-part="shaft"/>
+const drive = defineFragment({
+  name: 'pump-drive',
+  template: svg`
+<path class="bearing" d="M244 135 H285 V169 H244 C250 159 251 146 244 135 Z"/>
+<rect class="shaft" x="274" y="145" width="43" height="14" rx="4" data-part="shaft"/>
 
-<g class="motor-group" data-part="motor-group"><rect class="motor-shell" x="220" y="78" width="106" height="95" rx="18"/><path class="motor-end" d="M306 84 C326 94 334 111 334 126 C334 145 326 161 306 169 Z"/><g>
-<rect class="fin" x="232" y="83" width="5" height="85" rx="2"/><rect class="fin" x="243" y="81" width="5" height="89" rx="2"/><rect class="fin" x="254" y="80" width="5" height="91" rx="2"/><rect class="fin" x="265" y="80" width="5" height="91" rx="2"/><rect class="fin" x="276" y="80" width="5" height="91" rx="2"/><rect class="fin" x="287" y="81" width="5" height="89" rx="2"/><rect class="fin" x="298" y="83" width="5" height="85" rx="2"/></g>
-<rect class="terminal-box" x="248" y="62" width="48" height="24" rx="5"/><rect class="terminal-box" x="256" y="55" width="32" height="10" rx="3"/><path class="foot" d="M235 170 H265 L270 188 H228 Z"/><path class="foot" d="M287 170 H317 L324 188 H280 Z"/></g>
+<g class="coupling" data-part="coupling" transform="translate(312 152)">
+  <circle class="coupling-rim" r="14"/>
+  <circle class="coupling-hub" r="7"/>
+  <path class="coupling-mark" d="M-10 0 H10 M0 -10 V10"/>
+</g>
+
+<path class="guard" d="M298 126 H344 C354 126 361 134 361 144 V166 C361 176 354 184 344 184 H298 Z"/>
+<g class="guard-vents" data-detail="fine">
+  <circle cx="315" cy="141" r="2.5"/><circle cx="330" cy="141" r="2.5"/><circle cx="345" cy="141" r="2.5"/>
+  <circle cx="315" cy="155" r="2.5"/><circle cx="330" cy="155" r="2.5"/><circle cx="345" cy="155" r="2.5"/>
+  <circle cx="315" cy="169" r="2.5"/><circle cx="330" cy="169" r="2.5"/><circle cx="345" cy="169" r="2.5"/>
+</g>
+
+<g class="motor-group" data-part="motor-group">
+  <rect class="motor-shell" x="350" y="103" width="104" height="98" rx="18"/>
+  <path class="motor-end" d="M440 110 C462 122 472 137 472 151 C472 170 462 188 440 196 Z"/>
+  <g class="motor-fins">
+    <rect x="363" y="109" width="5" height="86" rx="2"/>
+    <rect x="374" y="106" width="5" height="92" rx="2"/>
+    <rect x="385" y="105" width="5" height="94" rx="2"/>
+    <rect x="396" y="105" width="5" height="94" rx="2"/>
+    <rect x="407" y="105" width="5" height="94" rx="2"/>
+    <rect x="418" y="106" width="5" height="92" rx="2"/>
+    <rect x="429" y="109" width="5" height="86" rx="2"/>
+  </g>
+  <rect class="terminal-box" x="377" y="78" width="50" height="28" rx="5"/>
+  <rect class="terminal-lid" x="387" y="68" width="30" height="12" rx="3" data-detail="fine"/>
+  <path class="foot" d="M365 201 H393 L399 222 H359 Z"/>
+  <path class="foot" d="M420 201 H447 L455 222 H413 Z"/>
+</g>
 `,
 });
 
 const assembly: readonly FragmentPlacement[] = [
   { key: 'hydraulic', fragment: hydraulic },
-  { key: 'rotor', fragment: rotor },
-  { key: 'motor', fragment: motor },
+  { key: 'impeller', fragment: impeller },
+  { key: 'drive', fragment: drive },
 ];
 
 export const pumpDefinition = defineElementDefinition({
   tagName: 'pe-pump',
-  displayName: 'Centrifugal pump',
-  description: 'A high-detail centrifugal pump with semantic level of detail and coordinated mechanical and process motion.',
-  viewBox: '0 0 360 240',
+  displayName: 'End-suction centrifugal pump',
+  description: 'A horizontal end-suction pump with a volute casing, tangential discharge, rotating shrouded impeller, coupling and motor.',
+  viewBox: '0 0 480 280',
   template: svg`<defs>
-<linearGradient id="pump-shell" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#42586f"/><stop offset=".44" stop-color="#24364a"/><stop offset="1" stop-color="#132130"/></linearGradient>
-<radialGradient id="pump-cavity"><stop stop-color="#1b3448"/><stop offset=".72" stop-color="#0d1a27"/><stop offset="1" stop-color="#07111b"/></radialGradient>
-<linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#70869a"/><stop offset=".4" stop-color="#2f4357"/><stop offset="1" stop-color="#182736"/></linearGradient>
-<linearGradient id="flange" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#60778d"/><stop offset=".5" stop-color="#293b4e"/><stop offset="1" stop-color="#142333"/></linearGradient>
-<linearGradient id="motor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#39516a"/><stop offset=".48" stop-color="#22364a"/><stop offset="1" stop-color="#132435"/></linearGradient>
-<linearGradient id="shaft" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#eef6fb"/><stop offset=".42" stop-color="#7d92a5"/><stop offset="1" stop-color="#25384b"/></linearGradient>
-<linearGradient id="impeller" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8be5ff"/><stop offset=".45" stop-color="#35bdf5"/><stop offset="1" stop-color="#197db1"/></linearGradient>
-<radialGradient id="hub"><stop stop-color="#e8fbff"/><stop offset=".35" stop-color="#6bcfff"/><stop offset="1" stop-color="#1a79a7"/></radialGradient>
-<filter id="shadow" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#000" flood-opacity=".42"/></filter>
-<filter id="soft-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-<filter id="cyan-glow" x="-60%" y="-60%" width="220%" height="220%"><feDropShadow dx="0" dy="0" stdDeviation="2.1" flood-color="#52c8ff" flood-opacity=".6"/></filter>
-<filter id="green-glow" x="-60%" y="-60%" width="220%" height="220%"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#58e39a" flood-opacity=".55"/></filter>
-<filter id="red-glow" x="-60%" y="-60%" width="220%" height="220%"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#ff5c74" flood-opacity=".62"/></filter><filter id="amber-glow" x="-60%" y="-60%" width="220%" height="220%"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#ffbe4a" flood-opacity=".58"/></filter></defs>
+<linearGradient id="pump-shell" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#48647c"/><stop offset=".5" stop-color="#273f54"/><stop offset="1" stop-color="#132534"/></linearGradient>
+<radialGradient id="pump-cavity"><stop stop-color="#173548"/><stop offset=".7" stop-color="#0c1b28"/><stop offset="1" stop-color="#06111b"/></radialGradient>
+<linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8196a8"/><stop offset=".4" stop-color="#41586c"/><stop offset="1" stop-color="#1d3042"/></linearGradient>
+<linearGradient id="flange" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#758ba0"/><stop offset=".5" stop-color="#364c60"/><stop offset="1" stop-color="#17293a"/></linearGradient>
+<linearGradient id="motor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#405c75"/><stop offset=".52" stop-color="#263e53"/><stop offset="1" stop-color="#152a3b"/></linearGradient>
+<linearGradient id="guard" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#42596d"/><stop offset="1" stop-color="#1c2e3e"/></linearGradient>
+<linearGradient id="shaft" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#eef6fb"/><stop offset=".42" stop-color="#879bad"/><stop offset="1" stop-color="#304659"/></linearGradient>
+<radialGradient id="eye"><stop stop-color="#e5fbff"/><stop offset=".28" stop-color="#72d8ff"/><stop offset="1" stop-color="#166f9b"/></radialGradient>
+<filter id="cyan-glow" x="-100%" y="-100%" width="300%" height="300%"><feDropShadow dx="0" dy="0" stdDeviation="2.1" flood-color="#42caff" flood-opacity=".65"/></filter>
+<filter id="green-glow" x="-100%" y="-100%" width="300%" height="300%"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#56e29a" flood-opacity=".7"/></filter>
+<filter id="amber-glow" x="-100%" y="-100%" width="300%" height="300%"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#ffbe4a" flood-opacity=".65"/></filter>
+<filter id="red-glow" x="-100%" y="-100%" width="300%" height="300%"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#ff5c74" flood-opacity=".72"/></filter>
+</defs>
 
 <g data-mount="assembly"/>
-<g transform="translate(78 196)" data-part="tag-panel"><rect class="tag-plate" width="205" height="30" rx="6" data-detail="standard"/><text class="tag" x="12" y="19" data-detail="standard" data-part="label">P-101</text><text class="readout" x="193" y="18" text-anchor="end" data-detail="standard" data-part="readout">6.2 BAR</text><text class="micro" x="12" y="27" data-detail="fine" data-part="meta">CENTRIFUGAL · 1450 RPM</text></g>
+<g class="tag-panel" transform="translate(122 234)" data-part="tag-panel">
+  <rect class="tag-plate" width="253" height="34" rx="7" data-detail="standard"/>
+  <rect class="status-strip" width="4" height="34" rx="2" data-detail="standard"/>
+  <text class="tag" x="12" y="21" data-detail="standard" data-part="label">P-101</text>
+  <text class="meta" x="77" y="20" data-detail="standard" data-part="meta">END-SUCTION · 1450 RPM</text>
+  <text class="readout" x="240" y="21" text-anchor="end" data-detail="standard" data-part="readout">6.2 BAR</text>
+  <text class="micro" x="77" y="29" data-detail="fine">MECHANICAL / PROCESS PHASE ALIGNED</text>
+</g>
 `,
   styles: `
 :host {
   display: inline-block;
-  width: 360px;
+  width: 480px;
   max-width: 100%;
-  aspect-ratio: var(--elements-aspect-ratio, 3 / 2);
+  aspect-ratio: var(--elements-aspect-ratio, 12 / 7);
   color: var(--elements-ink, #dbe7f3);
   container-type: inline-size;
   contain: layout style;
 }
 svg { width: 100%; height: 100%; overflow: visible; }
 
-.body{fill:url(#pump-shell);stroke:#9cb0c5;stroke-width:2.2;transform-box:fill-box;transform-origin:center}.body-highlight{fill:none;stroke:rgba(255,255,255,.16);stroke-width:1}.chamber-inner{fill:url(#pump-cavity);stroke:#6f879f;stroke-width:1.5}.inlet,.outlet{fill:url(#steel);stroke:#a4b8ca;stroke-width:1.7}.flange{fill:url(#flange);stroke:#b5c4d1;stroke-width:1.6}.bolt{fill:#314257;stroke:#aebdca;stroke-width:.7}.shaft{fill:url(#shaft);stroke:#c6d2dd;stroke-width:1}.motor-shell{fill:url(#motor);stroke:#92a7ba;stroke-width:1.8}.motor-end{fill:#243449;stroke:#8095aa;stroke-width:1.4}.fin{fill:#2a3b50;stroke:#7890a8;stroke-width:.8}.terminal-box{fill:#1b2a3c;stroke:#748aa0;stroke-width:1.2}.foot{fill:#243449;stroke:#70879c;stroke-width:1.1}.impeller-ring{fill:none;stroke:rgba(82,200,255,.28);stroke-width:10}.impeller{fill:url(#impeller);stroke:#8fe0ff;stroke-width:.9;filter:url(#cyan-glow);transform-box:fill-box;transform-origin:center}.hub{fill:url(#hub);stroke:#d9f4ff;stroke-width:1}.flow-path{fill:none;stroke:#55d8ff;stroke-width:3.4;stroke-linecap:round;stroke-dasharray:2 10;filter:url(#soft-glow)}.status-halo{fill:none;stroke:#58e39a;stroke-width:2.4;opacity:.78;filter:url(#green-glow);}.tag-plate{fill:#0c1622;stroke:#50657b;stroke-width:1}.tag{fill:#e4edf6;font:700 12px/1 ui-monospace,monospace;letter-spacing:.07em}.readout{fill:#79d8ff;font:700 10px/1 ui-monospace,monospace}.micro{fill:#60768c;font:600 6.7px/1 ui-monospace,monospace;letter-spacing:.08em}.direction{fill:#52c8ff}.motor-group{transform-box:fill-box;transform-origin:center}
+.base,.base-rail,.foot{fill:#152637;stroke:#627b90;stroke-width:1.3}.suction,.discharge,.bearing{fill:url(#steel);stroke:#a9bbc9;stroke-width:1.5}.flange{fill:url(#flange);stroke:#c0ccd6;stroke-width:1.7}.bolt{fill:#263a4d;stroke:#bbc9d4;stroke-width:.7}.shell{fill:url(#pump-shell);stroke:#9fb4c6;stroke-width:2;transform-box:fill-box;transform-origin:center}.shell-highlight{fill:none;stroke:#fff;stroke-opacity:.13;stroke-width:1.1}.cavity{fill:url(#pump-cavity);stroke:#6f8aa1;stroke-width:1.6}.inspection{fill:#071521;stroke:#65839a;stroke-width:1.5}.inspection-ring{fill:none;stroke:#9db4c6;stroke-opacity:.45;stroke-width:1}.flow-under{fill:none;stroke:#082332;stroke-width:7;stroke-linecap:round;stroke-linejoin:round}.flow-path{fill:none;stroke:var(--elements-process-flow,#58d9ff);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:14 12;opacity:.12;filter:url(#cyan-glow);transition:opacity 180ms ease}.rotor{transform-box:fill-box;transform-origin:center;opacity:.68}.impeller-shroud{fill:#15374c;stroke:#4daed2;stroke-width:1.2}.vane{fill:none;stroke:#5ed2ff;stroke-width:5.1;stroke-linecap:round;filter:url(#cyan-glow);opacity:.9}.eye{fill:url(#eye);stroke:#d1f4ff;stroke-width:1.1}.shaft{fill:url(#shaft);stroke:#c8d4dd;stroke-width:1}.coupling{transform-box:fill-box;transform-origin:center;opacity:.72}.coupling-rim{fill:url(#steel);stroke:#c0ced9;stroke-width:1.2}.coupling-hub{fill:#071521;stroke:#7390a5;stroke-width:1}.coupling-mark{fill:none;stroke:#9db3c4;stroke-width:1.2}.guard{fill:url(#guard);stroke:#8ca2b5;stroke-width:1.4}.guard-vents circle{fill:#091622}.motor-group{transform-box:fill-box;transform-origin:center}.motor-shell{fill:url(#motor);stroke:#93a9bc;stroke-width:1.8}.motor-end{fill:#203449;stroke:#7890a5;stroke-width:1.3}.motor-fins rect{fill:#2a4054;stroke:#6f879a;stroke-width:.75}.terminal-box,.terminal-lid{fill:#142638;stroke:#748da3;stroke-width:1.2}.status-beacon{transform-box:fill-box;transform-origin:center}.status-halo{fill:none;stroke:#56e29a;stroke-width:2;opacity:.76;filter:url(#green-glow)}.status-dot,.status-strip{fill:#56e29a;filter:url(#green-glow)}.tag-plate{fill:#07121e;stroke:#4e6579;stroke-width:1}.tag{fill:#edf4fa;font:700 15px/1 ui-monospace,monospace;letter-spacing:.08em}.meta{fill:#72889d;font:600 8px/1 ui-monospace,monospace;letter-spacing:.11em}.readout{fill:#71d8ff;font:700 11px/1 ui-monospace,monospace}.micro{fill:#6d8397;font:600 7px/1 ui-monospace,monospace;letter-spacing:.08em}
 
-:host([data-state~="warning"]) .status-halo { stroke: var(--elements-warning, #ffbe4a); filter: url(#amber-glow); }
-:host([data-state~="alarm"]) .status-halo { stroke: var(--elements-alarm, #ff5c74); filter: url(#red-glow); }
-:host([data-state~="bad-quality"]) svg { opacity: .42; filter: grayscale(1); }
-:host([data-state~="stale"]) svg { opacity: .64; filter: saturate(.35); }
-:host([detail="compact"]) [data-detail="fine"],
-:host([detail="symbol"]) [data-detail] { display: none; }
-:host([detail="symbol"]) text { display: none; }
-@container (max-width: 460px) { [data-detail="fine"] { display: none; } }
-@container (max-width: 300px) {
-  [data-detail="standard"] { display: none; }
-  .status-halo { stroke-width: 4; }
-  .flow-path { stroke-width: 5; }
-}
+:host([data-state~="running"]) .flow-path{opacity:.96}:host([data-state~="running"]) .rotor,:host([data-state~="running"]) .coupling{opacity:1}
+:host([data-state~="warning"]) .status-halo{stroke:var(--elements-warning,#ffbe4a);filter:url(#amber-glow)}:host([data-state~="warning"]) .status-dot,:host([data-state~="warning"]) .status-strip{fill:var(--elements-warning,#ffbe4a);filter:url(#amber-glow)}
+:host([data-state~="alarm"]) .status-halo{stroke:var(--elements-alarm,#ff5c74);filter:url(#red-glow)}:host([data-state~="alarm"]) .status-dot,:host([data-state~="alarm"]) .status-strip{fill:var(--elements-alarm,#ff5c74);filter:url(#red-glow)}:host([data-state~="alarm"]) .shell{stroke:var(--elements-alarm,#ff5c74)}
+:host([data-state~="bad-quality"]) svg{opacity:.42;filter:grayscale(1)}:host([data-state~="stale"]) svg{opacity:.64;filter:saturate(.35)}
+:host([detail="compact"]) [data-detail="fine"],:host([detail="symbol"]) [data-detail]{display:none}:host([detail="symbol"]) text{display:none}
+@container (max-width: 460px){[data-detail="fine"]{display:none}}
+@container (max-width: 300px){[data-detail="standard"]{display:none}.flow-path{stroke-width:4.5}.status-halo{stroke-width:3}.shell{stroke-width:2.6}}
 `,
   attributes: {
     label: attribute.string('label', { defaultValue: 'P-101', description: 'Equipment label.' }),
     running: attribute.boolean('running', { description: 'Whether the pump is commanded to run.' }),
-    speed: attribute.number('speed', { defaultValue: 0, cssVariable: '--pump-speed', description: 'Rotor speed in rpm.' }),
+    speed: attribute.number('speed', { defaultValue: 0, cssVariable: '--pump-speed', description: 'Shaft speed in rpm.' }),
     value: attribute.number('value', { defaultValue: 0, description: 'Primary process value.' }),
     unit: attribute.string('unit', { defaultValue: 'bar', description: 'Primary process value unit.' }),
     status: attribute.enum('status', ['idle', 'normal', 'warning', 'alarm'] as const, { defaultValue: 'idle', description: 'Process status independent from data quality.' }),
@@ -118,28 +180,87 @@ svg { width: 100%; height: 100%; overflow: visible; }
   bindings: [
     bind.text('label', (context) => stringValue(context, 'label'), ['label']),
     bind.text('readout', (context) => `${numberValue(context, 'value').toFixed(1)} ${stringValue(context, 'unit').toUpperCase()}`, ['value', 'unit']),
-    bind.text('meta', (context) => `CENTRIFUGAL · ${Math.round(numberValue(context, 'speed'))} RPM`, ['speed']),
+    bind.text('meta', (context) => `END-SUCTION · ${Math.round(numberValue(context, 'speed'))} RPM`, ['speed']),
   ],
   motions: [
-    { id: 'rotor-spin', type: 'loop', target: 'rotor', active: (context) => stateValue(context, 'running'), playbackRate: (context) => Math.max(.08, numberValue(context, 'speed') / 1450), phase: 'process-mechanical', keyframes: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], options: { duration: 1350, iterations: Infinity, easing: 'linear' }, reducedMotion: 'freeze' },
-    { id: 'process-flow', type: 'loop', target: 'flow-path', active: (context) => stateValue(context, 'running'), playbackRate: (context) => Math.max(.12, numberValue(context, 'speed') / 1450), phase: 'process-flow', keyframes: [{ strokeDashoffset: 0 }, { strokeDashoffset: -48 }], options: { duration: 1050, iterations: Infinity, easing: 'linear' }, reducedMotion: 'freeze' },
-    { id: 'motor-hum', type: 'loop', target: 'motor-group', active: (context) => stateValue(context, 'running'), playbackRate: (context) => Math.max(.2, numberValue(context, 'speed') / 1450), keyframes: [{ transform: 'translateY(-0.18px)' }, { transform: 'translateY(0.18px)' }], options: { duration: 110, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }, reducedMotion: 'freeze' },
-    { id: 'start-kick', type: 'transition', target: 'housing', trigger: (context) => stateValue(context, 'running'), enabled: (context) => stateValue(context, 'running'), keyframes: [{ transform: 'scale(1)' }, { transform: 'scale(1.018)' }, { transform: 'scale(1)' }], options: { duration: 260, easing: 'cubic-bezier(.2,.9,.3,1)' }, reducedMotion: 'finish' },
-    { id: 'alarm-pulse', type: 'loop', target: 'status-halo', active: (context) => stateValue(context, 'alarm'), keyframes: [{ opacity: .34 }, { opacity: 1 }, { opacity: .34 }], options: { duration: 760, iterations: Infinity, easing: 'ease-in-out' }, reducedMotion: 'finish' },
+    {
+      id: 'rotor-spin',
+      type: 'loop',
+      target: 'rotor',
+      active: (context) => stateValue(context, 'running'),
+      playbackRate: (context) => Math.max(.08, numberValue(context, 'speed') / 1450),
+      phase: 'process-mechanical',
+      keyframes: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
+      options: { duration: 1350, iterations: Infinity, easing: 'linear' },
+      reducedMotion: 'freeze',
+    },
+    {
+      id: 'coupling-spin',
+      type: 'loop',
+      target: 'coupling',
+      active: (context) => stateValue(context, 'running'),
+      playbackRate: (context) => Math.max(.08, numberValue(context, 'speed') / 1450),
+      phase: 'process-mechanical',
+      keyframes: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
+      options: { duration: 1350, iterations: Infinity, easing: 'linear' },
+      reducedMotion: 'freeze',
+    },
+    {
+      id: 'process-flow',
+      type: 'loop',
+      target: 'flow-path',
+      active: (context) => stateValue(context, 'running'),
+      playbackRate: (context) => Math.max(.12, numberValue(context, 'speed') / 1450),
+      phase: 'process-flow',
+      keyframes: [{ strokeDashoffset: 0 }, { strokeDashoffset: -26 }],
+      options: { duration: 1050, iterations: Infinity, easing: 'linear' },
+      reducedMotion: 'freeze',
+    },
+    {
+      id: 'motor-hum',
+      type: 'loop',
+      target: 'motor-group',
+      active: (context) => stateValue(context, 'running'),
+      playbackRate: (context) => Math.max(.2, numberValue(context, 'speed') / 1450),
+      keyframes: [{ transform: 'translateY(-0.12px)' }, { transform: 'translateY(0.12px)' }],
+      options: { duration: 120, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' },
+      reducedMotion: 'freeze',
+    },
+    {
+      id: 'start-beacon',
+      type: 'transition',
+      target: 'status-beacon',
+      trigger: (context) => stateValue(context, 'running'),
+      enabled: (context) => stateValue(context, 'running'),
+      keyframes: [{ transform: 'scale(.82)', opacity: .35 }, { transform: 'scale(1.28)', opacity: 1 }, { transform: 'scale(1)', opacity: 1 }],
+      options: { duration: 360, easing: 'cubic-bezier(.2,.9,.25,1)' },
+      reducedMotion: 'finish',
+    },
+    {
+      id: 'alarm-pulse',
+      type: 'loop',
+      target: 'status-halo',
+      active: (context) => stateValue(context, 'alarm'),
+      keyframes: [{ opacity: .3 }, { opacity: 1 }, { opacity: .3 }],
+      options: { duration: 760, iterations: Infinity, easing: 'ease-in-out' },
+      reducedMotion: 'finish',
+    },
   ],
   ports: [
-    { id: 'in', x: 14, y: 125, direction: 'left', kind: 'process' },
-    { id: 'out', x: 140, y: 18, direction: 'top', kind: 'process' },
-    { id: 'power', x: 334, y: 126, direction: 'right', kind: 'electrical' },
+    { id: 'in', x: 8, y: 151, direction: 'left', kind: 'process' },
+    { id: 'out', x: 301, y: 24, direction: 'top', kind: 'process' },
+    { id: 'power', x: 472, y: 151, direction: 'right', kind: 'electrical' },
   ],
   parts: [
-    { name: 'housing', description: 'Volute housing.', detail: 'essential' },
-    { name: 'rotor', description: 'Animated impeller.', detail: 'essential' },
-    { name: 'motor-group', description: 'Motor assembly.', detail: 'essential' },
-    { name: 'flow-path', description: 'Animated process path.', detail: 'essential' },
-    { name: 'status-halo', description: 'Process status halo.', detail: 'essential' },
+    { name: 'housing', description: 'Volute casing.', detail: 'essential' },
+    { name: 'rotor', description: 'Shrouded impeller with backward-curved vanes.', detail: 'essential' },
+    { name: 'coupling', description: 'Shaft coupling aligned to the impeller timeline.', detail: 'essential' },
+    { name: 'motor-group', description: 'Electric motor assembly.', detail: 'essential' },
+    { name: 'flow-path', description: 'Animated internal process path from suction to discharge.', detail: 'essential' },
+    { name: 'status-beacon', description: 'Compact process-state beacon.', detail: 'essential' },
+    { name: 'status-halo', description: 'Alarm and warning pulse ring.', detail: 'essential' },
     { name: 'label', detail: 'standard' },
     { name: 'readout', detail: 'standard' },
-    { name: 'meta', detail: 'fine' },
+    { name: 'meta', detail: 'standard' },
   ],
 });
