@@ -8,9 +8,26 @@ import { applyBindings } from './bindings.js';
 import { CollectionController } from './composition/index.js';
 import { initialViewBox, resolveViewBox, type ElementDefinition } from './definition.js';
 import { MotionController } from './motion/index.js';
+import {
+  defaultObserverContext,
+  defaultRepresentations,
+  isObserverAttribute,
+  observerAttributeNames,
+  observerSignature,
+  observerSourceFor,
+  readObserverContext,
+  representationOverrideAttribute,
+  representationStyles,
+  selectRepresentation,
+} from './observer.js';
 import { PartMap } from './parts.js';
 import { createStyleSheet, instantiateSvg } from './template.js';
-import type { ElementContext, StateValueMap } from './types.js';
+import type {
+  ElementContext,
+  ObserverContext,
+  RepresentationDefinition,
+  StateValueMap,
+} from './types.js';
 
 type StateInternals = ElementInternals & {
   readonly states?: CustomStateSet;
@@ -21,11 +38,22 @@ function aspectRatioFor(viewBox: string): string {
   return `${values[2] ?? 1} / ${values[3] ?? 1}`;
 }
 
+function protocolStyleSheet(): HTMLStyleElement {
+  const style = document.createElement('style');
+  style.dataset.elementsProtocol = 'observer-v1';
+  style.textContent = representationStyles;
+  return style;
+}
+
 export abstract class ElementsElement extends HTMLElement {
   static readonly definition: ElementDefinition;
 
   static get observedAttributes(): string[] {
-    return observedAttributeNames(this.definition.attributes);
+    return [...new Set([
+      ...observedAttributeNames(this.definition.attributes),
+      ...observerAttributeNames,
+      representationOverrideAttribute,
+    ])];
   }
 
   readonly #definition: ElementDefinition;
@@ -35,8 +63,15 @@ export abstract class ElementsElement extends HTMLElement {
   readonly #collections: CollectionController;
   readonly #motions: MotionController;
   readonly #changed = new Set<string>();
+  readonly #observerMutation = new MutationObserver(() => {
+    this.#connectObserverSource();
+    this.#schedule('observer');
+  });
+  #observerSource: Element | null = null;
   #attributes: Record<string, unknown> = {};
   #states: StateValueMap = {};
+  #observer: Readonly<ObserverContext> = defaultObserverContext;
+  #representation: Readonly<RepresentationDefinition> = defaultRepresentations[3]!;
   #scheduled = false;
   #connected = false;
 
@@ -44,6 +79,7 @@ export abstract class ElementsElement extends HTMLElement {
     super();
     const constructor = this.constructor as typeof ElementsElement;
     this.#definition = constructor.definition;
+    this.#representation = selectRepresentation(this.#definition.representations, this.#observer);
     this.#internals = typeof this.attachInternals === 'function' ? (this.attachInternals() as StateInternals) : undefined;
 
     const shadow = this.attachShadow({ mode: 'open' });
@@ -60,8 +96,9 @@ export abstract class ElementsElement extends HTMLElement {
         shadow.prepend(style as HTMLStyleElement);
       }
     }
+    shadow.append(protocolStyleSheet());
 
-    this.#parts = new PartMap(this.#svg);
+    this.#parts = new PartMap(this.#svg, this.#definition.parts ?? []);
     this.#collections = new CollectionController(this.#svg, this.#definition.collections ?? []);
     this.#motions = new MotionController(this, this.#definition.motions ?? []);
   }
@@ -74,8 +111,22 @@ export abstract class ElementsElement extends HTMLElement {
     return this.#parts;
   }
 
+  get observerContext(): Readonly<ObserverContext> {
+    return this.#observer;
+  }
+
+  get activeRepresentation(): Readonly<RepresentationDefinition> {
+    return this.#representation;
+  }
+
   get context(): ElementContext {
-    return { host: this, attributes: this.#attributes, states: this.#states };
+    return {
+      host: this,
+      attributes: this.#attributes,
+      states: this.#states,
+      observer: this.#observer,
+      representation: this.#representation,
+    };
   }
 
   get activeMotions() {
@@ -85,23 +136,44 @@ export abstract class ElementsElement extends HTMLElement {
   connectedCallback(): void {
     this.#connected = true;
     this.#upgradeProperties();
+    this.#connectObserverSource();
     this.#motions.connect();
     this.#schedule('*');
   }
 
   disconnectedCallback(): void {
     this.#connected = false;
+    this.#observerMutation.disconnect();
+    this.#observerSource = null;
     this.#motions.disconnect();
   }
 
   attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
     if (oldValue === newValue) return;
+    if (isObserverAttribute(name) || name === representationOverrideAttribute) {
+      this.#schedule('observer');
+      return;
+    }
     const definition = definitionForAttribute(this.#definition.attributes, name);
     this.#schedule(definition?.property ?? name);
   }
 
   refresh(): void {
+    this.#connectObserverSource();
     this.#schedule('*');
+  }
+
+  #connectObserverSource(): void {
+    const source = observerSourceFor(this);
+    if (source === this.#observerSource) return;
+    this.#observerMutation.disconnect();
+    this.#observerSource = source;
+    if (source) {
+      this.#observerMutation.observe(source, {
+        attributes: true,
+        attributeFilter: [...observerAttributeNames],
+      });
+    }
   }
 
   #upgradeProperties(): void {
@@ -125,9 +197,30 @@ export abstract class ElementsElement extends HTMLElement {
     this.#scheduled = false;
     if (!this.#connected) return;
 
+    const previousObserverSignature = observerSignature(this.#observer);
+    const previousRepresentation = this.#representation;
+    const nextObserver = readObserverContext(this);
+    const nextRepresentation = selectRepresentation(
+      this.#definition.representations,
+      nextObserver,
+      this.getAttribute(representationOverrideAttribute),
+    );
+    const observerChanged = observerSignature(nextObserver) !== previousObserverSignature;
+    const representationChanged = nextRepresentation.id !== previousRepresentation.id;
+    if (observerChanged) this.#changed.add('observer');
+    if (representationChanged) this.#changed.add('representation');
+    this.#observer = nextObserver;
+    this.#representation = nextRepresentation;
+
     const previousStates = this.#states;
     this.#attributes = readAttributes(this, this.#definition.attributes);
-    const provisional: ElementContext = { host: this, attributes: this.#attributes, states: previousStates };
+    const provisional: ElementContext = {
+      host: this,
+      attributes: this.#attributes,
+      states: previousStates,
+      observer: this.#observer,
+      representation: this.#representation,
+    };
     const nextStates: StateValueMap = {};
     for (const [name, derive] of Object.entries(this.#definition.states ?? {})) {
       nextStates[name] = Boolean(derive(provisional));
@@ -137,6 +230,7 @@ export abstract class ElementsElement extends HTMLElement {
 
     this.#reflectAttributesToCss();
     this.#reflectStates();
+    this.#reflectObserver();
 
     const context = this.context;
     this.#updateViewport(context);
@@ -148,11 +242,37 @@ export abstract class ElementsElement extends HTMLElement {
 
     const changed = [...this.#changed];
     this.#changed.clear();
+    const detail = {
+      changed,
+      attributes: this.#attributes,
+      states: this.#states,
+      observer: this.#observer,
+      representation: this.#representation,
+    };
     this.dispatchEvent(new CustomEvent('elements-update', {
       bubbles: true,
       composed: true,
-      detail: { changed, attributes: this.#attributes, states: this.#states },
+      detail,
     }));
+    if (representationChanged) {
+      this.dispatchEvent(new CustomEvent('elements-representation-change', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          previous: previousRepresentation,
+          current: this.#representation,
+          observer: this.#observer,
+        },
+      }));
+    }
+  }
+
+  #reflectObserver(): void {
+    this.dataset.representation = this.#representation.id;
+    this.dataset.representationFidelity = this.#representation.fidelity;
+    this.dataset.observerRole = this.#observer.role;
+    this.dataset.observerIntent = this.#observer.intent;
+    this.dataset.observerScale = this.#observer.scale;
   }
 
   #updateViewport(context: ElementContext): void {

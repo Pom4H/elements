@@ -13,6 +13,9 @@ function randomBits(length: number, probability = .5): string {
   return Array.from({ length }, () => Math.random() < probability ? '1' : '0').join('');
 }
 
+const observerRoot = required<HTMLElement>('#observer-root');
+const observerProfile = required<HTMLSelectElement>('#observer-profile');
+const observerOutput = required<HTMLOutputElement>('#observer-output');
 const pump = required<HTMLElement>('#pump');
 const controller = required<HTMLElement>('#controller');
 const speed = required<HTMLInputElement>('#speed');
@@ -31,6 +34,25 @@ const flowSpeedValue = required<HTMLOutputElement>('#flow-speed-value');
 const flowToggle = required<HTMLButtonElement>('#flow-toggle');
 const flowDirection = required<HTMLButtonElement>('#flow-direction');
 const pipeStatus = required<HTMLSelectElement>('#pipe-status');
+
+const observerProfiles = {
+  overview: { role: 'viewer', intent: 'overview', scale: 'plant' },
+  operator: { role: 'operator', intent: 'monitor', scale: 'system' },
+  maintenance: { role: 'maintenance', intent: 'diagnose', scale: 'equipment' },
+  twin: { role: 'engineer', intent: 'simulate', scale: 'component' },
+} as const;
+
+observerProfile.addEventListener('change', () => {
+  const profile = observerProfiles[observerProfile.value as keyof typeof observerProfiles] ?? observerProfiles.twin;
+  observerRoot.setAttribute('observer-role', profile.role);
+  observerRoot.setAttribute('observer-intent', profile.intent);
+  observerRoot.setAttribute('observer-scale', profile.scale);
+});
+
+document.addEventListener('elements-representation-change', (event) => {
+  const detail = (event as CustomEvent<{ current?: { id?: string } }>).detail;
+  if (detail.current?.id) observerOutput.value = detail.current.id;
+});
 
 speed.addEventListener('input', () => {
   const value = Number(speed.value);

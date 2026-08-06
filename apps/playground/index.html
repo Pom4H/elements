@@ -7,7 +7,7 @@
     <title>Elements</title>
   </head>
   <body>
-    <main>
+    <main id="observer-root" data-elements-observer observer-role="engineer" observer-intent="simulate" observer-scale="component">
       <header class="hero">
         <div>
           <p class="eyebrow">ELEMENTS RUNTIME</p>
@@ -16,15 +16,22 @@
         <p class="lede">Attributes drive state, keyed fragments build geometry, and browser-native timelines coordinate motion.</p>
       </header>
 
+      <section class="controls" aria-label="Observer model">
+        <label>Observer
+          <select id="observer-profile">
+            <option value="overview">Plant overview · symbol</option>
+            <option value="operator">Operator · operational</option>
+            <option value="maintenance">Maintenance · structural</option>
+            <option value="twin" selected>Engineer · digital twin</option>
+          </select>
+        </label>
+        <output id="observer-output">twin</output>
+      </section>
+
       <section class="stage-grid" aria-label="Live element controls">
         <article class="stage-card pump-card">
-          <div class="stage-heading">
-            <div><span class="tag">PROCESS</span><h2>Centrifugal pump</h2></div>
-            <code>&lt;pe-pump&gt;</code>
-          </div>
-          <div class="canvas pump-canvas">
-            <pe-pump id="pump" label="P-101" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" detail="auto"></pe-pump>
-          </div>
+          <div class="stage-heading"><div><span class="tag">PROCESS</span><h2>Centrifugal pump</h2></div><code>&lt;pe-pump&gt;</code></div>
+          <div class="canvas pump-canvas"><pe-pump id="pump" label="P-101" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" detail="auto"></pe-pump></div>
           <div class="controls">
             <label>Speed <output id="speed-value">1450 rpm</output><input id="speed" type="range" min="0" max="2900" step="10" value="1450" /></label>
             <label>Status <select id="pump-status"><option>normal</option><option>warning</option><option>alarm</option><option>idle</option></select></label>
@@ -34,13 +41,8 @@
         </article>
 
         <article class="stage-card controller-card">
-          <div class="stage-heading">
-            <div><span class="tag">CONTROL</span><h2>Programmable controller</h2></div>
-            <code>&lt;pe-controller&gt;</code>
-          </div>
-          <div class="canvas controller-canvas">
-            <pe-controller id="controller" label="PLC-X2" running inputs="16" outputs="16" input-state="1011010101011011" output-state="1100101000110101" scan-rate="10" load="62" activity="1" status="normal" quality="good" detail="auto"></pe-controller>
-          </div>
+          <div class="stage-heading"><div><span class="tag">CONTROL</span><h2>Programmable controller</h2></div><code>&lt;pe-controller&gt;</code></div>
+          <div class="canvas controller-canvas"><pe-controller id="controller" label="PLC-X2" running inputs="16" outputs="16" input-state="1011010101011011" output-state="1100101000110101" scan-rate="10" load="62" activity="1" status="normal" quality="good" detail="auto"></pe-controller></div>
           <div class="controls">
             <label>I/O channels <select id="channels"><option value="8">8 + 8</option><option value="16" selected>16 + 16</option><option value="24">24 + 24</option><option value="32">32 + 32</option></select></label>
             <label>CPU load <output id="load-value">62%</output><input id="load" type="range" min="0" max="100" value="62" /></label>
@@ -52,10 +54,7 @@
 
       <section class="flow-bench" aria-label="Connected process scene">
         <article class="stage-card flow-card">
-          <div class="stage-heading">
-            <div><span class="tag">SCENE COMPOSITION</span><h2>Port-routed process flow</h2></div>
-            <code>&lt;elements-scene&gt; + &lt;el-connection&gt;</code>
-          </div>
+          <div class="stage-heading"><div><span class="tag">SCENE COMPOSITION</span><h2>Port-routed process flow</h2></div><code>&lt;elements-scene&gt; + &lt;el-connection&gt;</code></div>
           <elements-scene class="process-scene">
             <pe-pump id="scene-pump-a" label="P-201" running speed="1450" value="5.1" unit="bar" status="normal" detail="compact"></pe-pump>
             <pe-pump id="scene-pump-b" label="P-202" running speed="1120" value="7.4" unit="bar" status="normal" detail="compact"></pe-pump>

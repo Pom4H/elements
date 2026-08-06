@@ -1,11 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import { initialViewBox, resolveViewBox, viewBox } from '../src/definition.js';
+import { defaultObserverContext, defaultRepresentations } from '../src/observer.js';
 import type { ElementContext } from '../src/types.js';
 
 const context = {
   host: {} as HTMLElement,
   attributes: { modules: 4 },
   states: {},
+  observer: defaultObserverContext,
+  representation: defaultRepresentations[3]!,
 } satisfies ElementContext;
 
 describe('viewBox definitions', () => {

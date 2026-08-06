@@ -28,6 +28,20 @@ export type {
   TransitionMotionDefinition,
 } from './motion/index.js';
 export {
+  defaultObserverContext,
+  defaultRepresentations,
+  isObserverAttribute,
+  observerAttributeNames,
+  observerProviderSelector,
+  observerSignature,
+  observerSourceFor,
+  readObserverContext,
+  representationDefinitions,
+  representationOverrideAttribute,
+  representationStyles,
+  selectRepresentation,
+} from './observer.js';
+export {
   connectionKinds,
   connectionVisualMetrics,
   flowDirections,
@@ -48,10 +62,17 @@ export type {
   CssPartDefinition,
   ElementContext,
   ElementTagName,
+  ObserverContext,
+  ObserverFidelity,
+  ObserverIntent,
+  ObserverRole,
+  ObserverScale,
   Point,
   PortDefinition,
   PortDirection,
   Primitive,
+  RepresentationDefinition,
+  RepresentationFidelity,
   StateValueMap,
   VisualDetail,
 } from './types.js';

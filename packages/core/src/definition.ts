@@ -2,7 +2,14 @@ import type { AttributeDefinition } from './attributes.js';
 import type { BindingDefinition } from './bindings.js';
 import type { CollectionDefinition } from './composition/index.js';
 import type { MotionDefinition } from './motion/index.js';
-import type { CssPartDefinition, ElementContext, ElementTagName, PortDefinition } from './types.js';
+import { representationDefinitions } from './observer.js';
+import type {
+  CssPartDefinition,
+  ElementContext,
+  ElementTagName,
+  PortDefinition,
+  RepresentationDefinition,
+} from './types.js';
 import type { SvgTemplate } from './template.js';
 
 export interface DynamicViewBox {
@@ -61,9 +68,13 @@ export interface ElementDefinition {
   readonly motions?: readonly MotionDefinition[];
   readonly ports?: readonly PortDefinition[];
   readonly parts?: readonly CssPartDefinition[];
+  readonly representations?: readonly RepresentationDefinition[];
 }
 
 export function defineElementDefinition(definition: ElementDefinition): ElementDefinition {
   initialViewBox(definition.viewBox);
-  return Object.freeze(definition);
+  return Object.freeze({
+    ...definition,
+    representations: representationDefinitions(definition.representations),
+  });
 }

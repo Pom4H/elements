@@ -1,11 +1,15 @@
+import type { CssPartDefinition } from './types.js';
+
 export type PartTarget = string | { readonly part: string; readonly instance?: string };
 
 export class PartMap {
   readonly #root: ParentNode;
+  readonly #definitions: readonly CssPartDefinition[];
   readonly #parts = new Map<string, SVGElement[]>();
 
-  constructor(root: ParentNode) {
+  constructor(root: ParentNode, definitions: readonly CssPartDefinition[] = []) {
     this.#root = root;
+    this.#definitions = definitions;
     this.refresh();
   }
 
@@ -17,6 +21,16 @@ export class PartMap {
       const list = this.#parts.get(name);
       if (list) list.push(element);
       else this.#parts.set(name, [element]);
+    }
+    this.#applyProtocolMetadata();
+  }
+
+  #applyProtocolMetadata(): void {
+    for (const definition of this.#definitions) {
+      if (definition.minimumFidelity === undefined) continue;
+      for (const element of this.#parts.get(definition.name) ?? []) {
+        element.dataset.minFidelity = definition.minimumFidelity;
+      }
     }
   }
 
