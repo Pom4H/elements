@@ -13,7 +13,10 @@
           <p class="eyebrow">ELEMENTS RUNTIME</p>
           <h1>Native elements for visual systems.</h1>
         </div>
-        <p class="lede">Attributes drive state, keyed fragments build geometry, and browser-native timelines coordinate motion.</p>
+        <div class="hero-copy">
+          <p class="lede">Attributes drive state, keyed fragments build geometry, and browser-native timelines coordinate motion.</p>
+          <a class="hero-link" href="./semantic-zoom.html">Open semantic zoom lab →</a>
+        </div>
       </header>
 
       <section class="stage-grid" aria-label="Live element controls">
@@ -27,8 +30,8 @@
           </div>
           <div class="controls">
             <label>Speed <output id="speed-value">1450 rpm</output><input id="speed" type="range" min="0" max="2900" step="10" value="1450" /></label>
-            <label>Status <select id="pump-status"><option>normal</option><option>warning</option><option>alarm</option><option>idle</option></select></label>
-            <label>Quality <select id="pump-quality"><option>good</option><option>stale</option><option>bad</option></select></label>
+            <label>Status <select id="pump-status"><option>normal</option><option>warning</option><option>alarm</option></select></label>
+            <label>Quality <select id="pump-quality"><option>unknown</option><option selected>good</option><option>stale</option><option>bad</option></select></label>
             <button id="pump-toggle" type="button">Stop</button>
           </div>
         </article>
@@ -57,8 +60,8 @@
             <code>&lt;elements-scene&gt; + &lt;el-connection&gt;</code>
           </div>
           <elements-scene class="process-scene">
-            <pe-pump id="scene-pump-a" label="P-201" running speed="1450" value="5.1" unit="bar" status="normal" detail="compact"></pe-pump>
-            <pe-pump id="scene-pump-b" label="P-202" running speed="1120" value="7.4" unit="bar" status="normal" detail="compact"></pe-pump>
+            <pe-pump id="scene-pump-a" label="P-201" running speed="1450" value="5.1" unit="bar" status="normal" quality="good" detail="compact"></pe-pump>
+            <pe-pump id="scene-pump-b" label="P-202" running speed="1120" value="7.4" unit="bar" status="normal" quality="good" detail="compact"></pe-pump>
             <el-connection id="process-pipe" from="scene-pump-a:out" to="scene-pump-b:in" kind="pipe" active speed="1" diameter="18" label="P-201 discharge to P-202 suction"></el-connection>
           </elements-scene>
           <div class="controls flow-controls">
@@ -71,10 +74,10 @@
       </section>
 
       <section class="quality-grid" aria-label="Responsive and state variants">
-        <article><span>Auto LOD · 180 px</span><pe-pump running speed="1100" value="4.8" unit="bar" status="normal"></pe-pump></article>
-        <article><span>Warning</span><pe-pump running speed="900" value="5.4" unit="bar" status="warning" detail="compact"></pe-pump></article>
-        <article><span>Alarm</span><pe-pump running speed="1450" value="8.7" unit="bar" status="alarm" detail="compact"></pe-pump></article>
-        <article class="compact-controller"><span>Dynamic viewport · 8 + 8</span><pe-controller running inputs="8" outputs="8" input-state="10110101" output-state="11001010" load="34" status="normal"></pe-controller></article>
+        <article><span>Auto LOD · 180 px</span><pe-pump running speed="1100" value="4.8" unit="bar" status="normal" quality="good"></pe-pump></article>
+        <article><span>Warning</span><pe-pump running speed="900" value="5.4" unit="bar" status="warning" quality="good" detail="compact"></pe-pump></article>
+        <article><span>Alarm</span><pe-pump running speed="1450" value="8.7" unit="bar" status="alarm" quality="good" detail="compact"></pe-pump></article>
+        <article class="compact-controller"><span>Dynamic viewport · 8 + 8</span><pe-controller running inputs="8" outputs="8" input-state="10110101" output-state="11001010" load="34" status="normal" quality="good"></pe-controller></article>
       </section>
     </main>
     <script type="module" src="./src/main.ts"></script>

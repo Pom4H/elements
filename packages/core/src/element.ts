@@ -127,7 +127,8 @@ export abstract class ElementsElement extends HTMLElement {
 
     const previousStates = this.#states;
     this.#attributes = readAttributes(this, this.#definition.attributes);
-    const provisional: ElementContext = { host: this, attributes: this.#attributes, states: previousStates };
+    // State derivation is intentionally memoryless. Stateful behavior must be explicit.
+    const provisional: ElementContext = { host: this, attributes: this.#attributes, states: {} };
     const nextStates: StateValueMap = {};
     for (const [name, derive] of Object.entries(this.#definition.states ?? {})) {
       nextStates[name] = Boolean(derive(provisional));

@@ -13,7 +13,7 @@ async function filesUnder(directory: string): Promise<string[]> {
 await rm('./dist', { recursive: true, force: true });
 
 const result = await Bun.build({
-  entrypoints: ['./index.html'],
+  entrypoints: ['./index.html', './semantic-zoom.html'],
   outdir: './dist',
   target: 'browser',
   minify: true,
@@ -33,7 +33,17 @@ if (!result.success) {
 const javascriptFiles = (await filesUnder('./dist')).filter((path) => path.endsWith('.js'));
 const javascript = (await Promise.all(javascriptFiles.map((path) => readFile(path, 'utf8')))).join('\n');
 
-for (const requiredToken of ['pe-pump', 'pe-controller', 'elements-scene', 'el-connection', 'customElements']) {
+for (const requiredToken of [
+  'pe-pump',
+  'pe-controller',
+  'pe-pid-pump',
+  'pe-pid-valve',
+  'pe-pid-vessel',
+  'semantic-zoom',
+  'elements-scene',
+  'el-connection',
+  'customElements',
+]) {
   if (!javascript.includes(requiredToken)) {
     throw new Error(`Production bundle is missing required runtime token: ${requiredToken}`);
   }
