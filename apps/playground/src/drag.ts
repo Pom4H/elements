@@ -11,6 +11,8 @@ export interface DragOptions {
   readonly grid?: number;
   /** Distance a keyboard nudge moves a node; Shift multiplies it by four. */
   readonly nudge?: number;
+  /** Canvas scale used by a zoomable editor. Defaults to one. */
+  readonly scale?: number | (() => number);
 }
 
 interface DragSession {
@@ -18,12 +20,18 @@ interface DragSession {
   readonly pointerId: number;
   readonly offsetX: number;
   readonly offsetY: number;
+  readonly startX: number;
+  readonly startY: number;
   moved: boolean;
+}
+
+interface Bounds {
+  readonly width: number;
+  readonly height: number;
 }
 
 function isMovable(scene: HTMLElement, target: EventTarget | null): HTMLElement | undefined {
   if (!(target instanceof Node)) return undefined;
-  // The pointer lands on a shadow part, so walk back out to the scene child.
   const node = (target instanceof Element ? target : target.parentElement)?.closest<HTMLElement>('[data-movable]');
   return node?.parentElement === scene ? node : undefined;
 }
@@ -37,7 +45,17 @@ function snap(value: number, grid: number): number {
   return grid <= 1 ? Math.round(value) : Math.round(value / grid) * grid;
 }
 
-function place(node: HTMLElement, x: number, y: number, bounds: DOMRect, grid: number): void {
+function scaleValue(option: DragOptions['scale']): number {
+  const value = typeof option === 'function' ? option() : option ?? 1;
+  return Number.isFinite(value) && value > 0 ? value : 1;
+}
+
+function logicalBounds(scene: HTMLElement, scale: number): Bounds {
+  const bounds = scene.getBoundingClientRect();
+  return { width: bounds.width / scale, height: bounds.height / scale };
+}
+
+function place(node: HTMLElement, x: number, y: number, bounds: Bounds, grid: number): void {
   const width = node.offsetWidth || 1;
   const height = node.offsetHeight || 1;
   const maxX = Math.max(0, bounds.width - width);
@@ -58,9 +76,7 @@ export function enableSceneDragging(scene: HTMLElement, options: DragOptions = {
   for (const node of scene.querySelectorAll<HTMLElement>('[data-movable]')) {
     if (!node.hasAttribute('tabindex')) node.tabIndex = 0;
     if (!node.hasAttribute('role')) node.setAttribute('role', 'button');
-    if (!node.hasAttribute('aria-label')) {
-      node.setAttribute('aria-label', `Move ${node.getAttribute('label') ?? node.id}`);
-    }
+    if (!node.hasAttribute('aria-label')) node.setAttribute('aria-label', `Move ${node.getAttribute('label') ?? node.id}`);
   }
 
   const onPointerDown = (event: PointerEvent): void => {
@@ -68,12 +84,17 @@ export function enableSceneDragging(scene: HTMLElement, options: DragOptions = {
     const node = isMovable(scene, event.target);
     if (!node) return;
 
+    const scale = scaleValue(options.scale);
     const bounds = scene.getBoundingClientRect();
+    const startX = numberAttribute(node, 'x');
+    const startY = numberAttribute(node, 'y');
     session = {
       node,
       pointerId: event.pointerId,
-      offsetX: event.clientX - bounds.left - numberAttribute(node, 'x'),
-      offsetY: event.clientY - bounds.top - numberAttribute(node, 'y'),
+      offsetX: (event.clientX - bounds.left) / scale - startX,
+      offsetY: (event.clientY - bounds.top) / scale - startY,
+      startX,
+      startY,
       moved: false,
     };
     node.dataset.dragging = 'true';
@@ -84,18 +105,17 @@ export function enableSceneDragging(scene: HTMLElement, options: DragOptions = {
 
   const onPointerMove = (event: PointerEvent): void => {
     if (!session || event.pointerId !== session.pointerId) return;
-    // A mouse that reports no buttons has been released somewhere we did not
-    // see, which would otherwise leave the node stuck to the cursor.
     if (event.pointerType === 'mouse' && event.buttons === 0) {
       endDrag(event);
       return;
     }
+    const scale = scaleValue(options.scale);
     const bounds = scene.getBoundingClientRect();
     place(
       session.node,
-      event.clientX - bounds.left - session.offsetX,
-      event.clientY - bounds.top - session.offsetY,
-      bounds,
+      (event.clientX - bounds.left) / scale - session.offsetX,
+      (event.clientY - bounds.top) / scale - session.offsetY,
+      logicalBounds(scene, scale),
       event.altKey ? 1 : grid,
     );
     session.moved = true;
@@ -104,9 +124,20 @@ export function enableSceneDragging(scene: HTMLElement, options: DragOptions = {
 
   const endDrag = (event: PointerEvent): void => {
     if (!session || event.pointerId !== session.pointerId) return;
-    delete session.node.dataset.dragging;
+    const completed = session;
+    delete completed.node.dataset.dragging;
     if (scene.hasPointerCapture(event.pointerId)) scene.releasePointerCapture(event.pointerId);
     session = undefined;
+    if (completed.moved) {
+      completed.node.dispatchEvent(new CustomEvent('elements-layout-change', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          from: { x: completed.startX, y: completed.startY },
+          to: { x: numberAttribute(completed.node, 'x'), y: numberAttribute(completed.node, 'y') },
+        },
+      }));
+    }
   };
 
   const onKeyDown = (event: KeyboardEvent): void => {
@@ -121,7 +152,14 @@ export function enableSceneDragging(scene: HTMLElement, options: DragOptions = {
     };
     const move = delta[event.key];
     if (!move) return;
-    place(node, numberAttribute(node, 'x') + move[0], numberAttribute(node, 'y') + move[1], scene.getBoundingClientRect(), 1);
+    const scale = scaleValue(options.scale);
+    const from = { x: numberAttribute(node, 'x'), y: numberAttribute(node, 'y') };
+    place(node, from.x + move[0], from.y + move[1], logicalBounds(scene, scale), 1);
+    node.dispatchEvent(new CustomEvent('elements-layout-change', {
+      bubbles: true,
+      composed: true,
+      detail: { from, to: { x: numberAttribute(node, 'x'), y: numberAttribute(node, 'y') } },
+    }));
     event.preventDefault();
   };
 

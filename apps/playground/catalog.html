@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Elements</title>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <div>
+          <p class="eyebrow">ELEMENTS RUNTIME</p>
+          <h1>Native elements for visual systems.</h1>
+        </div>
+        <p class="lede">Attributes drive state, keyed fragments build geometry, and browser-native timelines coordinate motion.</p>
+      </header>
+
+      <section class="flow-bench" aria-label="Connected process scene">
+        <article class="stage-card flow-card">
+          <div class="stage-heading">
+            <div><span class="tag">SCENE COMPOSITION</span><h2>Header · tee · duty and standby trains</h2></div>
+            <code>&lt;elements-scene&gt; + &lt;el-pipe&gt;</code>
+          </div>
+          <elements-scene id="process-scene" class="process-scene">
+            <pe-tank id="t1" data-movable x="20" y="40" width="240" label="T-101" level="72" temperature="48" pressure="1.8" low-limit="15" high-limit="85" capacity="45" nozzles="2" medium="water" status="normal" detail="compact"></pe-tank>
+            <pe-control-valve id="v1" data-movable x="600" y="195" width="150" label="FV-101" position="68" command="68" medium="water" status="normal" powered detail="compact"></pe-control-valve>
+            <pe-control-valve id="v2" data-movable x="330" y="395" width="150" label="FV-102" position="35" command="35" medium="water" status="normal" powered detail="compact"></pe-control-valve>
+            <pe-pump id="p1" data-movable x="830" y="235" width="240" label="P-101" running speed="1450" value="6.2" unit="bar" status="normal" detail="compact"></pe-pump>
+            <pe-pump id="p2" data-movable x="830" y="435" width="240" label="P-102" speed="0" value="0" unit="bar" status="idle" detail="compact"></pe-pump>
+
+            <!-- A named point where runs meet, placed where no equipment stands. -->
+            <el-junction id="j1" data-movable x="300" y="296" medium="water" label="Suction manifold"></el-junction>
+
+            <el-pipe id="header" from="t1:out" to="j1" flowing speed="1" diameter="20" label="T-101 drain to suction manifold"></el-pipe>
+            <!-- One source, two targets: the second target taps the trunk as a tee. -->
+            <el-pipe id="branches" from="j1" to="v1:in v2:in" flowing speed="1" diameter="18" label="Manifold to FV-101 and FV-102"></el-pipe>
+            <el-pipe id="feed-a" from="v1:out" to="p1:in" flowing speed="1" diameter="18" label="FV-101 to P-101 suction"></el-pipe>
+            <el-pipe id="feed-b" from="v2:out" to="p2:in" speed="1" diameter="14" label="FV-102 to P-102 suction"></el-pipe>
+            <el-pipe id="recycle" from="p1:out" to="t1:in" flowing speed="1" diameter="14" insulated label="P-101 discharge recycle to T-101"></el-pipe>
+            <!-- A `from` without a port taps the named run instead of equipment. -->
+            <el-pipe id="vent" from="recycle" to="t1:vent" diameter="8" label="Recycle vent tap to T-101"></el-pipe>
+          </elements-scene>
+          <elements-inspector for="process-scene"></elements-inspector>
+          <div class="controls scene-controls">
+            <label>FV-101 command <output id="command-value">68%</output><input id="command" type="range" min="0" max="100" value="68" /></label>
+            <label>FV-102 command <output id="command-b-value">35%</output><input id="command-b" type="range" min="0" max="100" value="35" /></label>
+            <label>Medium <select id="medium"><option>water</option><option>oil</option><option>glycol</option><option>chemical</option><option>fuel</option></select></label>
+            <button id="pump-power" type="button">Stop P-101</button>
+            <button id="standby" type="button">Start P-102</button>
+            <button id="valve-jam" type="button">Jam FV-101</button>
+          </div>
+          <p class="scene-note" id="scene-note">Drag equipment or the manifold to re-route the lines; arrow keys nudge a focused item. Right-click anything to configure it or convert it to a compatible element.</p>
+        </article>
+      </section>
+
+      <section class="stage-grid" aria-label="Process element controls">
+        <article class="stage-card valve-card">
+          <div class="stage-heading">
+            <div><span class="tag">PROCESS</span><h2>Control valve</h2></div>
+            <code>&lt;pe-control-valve&gt;</code>
+          </div>
+          <div class="canvas valve-canvas">
+            <pe-control-valve id="valve" label="FV-201" position="68" command="75" actuator="pneumatic" action="normally-closed" status="normal" powered detail="auto"></pe-control-valve>
+          </div>
+          <div class="controls">
+            <label>Position <output id="valve-position-value">68%</output><input id="valve-position" type="range" min="0" max="100" value="68" /></label>
+            <label>Command <output id="valve-command-value">75%</output><input id="valve-command" type="range" min="0" max="100" value="75" /></label>
+            <label>Fail action <select id="valve-action"><option value="normally-closed">normally closed</option><option value="normally-open">normally open</option></select></label>
+            <button id="valve-mode" type="button">Go manual</button>
+          </div>
+        </article>
+
+        <article class="stage-card tank-card">
+          <div class="stage-heading">
+            <div><span class="tag">PROCESS</span><h2>Storage tank</h2></div>
+            <code>&lt;pe-tank&gt;</code>
+          </div>
+          <div class="canvas tank-canvas">
+            <pe-tank id="tank" label="T-201" level="72" temperature="48" pressure="1.8" low-limit="15" high-limit="85" capacity="45" nozzles="3" foam="5" agitator agitator-speed="55" heater heating detail="auto"></pe-tank>
+          </div>
+          <div class="controls">
+            <label>Level <output id="tank-level-value">72%</output><input id="tank-level" type="range" min="0" max="100" value="72" /></label>
+            <label>Nozzles <select id="tank-nozzles"><option>0</option><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></label>
+            <label>Body <select id="tank-orientation"><option>vertical</option><option>horizontal</option></select></label>
+            <button id="tank-agitator" type="button">Stop agitator</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="stage-grid" aria-label="Rotating and control equipment">
+        <article class="stage-card pump-card">
+          <div class="stage-heading">
+            <div><span class="tag">PROCESS</span><h2>Centrifugal pump</h2></div>
+            <code>&lt;pe-pump&gt;</code>
+          </div>
+          <div class="canvas pump-canvas">
+            <pe-pump id="pump" label="P-201" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" detail="auto"></pe-pump>
+          </div>
+          <div class="controls">
+            <label>Speed <output id="speed-value">1450 rpm</output><input id="speed" type="range" min="0" max="2900" step="10" value="1450" /></label>
+            <label>Status <select id="pump-status"><option>normal</option><option>warning</option><option>alarm</option><option>idle</option></select></label>
+            <label>Quality <select id="pump-quality"><option>good</option><option>stale</option><option>bad</option></select></label>
+            <button id="pump-toggle" type="button">Stop</button>
+          </div>
+        </article>
+
+        <article class="stage-card controller-card">
+          <div class="stage-heading">
+            <div><span class="tag">CONTROL</span><h2>Programmable controller</h2></div>
+            <code>&lt;pe-controller&gt;</code>
+          </div>
+          <div class="canvas controller-canvas">
+            <pe-controller id="controller" label="PLC-X2" running inputs="16" outputs="16" input-state="1011010101011011" output-state="1100101000110101" scan-rate="10" load="62" activity="1" status="normal" quality="good" detail="auto"></pe-controller>
+          </div>
+          <div class="controls">
+            <label>I/O channels <select id="channels"><option value="8">8 + 8</option><option value="16" selected>16 + 16</option><option value="24">24 + 24</option><option value="32">32 + 32</option></select></label>
+            <label>CPU load <output id="load-value">62%</output><input id="load" type="range" min="0" max="100" value="62" /></label>
+            <button id="activity" type="button">Pulse network</button>
+            <button id="controller-alarm" type="button">Toggle fault</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="quality-grid" aria-label="Responsive and state variants">
+        <article><span>Horizontal body</span><pe-tank orientation="horizontal" level="54" temperature="31" pressure="2.4" medium="oil" nozzles="3" detail="compact"></pe-tank></article>
+        <article><span>Low alarm</span><pe-tank level="4" temperature="19" pressure="0.3" low-limit="15" nozzles="2" detail="compact"></pe-tank></article>
+        <article><span>Electric actuator</span><pe-control-valve actuator="electric" position="42" command="42" mode="manual" powered detail="compact"></pe-control-valve></article>
+        <article><span>Alarm</span><pe-pump running speed="1450" value="8.7" unit="bar" status="alarm" detail="compact"></pe-pump></article>
+      </section>
+    </main>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
