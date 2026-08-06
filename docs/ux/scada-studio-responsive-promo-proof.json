@@ -1,0 +1,40 @@
+{
+  "video": {
+    "file": "external artifact: scada-studio-responsive.mp4",
+    "codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "fps": 12,
+    "durationSeconds": 46.166667,
+    "checkpoints": 46,
+    "sha256": "789f0180d3fbc5eaf4f02622d8a27e5bdfab0fd708f334420d8ec548eb062b83"
+  },
+  "project": {
+    "devices": 7,
+    "connections": 6,
+    "equipment": ["T-101", "T-102", "FV-101", "P-101", "FV-102", "P-102", "PLC-01"]
+  },
+  "viewports": [
+    "3840x2160",
+    "2560x1440",
+    "1920x1080",
+    "1440x900",
+    "1024x768",
+    "820x1180",
+    "390x844"
+  ],
+  "finalState": {
+    "mode": "run",
+    "mobileView": "devices",
+    "horizontalOverflow": false,
+    "consoleErrors": 0
+  },
+  "separateSmokeTest": {
+    "directPlacement": true,
+    "stickyConnect": true,
+    "phoneDispatcher": true,
+    "phoneDiagramZoom": true,
+    "horizontalOverflow": false,
+    "consoleErrors": 0
+  }
+}
