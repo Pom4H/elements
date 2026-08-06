@@ -1,54 +1,84 @@
 import { ElementsElement } from '../element.js';
 import { MotionScope } from '../motion/index.js';
-import { pointsToRoundedPath, routeOrthogonal } from '../routing/index.js';
+import { pointsToRoundedPath, routeBranched, tapPolyline, type RouteObstacle } from '../routing/index.js';
 import type { Point, PortDefinition, PortDirection } from '../types.js';
-import { ElementsConnectionElement } from './connection.js';
+import { ElementsConnectionElement, connectionAttributes } from './connection.js';
+import { ElementsJunctionElement, junctionAttributes } from './junction.js';
 import {
   connectionVisualMetrics,
-  parseEndpointReference,
-  readConnectionDiameter,
-  readConnectionKind,
-  readConnectionSpeed,
-  readFlowDirection,
+  media,
+  mediumStyles,
+  portCompatibility,
+  readMedium,
   type ConnectionKind,
   type ConnectionVisualMetrics,
+  type EndpointReference,
+  type EndpointSpec,
+  type MediumId,
+  type TapReference,
 } from './model.js';
 
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-const CONNECTION_ATTRIBUTES = [
-  'from',
-  'to',
-  'kind',
-  'active',
-  'speed',
-  'direction',
-  'diameter',
-  'status',
-  'quality',
-  'label',
-  'id',
-  'x',
-  'y',
-  'width',
-  'height',
-  'rotation',
-  'scale',
-] as const;
+const LAYOUT_ATTRIBUTES = ['id', 'x', 'y', 'width', 'height', 'rotation', 'scale'] as const;
+const OBSERVED_ATTRIBUTES = [...new Set([...connectionAttributes, ...junctionAttributes, ...LAYOUT_ATTRIBUTES])];
 
 interface PortAnchor {
   readonly point: Point;
   readonly direction: PortDirection;
-  readonly kind: string | undefined;
+  /** Absent when the anchor is a tap on another run rather than an equipment port. */
+  readonly port: PortDefinition | undefined;
+}
+
+/**
+ * An endpoint before its facing is settled. Junctions have no direction of
+ * their own, so theirs is decided once the other end of the run is known.
+ */
+interface Endpoint {
+  readonly point: Point;
+  readonly direction: PortDirection | undefined;
+  readonly port: PortDefinition | undefined;
+  readonly junction?: ElementsJunctionElement;
+  /** Id of the equipment owning this endpoint, so the run can ignore it as an obstacle. */
+  readonly owner?: string;
+}
+
+function faceEndpoint(endpoint: Endpoint, counterpart: Point): PortAnchor {
+  const direction = endpoint.direction
+    ?? screenDirection(counterpart.x - endpoint.point.x, counterpart.y - endpoint.point.y);
+  return { point: endpoint.point, direction, port: endpoint.port };
+}
+
+interface JunctionUse {
+  readonly links: number;
+  readonly diameter: number;
+}
+
+interface RenderContext {
+  readonly sceneRect: DOMRect;
+  readonly nodes: ReadonlyMap<string, ElementsElement>;
+  readonly junctions: ReadonlyMap<string, ElementsJunctionElement>;
+  readonly obstacles: ReadonlyMap<string, RouteObstacle>;
+  readonly routes: Map<string, ResolvedRoute>;
+  readonly junctionUse: Map<string, JunctionUse>;
 }
 
 interface RenderedConnection {
   readonly group: SVGGElement;
   readonly shadow: SVGPathElement;
+  readonly jacket: SVGPathElement;
   readonly shell: SVGPathElement;
   readonly bore: SVGPathElement;
   readonly flow: SVGPathElement;
+  readonly fittings: SVGGElement;
   animation: Animation | null;
   animationSignature: string;
+}
+
+/** What a later run needs to know to tap this one. */
+interface ResolvedRoute {
+  readonly points: readonly Point[];
+  readonly diameter: number;
+  readonly medium: MediumId | undefined;
 }
 
 function svgElement<K extends keyof SVGElementTagNameMap>(name: K): SVGElementTagNameMap[K] {
@@ -76,6 +106,11 @@ function screenDirection(dx: number, dy: number): PortDirection {
   return dy >= 0 ? 'bottom' : 'top';
 }
 
+function stubOut(point: Point, direction: PortDirection, stub: number): Point {
+  const vector = directionVector(direction);
+  return { x: point.x + vector.x * stub, y: point.y + vector.y * stub };
+}
+
 function isElementsElement(element: Element): element is ElementsElement {
   return element instanceof ElementsElement;
 }
@@ -89,6 +124,10 @@ function createRenderedConnection(): RenderedConnection {
   shadow.classList.add('connection-shadow');
   shadow.setAttribute('part', 'connection-shadow');
 
+  const jacket = svgElement('path');
+  jacket.classList.add('connection-jacket');
+  jacket.setAttribute('part', 'connection-jacket');
+
   const shell = svgElement('path');
   shell.classList.add('connection-shell');
   shell.setAttribute('part', 'connection-shell');
@@ -101,8 +140,17 @@ function createRenderedConnection(): RenderedConnection {
   flow.classList.add('connection-flow');
   flow.setAttribute('part', 'connection-flow');
 
-  group.append(shadow, shell, bore, flow);
-  return { group, shadow, shell, bore, flow, animation: null, animationSignature: '' };
+  const fittings = svgElement('g');
+  fittings.classList.add('connection-fittings');
+  fittings.setAttribute('part', 'connection-fittings');
+
+  group.append(shadow, jacket, shell, bore, flow, fittings);
+  return { group, shadow, jacket, shell, bore, flow, fittings, animation: null, animationSignature: '' };
+}
+
+/** Every polyline of a run as one multi-subpath `d`; dashes restart per branch. */
+function routeToPath(segments: readonly (readonly Point[])[], radius: number): string {
+  return segments.map((points) => pointsToRoundedPath(points, radius)).filter(Boolean).join(' ');
 }
 
 export class ElementsSceneElement extends HTMLElement {
@@ -146,14 +194,24 @@ export class ElementsSceneElement extends HTMLElement {
           pointer-events: none;
         }
         slot { position: relative; z-index: 1; }
-        ::slotted(:not(el-connection)) { z-index: 1; }
-        ::slotted(el-connection) { display: none !important; }
+        ::slotted(*) { z-index: 1; }
+        /* Connections are declarations, not boxes: the scene draws them. */
+        ::slotted(el-connection),
+        ::slotted(el-pipe),
+        ::slotted(el-wire),
+        ::slotted(el-signal) { display: none !important; }
+        ::slotted(el-junction) { z-index: 2; }
         .connection path {
           fill: none;
           stroke-linecap: round;
           stroke-linejoin: round;
         }
         .connection-shadow { stroke: var(--elements-connection-shadow, rgb(0 4 10 / .68)); }
+        .connection-jacket {
+          stroke: var(--elements-insulation, #9fb2c2);
+          opacity: 0;
+        }
+        .connection[data-insulated="true"] .connection-jacket { opacity: .34; }
         .connection-shell { stroke: var(--elements-pipe-shell, #53687c); }
         .connection-bore { stroke: var(--elements-pipe-bore, #0a1723); }
         .connection-flow {
@@ -163,6 +221,27 @@ export class ElementsSceneElement extends HTMLElement {
           transition: opacity 180ms ease;
         }
         .connection[data-active="true"] .connection-flow { opacity: .96; }
+        ${mediumStyles(
+          (id) => `.connection[data-medium="${id}"] .connection-flow`,
+          (color) => `stroke:${color};filter:drop-shadow(0 0 2px ${color})`,
+        )}
+        .connection[data-phase="gas"] .connection-flow { opacity: .08; }
+        .connection[data-phase="gas"][data-active="true"] .connection-flow { opacity: .6; }
+        .connection-collar {
+          fill: var(--elements-pipe-bore, #0a1723);
+          stroke: var(--elements-pipe-shell, #53687c);
+        }
+        .connection-fittings[data-reducing="true"] .connection-collar {
+          stroke: var(--elements-pipe-reducer, #8ba0b3);
+        }
+        .connection[data-kind="wire"] .connection-collar {
+          fill: var(--elements-wire-core, #b86f32);
+          stroke: var(--elements-wire-shell, #27384b);
+        }
+        .connection[data-kind="signal"] .connection-collar {
+          fill: var(--elements-signal-shell, #355068);
+          stroke: var(--elements-signal-shell, #355068);
+        }
         .connection[data-kind="wire"] .connection-shell { stroke: var(--elements-wire-shell, #27384b); }
         .connection[data-kind="wire"] .connection-bore { stroke: var(--elements-wire-core, #b86f32); }
         .connection[data-kind="wire"] .connection-flow {
@@ -179,10 +258,11 @@ export class ElementsSceneElement extends HTMLElement {
         .connection[data-status="alarm"] .connection-shell { stroke: var(--elements-alarm, #ff5c74); }
         .connection[data-quality="stale"] { opacity: .58; }
         .connection[data-quality="bad"] { opacity: .34; filter: grayscale(1); }
-        .connection[data-compatible="false"] .connection-shell {
+        .connection[data-issue] .connection-shell {
           stroke: var(--elements-alarm, #ff5c74);
           stroke-dasharray: 7 6;
         }
+        .connection[data-issue] .connection-flow { display: none; }
         @media (prefers-reduced-motion: reduce) {
           .connection-flow { filter: none; }
         }
@@ -214,7 +294,7 @@ export class ElementsSceneElement extends HTMLElement {
       subtree: true,
       childList: true,
       attributes: true,
-      attributeFilter: [...CONNECTION_ATTRIBUTES],
+      attributeFilter: [...OBSERVED_ATTRIBUTES],
     });
     this.addEventListener('elements-update', this.#onElementUpdate);
     this.addEventListener('elements-connection-change', this.#onConnectionChange);
@@ -247,6 +327,12 @@ export class ElementsSceneElement extends HTMLElement {
     return Array.from(this.children).filter(isElementsElement);
   }
 
+  #junctions(): ElementsJunctionElement[] {
+    return Array.from(this.children).filter(
+      (element): element is ElementsJunctionElement => element instanceof ElementsJunctionElement,
+    );
+  }
+
   #connections(): ElementsConnectionElement[] {
     return Array.from(this.children).filter(
       (element): element is ElementsConnectionElement => element instanceof ElementsConnectionElement,
@@ -271,7 +357,7 @@ export class ElementsSceneElement extends HTMLElement {
     });
   }
 
-  #applyNodeLayout(node: ElementsElement): void {
+  #applyNodeLayout(node: HTMLElement): void {
     const managed = ['x', 'y', 'width', 'height', 'rotation', 'scale'].some((name) => node.hasAttribute(name));
     if (!managed) return;
 
@@ -293,8 +379,9 @@ export class ElementsSceneElement extends HTMLElement {
   }
 
   #portAnchor(node: ElementsElement, portId: string, sceneRect: DOMRect): PortAnchor | undefined {
-    const constructor = node.constructor as typeof ElementsElement;
-    const port = constructor.definition.ports?.find((candidate) => candidate.id === portId);
+    // Ports are resolved per instance: a tank with four nozzles exposes four
+    // more anchors than the same definition with one.
+    const port = node.port(portId);
     if (!port) return undefined;
 
     const matrix = node.svgRoot.getScreenCTM();
@@ -306,15 +393,34 @@ export class ElementsSceneElement extends HTMLElement {
     return {
       point: { x: screenPoint.x - sceneRect.left, y: screenPoint.y - sceneRect.top },
       direction: screenDirection(screenVector.x - screenPoint.x, screenVector.y - screenPoint.y),
-      kind: port.kind,
+      port,
     };
   }
 
-  #resolveAnchor(referenceValue: string | null, sceneRect: DOMRect): PortAnchor | undefined {
-    const reference = parseEndpointReference(referenceValue);
-    if (!reference) return undefined;
-    const node = this.#nodes().find((candidate) => candidate.id === reference.elementId);
-    return node ? this.#portAnchor(node, reference.portId, sceneRect) : undefined;
+  /** Endpoint whose facing is not known until its counterpart is placed. */
+  #junctionEndpoint(junction: ElementsJunctionElement, sceneRect: DOMRect): Endpoint {
+    const rect = junction.getBoundingClientRect();
+    return {
+      point: {
+        x: rect.left + rect.width / 2 - sceneRect.left,
+        y: rect.top + rect.height / 2 - sceneRect.top,
+      },
+      direction: undefined,
+      port: undefined,
+      junction,
+    };
+  }
+
+  #resolveEndpoint(spec: EndpointSpec | undefined, context: RenderContext): Endpoint | undefined {
+    if (!spec) return undefined;
+    if (spec.type === 'node') {
+      const junction = context.junctions.get(spec.nodeId);
+      return junction ? this.#junctionEndpoint(junction, context.sceneRect) : undefined;
+    }
+    const node = context.nodes.get(spec.elementId);
+    if (!node) return undefined;
+    const anchor = this.#portAnchor(node, spec.portId, context.sceneRect);
+    return anchor ? { ...anchor, owner: spec.elementId } : undefined;
   }
 
   #render(): void {
@@ -326,8 +432,11 @@ export class ElementsSceneElement extends HTMLElement {
     const nodes = this.#nodes();
     if (nodes.length !== this.#observedNodeCount) this.#syncResizeTargets();
     for (const node of nodes) this.#applyNodeLayout(node);
+    const junctions = this.#junctions();
+    for (const junction of junctions) this.#applyNodeLayout(junction);
 
-    const activeConnections = new Set(this.#connections());
+    const connections = this.#connections();
+    const activeConnections = new Set(connections);
     for (const [connection, rendered] of this.#rendered) {
       if (activeConnections.has(connection)) continue;
       rendered.animation?.cancel();
@@ -335,52 +444,154 @@ export class ElementsSceneElement extends HTMLElement {
       this.#rendered.delete(connection);
     }
 
-    for (const connection of activeConnections) {
-      let rendered = this.#rendered.get(connection);
-      if (!rendered) {
-        rendered = createRenderedConnection();
-        this.#rendered.set(connection, rendered);
-        this.#layer.append(rendered.group);
+    const context: RenderContext = {
+      sceneRect,
+      nodes: new Map(nodes.filter((node) => node.id !== '').map((node) => [node.id, node])),
+      junctions: new Map(junctions.filter((junction) => junction.id !== '').map((junction) => [junction.id, junction])),
+      obstacles: new Map(nodes.filter((node) => node.id !== '').map((node) => {
+        const rect = node.getBoundingClientRect();
+        return [node.id, {
+          x: rect.left - sceneRect.left,
+          y: rect.top - sceneRect.top,
+          width: rect.width,
+          height: rect.height,
+        }];
+      })),
+      routes: new Map(),
+      junctionUse: new Map(),
+    };
+
+    // Runs that start at a port are routed first so that runs tapping them
+    // already have a trunk to attach to, whatever the document order.
+    const taps: ElementsConnectionElement[] = [];
+    for (const connection of connections) {
+      if (connection.tap === undefined || context.junctions.has(connection.tap.connectionId)) {
+        this.#renderConnection(connection, context);
+      } else {
+        taps.push(connection);
       }
-      this.#renderConnection(connection, rendered, sceneRect);
+    }
+    for (const connection of taps) this.#renderConnection(connection, context);
+
+    this.#sizeJunctions(junctions, context);
+  }
+
+  /** A junction wears the widest run that reaches it, and says how many meet it. */
+  #sizeJunctions(junctions: readonly ElementsJunctionElement[], context: RenderContext): void {
+    for (const junction of junctions) {
+      const use = context.junctionUse.get(junction.id);
+      junction.dataset.links = String(use?.links ?? 0);
+      const diameter = use?.diameter ?? 0;
+      if (diameter <= 0) junction.style.removeProperty('--elements-junction-size');
+      else junction.style.setProperty('--elements-junction-size', `${Math.round(diameter + 10)}px`);
     }
   }
 
-  #renderConnection(
-    connection: ElementsConnectionElement,
-    rendered: RenderedConnection,
-    sceneRect: DOMRect,
-  ): void {
-    const source = this.#resolveAnchor(connection.getAttribute('from'), sceneRect);
-    const target = this.#resolveAnchor(connection.getAttribute('to'), sceneRect);
-    if (!source || !target) {
+  #renderedFor(connection: ElementsConnectionElement): RenderedConnection {
+    let rendered = this.#rendered.get(connection);
+    if (!rendered) {
+      rendered = createRenderedConnection();
+      this.#rendered.set(connection, rendered);
+      this.#layer.append(rendered.group);
+    }
+    return rendered;
+  }
+
+  #renderConnection(connection: ElementsConnectionElement, context: RenderContext): void {
+    const rendered = this.#renderedFor(connection);
+    const rawTargets = connection.targets
+      .map((spec) => this.#resolveEndpoint(spec, context))
+      .filter((endpoint): endpoint is Endpoint => endpoint !== undefined);
+
+    const tap = connection.tap;
+    const junctionSource = tap === undefined ? undefined : context.junctions.get(tap.connectionId);
+    const trunk = tap === undefined || junctionSource !== undefined
+      ? undefined
+      : context.routes.get(tap.connectionId);
+
+    const rawSource = junctionSource !== undefined
+      ? this.#junctionEndpoint(junctionSource, context.sceneRect)
+      : tap === undefined
+        ? this.#resolveEndpoint(connection.source === undefined ? undefined : { type: 'port', ...connection.source }, context)
+        : this.#tapEndpoint(trunk, tap, rawTargets[0], connection.diameter);
+
+    if (!rawSource || rawTargets.length === 0) {
       rendered.group.setAttribute('display', 'none');
       return;
     }
     rendered.group.removeAttribute('display');
 
-    const kind = readConnectionKind(connection.getAttribute('kind'));
-    const diameter = readConnectionDiameter(kind, connection.getAttribute('diameter'));
+    // A junction has no facing of its own; it takes the one that points at
+    // whatever sits on the other end of the run.
+    const source = faceEndpoint(rawSource, rawTargets[0]!.point);
+    const targets = rawTargets.map((target) => faceEndpoint(target, source.point));
+
+    const kind = connection.connectionKind;
+    const diameter = connection.diameter;
     const metrics = connectionVisualMetrics(kind, diameter);
     const stub = Math.max(24, diameter * 1.6);
     const radius = Math.max(7, diameter * 0.72);
-    const path = pointsToRoundedPath(routeOrthogonal(source, target, stub), radius);
 
-    for (const pathElement of [rendered.shadow, rendered.shell, rendered.bore, rendered.flow]) {
+    // Equipment at either end of this run is not something it has to avoid.
+    const exempt = new Set([rawSource.owner, ...rawTargets.map((target) => target.owner)]);
+    const obstacles = [...context.obstacles]
+      .filter(([id]) => !exempt.has(id))
+      .map(([, obstacle]) => obstacle);
+
+    const route = routeBranched(source, targets, { stub, obstacles, margin: Math.max(10, diameter) });
+    const path = routeToPath([route.trunk, ...route.branches], radius);
+
+    for (const endpoint of [rawSource, ...rawTargets]) {
+      if (!endpoint.junction) continue;
+      const use = context.junctionUse.get(endpoint.junction.id) ?? { links: 0, diameter: 0 };
+      context.junctionUse.set(endpoint.junction.id, {
+        links: use.links + 1,
+        diameter: Math.max(use.diameter, diameter),
+      });
+    }
+
+    for (const pathElement of [rendered.shadow, rendered.jacket, rendered.shell, rendered.bore, rendered.flow]) {
       pathElement.setAttribute('d', path);
     }
     rendered.shadow.setAttribute('stroke-width', String(metrics.outerWidth + (kind === 'pipe' ? 5 : 2)));
+    rendered.jacket.setAttribute('stroke-width', String(metrics.outerWidth + 9));
     rendered.shell.setAttribute('stroke-width', String(metrics.outerWidth));
     rendered.bore.setAttribute('stroke-width', String(metrics.innerWidth));
     rendered.flow.setAttribute('stroke-width', String(metrics.flowWidth));
     rendered.flow.setAttribute('stroke-dasharray', `${metrics.dash} ${metrics.gap}`);
 
-    const compatible = this.#compatible(kind, source.kind, target.kind);
+    // The endpoint media win over the connection attribute: a nozzle that
+    // declares oil keeps the pipe amber even when the markup forgets to say so.
+    // A tap with nothing of its own inherits from the run it branches off.
+    const medium = readMedium(source.port?.medium ?? null)
+      ?? targets.map((target) => readMedium(target.port?.medium ?? null)).find(Boolean)
+      ?? connection.medium
+      ?? trunk?.medium;
+    const compatibility = targets
+      .map((target) => portCompatibility(kind, source.port, target.port))
+      .find((result) => !result.compatible) ?? { compatible: true };
+
+    // A tee where the branch is narrower than its run is a reducing tee; the
+    // fitting is drawn at the run's bore so the step reads as a real fitting.
+    this.#renderFittings(rendered, route.tees, diameter, trunk === undefined ? diameter : trunk.diameter, tap, source.point);
+
+    const id = connection.getAttribute('id');
+    if (id !== null) context.routes.set(id, { points: route.trunk, diameter, medium });
     rendered.group.dataset.kind = kind;
-    rendered.group.dataset.active = String(connection.hasAttribute('active'));
-    rendered.group.dataset.compatible = String(compatible);
-    rendered.group.dataset.status = connection.getAttribute('status') ?? 'normal';
-    rendered.group.dataset.quality = connection.getAttribute('quality') ?? 'good';
+    rendered.group.dataset.active = String(connection.active);
+    rendered.group.dataset.insulated = String(connection.insulated);
+    rendered.group.dataset.status = connection.status;
+    rendered.group.dataset.quality = connection.quality;
+    if (medium === undefined) {
+      delete rendered.group.dataset.medium;
+      delete rendered.group.dataset.phase;
+    } else {
+      rendered.group.dataset.medium = medium;
+      rendered.group.dataset.phase = media[medium].phase;
+    }
+    if (compatibility.issue === undefined) delete rendered.group.dataset.issue;
+    else rendered.group.dataset.issue = compatibility.issue;
+
     const label = connection.getAttribute('label');
     if (label === null) rendered.group.removeAttribute('aria-label');
     else rendered.group.setAttribute('aria-label', label);
@@ -388,12 +599,55 @@ export class ElementsSceneElement extends HTMLElement {
     this.#syncAnimation(connection, rendered, kind, metrics);
   }
 
-  #compatible(kind: ConnectionKind, sourceKind: string | undefined, targetKind: string | undefined): boolean {
-    if (sourceKind === undefined || targetKind === undefined) return true;
-    if (sourceKind !== targetKind) return false;
-    if (kind === 'pipe') return sourceKind === 'process';
-    if (kind === 'wire') return sourceKind === 'electrical' || sourceKind === 'power';
-    return sourceKind === 'signal' || sourceKind === 'network';
+  /** Where a branching run leaves the run it taps, and which way it heads off. */
+  #tapEndpoint(
+    trunk: ResolvedRoute | undefined,
+    tap: TapReference,
+    target: Endpoint | undefined,
+    diameter: number,
+  ): Endpoint | undefined {
+    if (!trunk || !target) return undefined;
+    const stub = Math.max(24, diameter * 1.6);
+    // Aim at the target's stub rather than the port itself, so the branch leaves
+    // the run opposite the approach rather than doubling back.
+    const toward = target.direction === undefined
+      ? target.point
+      : stubOut(target.point, target.direction, stub);
+    const anchor = tapPolyline(trunk.points, toward, tap.fraction);
+    if (!anchor) return undefined;
+    return { point: anchor.point, direction: anchor.direction, port: undefined };
+  }
+
+  #renderFittings(
+    rendered: RenderedConnection,
+    tees: readonly Point[],
+    branchDiameter: number,
+    trunkDiameter: number,
+    tap: TapReference | undefined,
+    tapPoint: Point,
+  ): void {
+    const collars = tap === undefined ? tees : [tapPoint, ...tees];
+    const runDiameter = tap === undefined ? branchDiameter : trunkDiameter;
+    const reducing = branchDiameter < runDiameter - 1;
+
+    while (rendered.fittings.childElementCount > collars.length) {
+      rendered.fittings.lastElementChild?.remove();
+    }
+    while (rendered.fittings.childElementCount < collars.length) {
+      const collar = svgElement('circle');
+      collar.classList.add('connection-collar');
+      rendered.fittings.append(collar);
+    }
+
+    collars.forEach((point, index) => {
+      const collar = rendered.fittings.children[index];
+      if (!(collar instanceof SVGCircleElement)) return;
+      collar.setAttribute('cx', String(point.x));
+      collar.setAttribute('cy', String(point.y));
+      collar.setAttribute('r', String(Math.max(branchDiameter, runDiameter) * 0.5 + 1.5));
+      collar.setAttribute('stroke-width', String(reducing ? 3 : 2));
+    });
+    rendered.fittings.dataset.reducing = String(reducing);
   }
 
   #syncAnimation(
@@ -402,7 +656,7 @@ export class ElementsSceneElement extends HTMLElement {
     kind: ConnectionKind,
     metrics: ConnectionVisualMetrics,
   ): void {
-    const direction = readFlowDirection(connection.getAttribute('direction'));
+    const direction = connection.direction;
     const signature = `${kind}:${direction}:${metrics.cycle}`;
     if (rendered.animation === null || rendered.animationSignature !== signature) {
       rendered.animation?.cancel();
@@ -419,8 +673,8 @@ export class ElementsSceneElement extends HTMLElement {
     }
 
     const animation = rendered.animation;
-    const speed = readConnectionSpeed(connection.getAttribute('speed'));
-    if (!connection.hasAttribute('active') || speed === 0) {
+    const speed = connection.speed;
+    if (!connection.active || speed === 0) {
       animation.pause();
       return;
     }

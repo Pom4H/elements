@@ -6,11 +6,19 @@ import {
 } from './attributes.js';
 import { applyBindings } from './bindings.js';
 import { CollectionController } from './composition/index.js';
-import { initialViewBox, resolveViewBox, type ElementDefinition } from './definition.js';
+import {
+  initialPorts,
+  initialViewBox,
+  portSignature,
+  resolveDetailLevel,
+  resolvePorts,
+  resolveViewBox,
+  type ElementDefinition,
+} from './definition.js';
 import { MotionController } from './motion/index.js';
 import { PartMap } from './parts.js';
 import { createStyleSheet, instantiateSvg } from './template.js';
-import type { ElementContext, StateValueMap } from './types.js';
+import type { DetailLevel, ElementContext, PortDefinition, StateValueMap } from './types.js';
 
 type StateInternals = ElementInternals & {
   readonly states?: CustomStateSet;
@@ -37,8 +45,16 @@ export abstract class ElementsElement extends HTMLElement {
   readonly #changed = new Set<string>();
   #attributes: Record<string, unknown> = {};
   #states: StateValueMap = {};
+  #ports: readonly PortDefinition[];
+  #portSignature: string;
+  #detail: DetailLevel = 'full';
   #scheduled = false;
   #connected = false;
+
+  /** Width decides which drawing is shown, so the element watches its own box. */
+  readonly #resizeObserver = new ResizeObserver(() => {
+    if (this.#resolveDetail() !== this.#detail) this.#schedule('detail');
+  });
 
   protected constructor() {
     super();
@@ -64,6 +80,8 @@ export abstract class ElementsElement extends HTMLElement {
     this.#parts = new PartMap(this.#svg);
     this.#collections = new CollectionController(this.#svg, this.#definition.collections ?? []);
     this.#motions = new MotionController(this, this.#definition.motions ?? []);
+    this.#ports = initialPorts(this.#definition.ports);
+    this.#portSignature = portSignature(this.#ports);
   }
 
   get svgRoot(): SVGSVGElement {
@@ -75,7 +93,25 @@ export abstract class ElementsElement extends HTMLElement {
   }
 
   get context(): ElementContext {
-    return { host: this, attributes: this.#attributes, states: this.#states };
+    return { host: this, attributes: this.#attributes, states: this.#states, detail: this.#detail };
+  }
+
+  /** The drawing currently on screen, once the declared detail and size agree. */
+  get detailLevel(): DetailLevel {
+    return this.#detail;
+  }
+
+  /**
+   * Ports resolved against the current attributes. Definitions may declare a
+   * fixed list or derive one from context, so scenes must read the instance
+   * rather than the constructor.
+   */
+  get ports(): readonly PortDefinition[] {
+    return this.#ports;
+  }
+
+  port(id: string): PortDefinition | undefined {
+    return this.#ports.find((candidate) => candidate.id === id);
   }
 
   get activeMotions() {
@@ -86,12 +122,14 @@ export abstract class ElementsElement extends HTMLElement {
     this.#connected = true;
     this.#upgradeProperties();
     this.#motions.connect();
+    if (this.#definition.detailBreakpoints !== undefined) this.#resizeObserver.observe(this);
     this.#schedule('*');
   }
 
   disconnectedCallback(): void {
     this.#connected = false;
     this.#motions.disconnect();
+    this.#resizeObserver.disconnect();
   }
 
   attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
@@ -127,7 +165,13 @@ export abstract class ElementsElement extends HTMLElement {
 
     const previousStates = this.#states;
     this.#attributes = readAttributes(this, this.#definition.attributes);
-    const provisional: ElementContext = { host: this, attributes: this.#attributes, states: previousStates };
+    this.#updateDetail();
+    const provisional: ElementContext = {
+      host: this,
+      attributes: this.#attributes,
+      states: {},
+      detail: this.#detail,
+    };
     const nextStates: StateValueMap = {};
     for (const [name, derive] of Object.entries(this.#definition.states ?? {})) {
       nextStates[name] = Boolean(derive(provisional));
@@ -140,10 +184,13 @@ export abstract class ElementsElement extends HTMLElement {
 
     const context = this.context;
     this.#updateViewport(context);
+    this.#updatePorts(context);
     const structureChanged = this.#collections.reconcile(context);
     if (structureChanged) this.#parts.refresh();
 
-    applyBindings(this.#definition.bindings ?? [], context, this.#parts, this.#changed);
+    // Freshly mounted fragments have no bound values yet, so a structural change
+    // has to run every binding rather than only the ones whose inputs changed.
+    applyBindings(this.#definition.bindings ?? [], context, this.#parts, this.#changed, structureChanged);
     this.#motions.reconcile(context, this.#parts);
 
     const changed = [...this.#changed];
@@ -151,8 +198,33 @@ export abstract class ElementsElement extends HTMLElement {
     this.dispatchEvent(new CustomEvent('elements-update', {
       bubbles: true,
       composed: true,
-      detail: { changed, attributes: this.#attributes, states: this.#states },
+      detail: { changed, attributes: this.#attributes, states: this.#states, ports: this.#ports },
     }));
+  }
+
+  #resolveDetail(): DetailLevel {
+    return resolveDetailLevel(
+      this.getAttribute('detail'),
+      this.clientWidth,
+      this.#definition.detailBreakpoints,
+    );
+  }
+
+  #updateDetail(): void {
+    const next = this.#resolveDetail();
+    if (next === this.#detail && this.dataset.detailLevel === next) return;
+    this.#detail = next;
+    this.dataset.detailLevel = next;
+    this.#changed.add('detail');
+  }
+
+  #updatePorts(context: ElementContext): void {
+    const next = resolvePorts(this.#definition.ports, context);
+    const signature = portSignature(next);
+    if (signature === this.#portSignature) return;
+    this.#ports = next;
+    this.#portSignature = signature;
+    this.#changed.add('ports');
   }
 
   #updateViewport(context: ElementContext): void {

@@ -45,9 +45,10 @@ export function applyBindings(
   context: ElementContext,
   parts: PartMap,
   changed: ReadonlySet<string>,
+  force = false,
 ): void {
   for (const binding of bindings) {
-    if (!shouldApply(binding, changed)) continue;
+    if (!force && !shouldApply(binding, changed)) continue;
     const targets = targetsFor(binding, context.host, parts);
     targets.forEach((target, index) => {
       switch (binding.type) {

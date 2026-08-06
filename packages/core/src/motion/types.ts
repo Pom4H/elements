@@ -28,6 +28,13 @@ export interface TransitionMotionDefinition extends MotionBase {
 export interface ScrubMotionDefinition extends MotionBase {
   readonly type: 'scrub';
   readonly progress: (context: ElementContext, target: Element, index: number) => number;
+  /**
+   * Approximate time in milliseconds for the timeline to travel to a new
+   * progress value instead of jumping to it. Mechanical parts — valve stems,
+   * liquid levels, gauge needles — read as broken when they teleport between
+   * samples. The first application and reduced motion always snap.
+   */
+  readonly settle?: number;
 }
 
 export type MotionDefinition = LoopMotionDefinition | TransitionMotionDefinition | ScrubMotionDefinition;

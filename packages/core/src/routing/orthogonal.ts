@@ -1,9 +1,13 @@
 import type { Point, PortDirection } from '../types.js';
 
-const EPSILON = 0.5;
-const isHorizontal = (direction: PortDirection): boolean => direction === 'left' || direction === 'right';
+export const ROUTE_EPSILON = 0.5;
+const EPSILON = ROUTE_EPSILON;
 
-function stubOut(point: Point, direction: PortDirection, stub: number): Point {
+export const isHorizontalDirection = (direction: PortDirection): boolean => direction === 'left' || direction === 'right';
+const isHorizontal = isHorizontalDirection;
+
+/** Steps out of a port along its facing direction, where every route begins. */
+export function stubPoint(point: Point, direction: PortDirection, stub: number): Point {
   switch (direction) {
     case 'left': return { x: point.x - stub, y: point.y };
     case 'right': return { x: point.x + stub, y: point.y };
@@ -75,8 +79,8 @@ export function routeOrthogonal(
   target: { readonly point: Point; readonly direction: PortDirection },
   stub = 26,
 ): Point[] {
-  const first = stubOut(source.point, source.direction, stub);
-  const second = stubOut(target.point, target.direction, stub);
+  const first = stubPoint(source.point, source.direction, stub);
+  const second = stubPoint(target.point, target.direction, stub);
   return simplifyOrthogonalPoints([
     source.point,
     first,

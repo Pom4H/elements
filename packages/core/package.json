@@ -23,6 +23,10 @@
     "./scene": {
       "types": "./dist/scene/index.d.ts",
       "default": "./dist/scene/index.js"
+    },
+    "./editing": {
+      "types": "./dist/editing/index.d.ts",
+      "default": "./dist/editing/index.js"
     }
   },
   "files": [

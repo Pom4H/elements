@@ -3,12 +3,19 @@ export interface DetailStyleOptions {
   readonly hideStandardBelow?: number;
 }
 
+/**
+ * `detail` is what the markup asked for; `data-detail-level` is what the
+ * element settled on once its width had a say. Both are honoured, so an
+ * element that shrinks into `compact` sheds the same parts as one told to.
+ */
 export const detailModeStyles = `
 :host([detail="full"]) [data-detail] { display: revert; }
 :host([detail="compact"]) [data-detail="standard"] { display: revert; }
 :host([detail="compact"]) [data-detail="fine"] { display: none; }
 :host([detail="symbol"]) [data-detail] { display: none; }
 :host([detail="symbol"]) text:not([data-detail]) { display: revert; }
+:host([data-detail-level="compact"]) [data-detail="fine"] { display: none; }
+:host([data-detail-level="symbol"]) [data-detail] { display: none; }
 `;
 
 function containerWidth(name: keyof DetailStyleOptions, value: number | undefined): number | undefined {

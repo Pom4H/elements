@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="color-scheme" content="dark" />
+    <title>Scale check</title>
+    <style>
+      body { background: #070d15; color: #dbe7f3; font: 12px ui-monospace, monospace; margin: 0; padding: 14px; }
+      #root { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      section { border: 1px solid #1d2c3b; border-radius: 6px; padding: 8px 10px 10px; }
+      h2 { font-size: 10px; letter-spacing: .1em; color: #7d93a8; margin: 0 0 8px; font-weight: 600; }
+      .row { display: flex; gap: 12px; align-items: flex-end; }
+      .cell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+      .cell span { color: #4f6376; font-size: 9px; }
+      .w96 pe-control-valve { width: 96px; }
+      .w128 pe-control-valve { width: 128px; }
+      .w160 pe-control-valve { width: 160px; }
+      .w260 pe-control-valve { width: 200px; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./src/scale.ts"></script>
+  </body>
+</html>

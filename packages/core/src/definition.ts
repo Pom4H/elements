@@ -2,7 +2,13 @@ import type { AttributeDefinition } from './attributes.js';
 import type { BindingDefinition } from './bindings.js';
 import type { CollectionDefinition } from './composition/index.js';
 import type { MotionDefinition } from './motion/index.js';
-import type { CssPartDefinition, ElementContext, ElementTagName, PortDefinition } from './types.js';
+import type {
+  CssPartDefinition,
+  DetailLevel,
+  ElementContext,
+  ElementTagName,
+  PortDefinition,
+} from './types.js';
 import type { SvgTemplate } from './template.js';
 
 export interface DynamicViewBox {
@@ -47,11 +53,89 @@ export function viewBox(
   return Object.freeze({ initial, read });
 }
 
+export interface DynamicPorts {
+  readonly initial: readonly PortDefinition[];
+  readonly read: (context: ElementContext) => readonly PortDefinition[];
+}
+
+export type PortsDefinition = readonly PortDefinition[] | DynamicPorts;
+
+function validatePorts(list: readonly PortDefinition[]): readonly PortDefinition[] {
+  const seen = new Set<string>();
+  for (const port of list) {
+    if (port.id === '') throw new TypeError('Port identifiers must not be empty.');
+    if (seen.has(port.id)) throw new TypeError(`Duplicate port identifier: ${port.id}`);
+    seen.add(port.id);
+    if (!Number.isFinite(port.x) || !Number.isFinite(port.y)) {
+      throw new TypeError(`Port ${port.id} must have finite coordinates.`);
+    }
+  }
+  return list;
+}
+
+function isDynamicPorts(definition: PortsDefinition): definition is DynamicPorts {
+  return !Array.isArray(definition);
+}
+
+export function initialPorts(definition: PortsDefinition | undefined): readonly PortDefinition[] {
+  if (definition === undefined) return [];
+  return validatePorts(isDynamicPorts(definition) ? definition.initial : definition);
+}
+
+export function resolvePorts(
+  definition: PortsDefinition | undefined,
+  context: ElementContext,
+): readonly PortDefinition[] {
+  if (definition === undefined) return [];
+  return validatePorts(isDynamicPorts(definition) ? definition.read(context) : definition);
+}
+
+export function ports(
+  initial: readonly PortDefinition[],
+  read: DynamicPorts['read'],
+): DynamicPorts {
+  validatePorts(initial);
+  return Object.freeze({ initial, read });
+}
+
+/**
+ * Widths, in CSS pixels, at or below which the element stops showing the
+ * machine and shows a simpler drawing instead. Hiding parts only goes so far:
+ * past a point the honest rendering is a different drawing altogether.
+ */
+export interface DetailBreakpoints {
+  readonly symbol?: number;
+  readonly compact?: number;
+}
+
+/**
+ * An explicit `detail` wins; `auto` asks the measured width. Without
+ * breakpoints, or before the element has been laid out, the answer is `full`.
+ */
+export function resolveDetailLevel(
+  declared: string | null,
+  width: number,
+  breakpoints: DetailBreakpoints | undefined,
+): DetailLevel {
+  if (declared === 'full' || declared === 'compact' || declared === 'symbol') return declared;
+  if (breakpoints === undefined || width <= 0) return 'full';
+  if (breakpoints.symbol !== undefined && width <= breakpoints.symbol) return 'symbol';
+  if (breakpoints.compact !== undefined && width <= breakpoints.compact) return 'compact';
+  return 'full';
+}
+
+export function portSignature(list: readonly PortDefinition[]): string {
+  return list
+    .map((port) => `${port.id}@${port.x},${port.y},${port.direction},${port.kind ?? ''},${port.role ?? ''},${port.medium ?? ''}`)
+    .join('|');
+}
+
 export interface ElementDefinition {
   readonly tagName: ElementTagName;
   readonly displayName: string;
   readonly description?: string;
   readonly viewBox: ViewBoxDefinition;
+  readonly detailBreakpoints?: DetailBreakpoints;
   readonly template: SvgTemplate;
   readonly styles?: string;
   readonly attributes: Readonly<Record<string, AttributeDefinition<unknown>>>;
@@ -59,11 +143,12 @@ export interface ElementDefinition {
   readonly bindings?: readonly BindingDefinition[];
   readonly collections?: readonly CollectionDefinition[];
   readonly motions?: readonly MotionDefinition[];
-  readonly ports?: readonly PortDefinition[];
+  readonly ports?: PortsDefinition;
   readonly parts?: readonly CssPartDefinition[];
 }
 
 export function defineElementDefinition(definition: ElementDefinition): ElementDefinition {
   initialViewBox(definition.viewBox);
+  initialPorts(definition.ports);
   return Object.freeze(definition);
 }
