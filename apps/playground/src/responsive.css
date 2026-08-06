@@ -167,7 +167,7 @@ body { min-width: 320px; }
   .viewport-meta-top > span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bottom-dock { display: none; }
   .workspace { grid-template-rows: 44px minmax(0, 1fr); }
-  .right-dock { top: auto; left: 0; right: 0; bottom: 52px; width: 100%; height: min(76dvh, 640px); transform: translateY(calc(100% + 64px)); border-left: 0; border-top: 1px solid #345064; border-radius: 12px 12px 0 0; }
+  .right-dock { top: auto; left: 0; right: 0; bottom: 52px; width: 100%; height: min(76dvh, 640px); transform: translateY(102%); border-left: 0; border-top: 1px solid #345064; border-radius: 12px 12px 0 0; }
   .studio-shell[data-right-open="true"] .right-dock { transform: translateY(0); }
   .left-dock { width: calc(100vw - 30px); }
   .dispatcher-heading { min-height: 56px; }
@@ -177,8 +177,37 @@ body { min-width: 320px; }
   .device-telemetry span { padding: 9px 8px; }
   .device-actions button { min-height: 40px; }
   .toast { bottom: 62px; min-width: 0; width: calc(100vw - 28px); }
+}
+@media (max-width: 620px) {
+  .right-dock { transform: translateY(calc(100% + 64px)); }
   .zoom-control { height: 36px; grid-template-columns: 40px 48px 40px; }
   .zoom-control button { font-size: 18px; }
   .mobile-view-switch button { min-width: 66px; height: 32px; }
   .tool-button, .mobile-inspector-toggle { width: 36px; height: 36px; }
+}
+
+/* Run mode is an operator surface, not the engineering IDE with disabled buttons. */
+@media (min-width: 1121px) {
+  .studio-shell[data-mode="run"] { grid-template-columns: 48px minmax(560px, 1fr) 326px; }
+  .studio-shell[data-mode="run"] .left-dock { display: none; }
+  .studio-shell[data-mode="run"] .workspace { grid-column: 2; }
+  .studio-shell[data-mode="run"] .right-dock { grid-column: 3; }
+}
+@media (min-width: 2200px) {
+  .studio-shell[data-mode="run"] { grid-template-columns: 58px minmax(760px, 1fr) 380px; }
+}
+
+/* Notifications acknowledge actions without masking the process or bottom dock. */
+.toast {
+  left: auto;
+  right: 14px;
+  top: 62px;
+  bottom: auto;
+  min-width: 0;
+  max-width: min(360px, calc(100vw - 28px));
+  transform: translateY(-8px);
+}
+.toast[data-open] { transform: translateY(0); }
+@media (max-width: 620px) {
+  .toast { top: 58px; right: 10px; width: auto; max-width: calc(100vw - 20px); }
 }

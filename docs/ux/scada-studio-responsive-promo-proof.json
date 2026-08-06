@@ -1,18 +1,55 @@
 {
+  "version": 2,
   "video": {
-    "file": "external artifact: scada-studio-responsive.mp4",
+    "deliveredSeparately": true,
     "codec": "h264",
     "width": 1920,
     "height": 1080,
     "fps": 12,
-    "durationSeconds": 46.166667,
+    "durationSeconds": 38.916667,
     "checkpoints": 46,
-    "sha256": "789f0180d3fbc5eaf4f02622d8a27e5bdfab0fd708f334420d8ec548eb062b83"
+    "sha256": "f70b0c67dace486661feb42bd501e18b07c670a58b221866784a8034b5a992f3"
+  },
+  "regressionGates": {
+    "emptyBeforeBuild": true,
+    "titleOverlayIntroFrames": 1,
+    "titleOverlayAfterIntro": false,
+    "completedBeforeRun": {
+      "equipment": 7,
+      "connections": 6,
+      "incompleteConnections": 0,
+      "labels": [
+        "T-101",
+        "T-102",
+        "FV-101",
+        "P-101",
+        "FV-102",
+        "P-102",
+        "PLC-01"
+      ]
+    },
+    "incompleteConnections": 0
   },
   "project": {
     "devices": 7,
     "connections": 6,
-    "equipment": ["T-101", "T-102", "FV-101", "P-101", "FV-102", "P-102", "PLC-01"]
+    "equipment": [
+      "T-101",
+      "T-102",
+      "FV-101",
+      "P-101",
+      "FV-102",
+      "P-102",
+      "PLC-01"
+    ],
+    "routes": [
+      "T-101:out → FV-101:in",
+      "FV-101:out → P-101:in",
+      "P-101:out → T-102:in",
+      "T-101:nozzle-1 → FV-102:in",
+      "FV-102:out → P-102:in",
+      "P-102:out → T-102:nozzle-1"
+    ]
   },
   "viewports": [
     "3840x2160",
@@ -27,14 +64,45 @@
     "mode": "run",
     "mobileView": "devices",
     "horizontalOverflow": false,
+    "titleOverlayNodes": 0,
+    "pageErrors": 0,
     "consoleErrors": 0
   },
-  "separateSmokeTest": {
-    "directPlacement": true,
-    "stickyConnect": true,
-    "phoneDispatcher": true,
-    "phoneDiagramZoom": true,
-    "horizontalOverflow": false,
-    "consoleErrors": 0
+  "interactionAudit": {
+    "clicks": 52,
+    "panelSwitches": 2,
+    "cursorDistancePixels": 30982,
+    "longestMoves": [
+      {
+        "label": "Open element library",
+        "x": 239.4296875,
+        "y": 181.9609375,
+        "distance": 1353.5435734848973
+      },
+      {
+        "label": "Start standby P-102",
+        "x": 883.0,
+        "y": 1353.0859375,
+        "distance": 1173.9768273375282
+      },
+      {
+        "label": "Activate Connect",
+        "x": 530.7890625,
+        "y": 157.1796875,
+        "distance": 1147.9158762504132
+      },
+      {
+        "label": "t1: Level",
+        "x": 1623.625,
+        "y": 377.0703125,
+        "distance": 1074.4402632973745
+      },
+      {
+        "label": "Open mobile diagram",
+        "x": 932.375,
+        "y": 185.28125,
+        "distance": 1004.6399215989342
+      }
+    ]
   }
 }

@@ -12,7 +12,6 @@ const required = <T extends Element>(selector: string): T => {
 
 const shell = required<HTMLElement>('#studio-shell');
 const scene = required<HTMLElement>('#studio-scene');
-const stage = required<HTMLElement>('#scene-stage');
 const viewport = required<HTMLElement>('#viewport');
 const deviceList = required<HTMLElement>('#device-list');
 const dispatcherSearch = required<HTMLInputElement>('#dispatcher-search');
@@ -21,6 +20,7 @@ const toolHint = required<HTMLElement>('#tool-hint');
 const toast = required<HTMLElement>('#toast');
 
 const GRID = 12;
+const MOBILE_VIEW_STORAGE_KEY = 'elements-studio:mobile-view';
 const SCENE_WIDTH = 1200;
 const SCENE_HEIGHT = 720;
 
@@ -44,7 +44,14 @@ const presets: Readonly<Record<string, Preset>> = {
 let pendingPlacementTag: string | undefined;
 let connectSource: RuntimeElement | undefined;
 let stickyConnect = false;
-let mobileView: MobileView = 'diagram';
+let mobileView: MobileView = (() => {
+  try {
+    const stored = window.localStorage.getItem(MOBILE_VIEW_STORAGE_KEY);
+    return stored === 'devices' ? 'devices' : 'diagram';
+  } catch {
+    return 'diagram';
+  }
+})();
 let renderQueued = false;
 let toastTimer = 0;
 
@@ -73,11 +80,12 @@ function showToast(message: string): void {
   toast.textContent = message;
   toast.setAttribute('data-open', '');
   window.clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => toast.removeAttribute('data-open'), 2400);
+  toastTimer = window.setTimeout(() => toast.removeAttribute('data-open'), 1500);
 }
 
 function setMobileView(next: MobileView): void {
   mobileView = next;
+  try { window.localStorage.setItem(MOBILE_VIEW_STORAGE_KEY, next); } catch { /* optional persistence */ }
   shell.dataset.mobileView = next;
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-mobile-view]')) {
     button.setAttribute('aria-pressed', String(button.dataset.mobileView === next));
@@ -147,14 +155,23 @@ function placeElement(tagName: string, clientX: number, clientY: number): Runtim
   return element;
 }
 
-function choosePort(element: RuntimeElement, role: 'inlet' | 'outlet'): PortDefinition | undefined {
+function portCandidates(element: RuntimeElement, role: 'inlet' | 'outlet'): readonly PortDefinition[] {
   const ports = element.ports ?? [];
-  const candidates = [
-    ...ports.filter((port) => port.role === role),
-    ...ports.filter((port) => role === 'outlet' ? port.direction === 'right' || port.direction === 'bottom' : port.direction === 'left' || port.direction === 'top'),
-    ...ports,
-  ].filter((port, index, all) => all.findIndex((candidate) => candidate.id === port.id) === index);
-  return candidates.find((port) => !portIsUsed(element.id, port.id)) ?? candidates[0];
+  const directionMatches = (port: PortDefinition): boolean => role === 'outlet'
+    ? port.direction === 'right' || port.direction === 'bottom' || port.direction === 'top'
+    : port.direction === 'left' || port.direction === 'top' || port.direction === 'bottom';
+  return [...ports].sort((first, second) => {
+    const score = (port: PortDefinition): number => {
+      let value = 0;
+      if (!portIsUsed(element.id, port.id)) value += 100;
+      if (port.role === role) value += 48;
+      else if (port.role === 'bidirectional') value += 34;
+      if (port.kind === 'process') value += 24;
+      if (directionMatches(port)) value += 8;
+      return value;
+    };
+    return score(second) - score(first);
+  });
 }
 
 function portIsUsed(elementId: string, portId: string): boolean {
@@ -166,6 +183,30 @@ function compatible(source: PortDefinition, target: PortDefinition): boolean {
   if (source.kind && target.kind && source.kind !== target.kind) return false;
   if (source.medium && target.medium && source.medium !== target.medium) return false;
   return true;
+}
+
+function chooseCompatiblePorts(sourceElement: RuntimeElement, targetElement: RuntimeElement): readonly [PortDefinition, PortDefinition] | undefined {
+  const sources = portCandidates(sourceElement, 'outlet');
+  const targets = portCandidates(targetElement, 'inlet');
+  let best: { readonly source: PortDefinition; readonly target: PortDefinition; readonly score: number } | undefined;
+  for (const source of sources) {
+    for (const target of targets) {
+      if (!compatible(source, target)) continue;
+      let score = 0;
+      if (!portIsUsed(sourceElement.id, source.id)) score += 80;
+      if (!portIsUsed(targetElement.id, target.id)) score += 80;
+      if (source.role === 'outlet') score += 32;
+      else if (source.role === 'bidirectional') score += 22;
+      if (target.role === 'inlet') score += 32;
+      else if (target.role === 'bidirectional') score += 22;
+      if (source.kind === 'process' && target.kind === 'process') score += 36;
+      if (source.medium !== undefined && source.medium === target.medium) score += 24;
+      if (source.kind === 'signal' && target.kind === 'signal') score += 20;
+      if (source.kind === 'electrical' && target.kind === 'electrical') score += 20;
+      if (!best || score > best.score) best = { source, target, score };
+    }
+  }
+  return best ? [best.source, best.target] : undefined;
 }
 
 function connect(element: RuntimeElement): void {
@@ -180,12 +221,12 @@ function connect(element: RuntimeElement): void {
     connectSource = undefined;
     return;
   }
-  const sourcePort = choosePort(connectSource, 'outlet');
-  const targetPort = choosePort(element, 'inlet');
-  if (!sourcePort || !targetPort || !compatible(sourcePort, targetPort)) {
+  const pair = chooseCompatiblePorts(connectSource, element);
+  if (!pair) {
     showToast('No compatible unused source and target ports.');
     return;
   }
+  const [sourcePort, targetPort] = pair;
   const kind = sourcePort.kind === 'electrical' || targetPort.kind === 'electrical' ? 'wire' : sourcePort.kind === 'signal' || targetPort.kind === 'signal' ? 'signal' : 'pipe';
   const connection = document.createElement(`el-${kind}`);
   connection.id = `connection-${connections().length + 1}`;
@@ -216,7 +257,7 @@ function semanticDetail(): void {
   const zoom = Number.parseFloat(output?.value ?? '100') / 100;
   const detail = zoom < .48 ? 'symbol' : zoom < .9 ? 'compact' : 'full';
   const abstraction = zoom < .48 ? 'symbol' : zoom < .82 ? 'process' : zoom < 1.25 ? 'operational' : 'diagnostic';
-  scene.dataset.zoomTier = abstraction;
+  if (scene.dataset.zoomTier !== abstraction) scene.dataset.zoomTier = abstraction;
   for (const element of equipment()) {
     if (element.localName.startsWith('pe-pid-')) element.setAttribute('abstraction', abstraction);
     else element.setAttribute('detail', detail);
@@ -388,7 +429,7 @@ viewport.addEventListener('wheel', () => window.setTimeout(semanticDetail, 0), {
 
 for (const button of document.querySelectorAll<HTMLButtonElement>('#mode-run, #mode-edit')) button.addEventListener('click', () => {
   window.setTimeout(() => {
-    if (shell.dataset.mode === 'run' && window.innerWidth <= 900) setMobileView('devices');
+    if (shell.dataset.mode === 'run' && window.innerWidth <= 900) setMobileView(mobileView);
     else if (shell.dataset.mode !== 'run') setMobileView('diagram');
     renderDeviceDispatcher();
   }, 0);
@@ -403,10 +444,11 @@ window.addEventListener('keydown', (event) => {
 
 window.addEventListener('resize', () => {
   closePanels();
-  if (shell.dataset.mode === 'run' && window.innerWidth <= 620) setMobileView('devices');
   renderDeviceDispatcher();
+  if (mobileView === 'diagram') window.setTimeout(() => document.querySelector<HTMLButtonElement>('#fit-view')?.click(), 80);
 });
 
 new MutationObserver(queueRender).observe(scene, { attributes: true, childList: true, subtree: false });
+setMobileView(mobileView);
 renderDeviceDispatcher();
 semanticDetail();

@@ -1,122 +1,95 @@
-# SCADA Studio responsive promo — UX audit
+# SCADA Studio responsive promo — UX audit v2
 
-This audit was recorded while building a real water-transfer project from an empty view, then operating the same document from desktop, tablet and phone layouts.
+This audit comes from rebuilding a water-transfer project from an empty view, commissioning it, and operating the same live document while the viewport moves from a 4K engineering monitor to an iPhone-sized dispatcher.
+
+The first recording was rejected because the project entered Run mode before the finished state was clearly established and the intro overlay survived into the second half. Version 2 treats both failures as testable regressions rather than editing mistakes.
 
 ## Scenario exercised
 
-The engineer places and configures:
+The engineer creates and configures:
 
-- source tank `T-101`;
-- product tank `T-102`;
-- duty train `FV-101 → P-101`;
-- standby train `FV-102 → P-102`;
+- source tank `T-101` at 82%;
+- product tank `T-102` at 26%;
+- duty train `T-101:out → FV-101 → P-101 → T-102:in`;
+- standby train `T-101:nozzle-1 → FV-102 → P-102 → T-102:nozzle-1`;
 - controller `PLC-01`;
-- six process pipes joining both trains between the tanks.
+- six routed process connections with no unresolved endpoint.
 
-The same project is then switched to Run mode. The operator starts the duty train, changes diagram zoom and continues from a phone using either the topology diagram or the HTML device dispatcher.
+Only after the completion gate passes does the scenario enter Run mode, start `P-101`, open `FV-101`, exercise semantic zoom, and continue through desktop, tablet and phone layouts. On the phone it switches between the HTML device dispatcher and the topology diagram, then starts the standby train from device cards.
+
+## Recording gates
+
+The deterministic renderer refuses to encode the MP4 unless all of these conditions hold:
+
+1. New view contains zero equipment and zero connections before placement starts.
+2. Pre-Run checkpoint contains exactly seven devices and six connections.
+3. Every connection has both `from` and `to` endpoints.
+4. The full-screen intro node has been physically removed from the DOM.
+5. Every non-intro checkpoint is captured with no `#title` overlay.
+6. Final state remains Run mode, Devices view, seven devices, six routes and no horizontal overflow.
+7. Page errors and console errors are empty.
+
+The completed engineering state is held for 2.4 seconds before Run mode, so the viewer can read the object as finished rather than infer completion during a transition.
+
+## UX and runtime fixes made during the reshoot
+
+### New view is explicit
+
+The former scenario placed equipment over the preloaded demo plant. The video now invokes **New view**, accepts the destructive confirmation, verifies an empty scene, and only then opens the library.
+
+### Semantic zoom render loop is idempotent
+
+The responsive module observed scene attributes and `semanticDetail()` wrote `data-zoom-tier` on every render, even when the value had not changed. That caused a MutationObserver → microtask → attribute-write loop. The tier is now written only when it actually changes.
+
+### Port selection evaluates a pair, not two isolated ports
+
+The original heuristic picked an outlet and inlet independently. A pump could therefore select its right-facing electrical `power` port instead of its top process `out`, making the next process connection incompatible and leaving Connect in a confusing half-state.
+
+The new resolver scores compatible source/target pairs together. It prioritises:
+
+- unused ports;
+- outlet/inlet and bidirectional roles;
+- matching connection domains;
+- process-to-process paths for process equipment;
+- exact medium matches;
+- useful facing directions.
+
+This produces the intended duty and standby routes without using a tank vent as a liquid outlet.
+
+### Run mode removes engineering chrome
+
+On wide screens, Run mode collapses the left project/library dock and gives the live process more space. The operator inspector remains available for controlled commands and signals.
+
+### Notifications no longer cover the work area
+
+Transient application toasts are shorter and occupy a compact top-right location. Promotional captions live outside the emulated device screen. Neither can mask the lower diagram or phone controls.
+
+### Mobile view is stable
+
+The last selected mobile Run view is remembered. Resizing no longer repeatedly forces Devices and destroys the operator's Diagram context.
 
 ## Responsive evidence
 
-The promo traverses these viewport classes without horizontal document overflow:
+The same completed and running document is shown at:
 
 - 3840 × 2160 — 4K engineering monitor;
 - 2560 × 1440 — QHD engineering monitor;
 - 1920 × 1080 — Full HD workstation;
-- 1440 × 900 — compact desktop;
+- 1440 × 900 — operator desktop;
 - 1024 × 768 — tablet landscape;
 - 820 × 1180 — tablet portrait;
-- 390 × 844 — iPhone-sized viewport.
+- 390 × 844 — iPhone-sized dispatcher and diagram.
 
-The recording contains 46 browser checkpoints and runs for 46.17 seconds at 1920 × 1080 H.264. The final project contains seven devices and six routed connections. The final phone state remains in Run mode with no horizontal overflow and no console error.
+The rendered MP4 contains 46 real Chromium checkpoints, runs for 38.92 seconds, is encoded as H.264 at 1920 × 1080, and contains only one full-screen title frame: the intro.
 
-## Friction removed during recording
+## Remaining interaction debt
 
-### Direct placement instead of create-then-drag
+The recording still exposes useful future work:
 
-Previous behavior:
+- On 4K, repeated selection/property editing crosses most of the screen. A contextual quick-properties surface or command search should reduce travel without creating a second metadata model.
+- Automatic port selection is now correct for the demonstrated network, but when several equally valid ports remain the engineer needs a lightweight chooser and a visible preview before committing.
+- Common equipment should be available through recent-items or command search so Project ↔ Library switching is not required for every placement session.
+- Phone remains Run-first. The product should define a deliberately small set of corrective engineering operations instead of shrinking the entire desktop editor.
+- A bounded 1200 × 720 canvas is appropriate for one process view, not an entire plant. Larger projects need named views, sections or an infinite workspace.
 
-1. click an item in the library;
-2. the object appears near the centre;
-3. move the pointer to the object;
-4. drag it across the canvas;
-5. correct the position.
-
-Current behavior:
-
-1. choose an item in the library;
-2. click its intended position on the canvas.
-
-The selected library item enters placement mode, and the next canvas click owns the final logical scene coordinates.
-
-### Sticky connection tool
-
-Previous behavior required reopening Connect after every pipe. A six-pipe process therefore repeated the same toolbar round-trip six times.
-
-Connect now remains active while the engineer builds a network. Each source/target pair creates a compatible semantic connection, and `Escape` ends the session.
-
-### Operator commands removed from the engineering inspector
-
-On a phone, opening the metadata inspector only to start a pump or open a valve is unnecessary context switching. Run mode now becomes an HTML object dispatcher with device cards containing tag, state, telemetry and the relevant command buttons.
-
-### Phone topology remains available
-
-The dispatcher does not replace the process diagram. The operator can switch to Diagram and use large zoom controls, then return to Devices for commands.
-
-### Docks become drawers and sheets
-
-Desktop docks do not shrink into unusable columns. At tablet and phone widths:
-
-- project/library navigation moves into a drawer;
-- the activity rail enters the thumb zone;
-- properties become a bottom sheet;
-- the process canvas receives most of the viewport.
-
-### Zoom changes information density
-
-Zoom is not only a CSS scale. It also drives the existing element detail/abstraction contracts so equipment progressively moves through full, compact and symbol-oriented presentations.
-
-## Remaining UX debt
-
-### Long cross-screen travel on wide monitors
-
-The library is on the left and generated properties are on the right. During repeated place/configure work, the pointer crosses most of a 4K canvas. Candidate improvements:
-
-- compact quick-properties next to the current selection;
-- a transient command palette for common attributes;
-- keeping the last-used property group near the cursor.
-
-This should not become two permanent inspectors; the goal is reducing travel without duplicating the metadata model.
-
-### Automatic port choice is efficient but opaque
-
-Connect chooses unused compatible ports. This is fast for simple equipment, but the engineer cannot inspect or override the exact port before committing a route. The next iteration should expose a lightweight port chooser only when more than one valid candidate exists.
-
-### Mode-driven view changes may surprise
-
-Entering Run mode on a phone automatically opens Devices. This is usually the correct action surface, but it changes the current view implicitly. The application should remember the operator's last mobile Run view and provide a brief, non-blocking explanation on the first transition.
-
-### Project and library share navigation space
-
-Repeatedly switching between the project tree and element library is still a panel change. A desktop “recent elements” strip or command search could handle most placements without opening the full library.
-
-### Mobile engineering remains intentionally constrained
-
-Editing is technically available on narrow screens, but precise topology construction is not a primary phone workflow. Mobile should remain Run-first, with small corrective edits rather than attempting to reproduce the entire desktop Studio.
-
-### Fixed logical canvas
-
-The current project uses a bounded 1200 × 720 logical scene. Larger plants will need multiple named views or an infinite/sectioned canvas. Responsive layout should not be confused with fitting an entire plant into one document.
-
-## Validation notes
-
-A Chromium smoke test separately verified:
-
-- direct placement from an empty scene;
-- sticky Connect creating two pipes without leaving the tool;
-- 4K zoom to 200%;
-- tablet and phone layouts without horizontal overflow;
-- automatic phone device-dispatcher mode;
-- phone diagram zoom from 30% to 40%;
-- zero console errors.
-
-The promotional recording is a deterministic render of real browser states. Every checkpoint follows an actual application action; frames are cross-faded into the final video rather than drawing a UI mockup.
+These items remain tracked in issue #9.
