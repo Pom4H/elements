@@ -169,7 +169,7 @@ export abstract class ElementsElement extends HTMLElement {
     const provisional: ElementContext = {
       host: this,
       attributes: this.#attributes,
-      states: previousStates,
+      states: {},
       detail: this.#detail,
     };
     const nextStates: StateValueMap = {};

@@ -48,9 +48,15 @@ function reductionFor(definition: MotionDefinition): MotionReduction {
 
 function applyReducedMotion(animation: Animation, reduction: MotionReduction): void {
   switch (reduction) {
-    case 'finish':
-      animation.finish();
+    case 'finish': {
+      const endTime = animation.effect?.getComputedTiming().endTime;
+      if (typeof endTime === 'number' && Number.isFinite(endTime)) animation.finish();
+      else {
+        animation.pause();
+        animation.currentTime = 0;
+      }
       break;
+    }
     case 'freeze':
       animation.pause();
       animation.currentTime = 0;

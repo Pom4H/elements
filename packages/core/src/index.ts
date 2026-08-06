@@ -11,6 +11,12 @@ export {
 } from './composition/index.js';
 export { detailModeStyles, detailStyles, type DetailStyleOptions } from './detail.js';
 export {
+  semanticZoomLevels,
+  semanticZoomStyles,
+  stepSemanticZoom,
+  type SemanticZoomLevel,
+} from './semantic-zoom.js';
+export {
   defineElementDefinition,
   initialPorts,
   initialViewBox,

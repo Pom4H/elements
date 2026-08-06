@@ -55,7 +55,7 @@ const hydraulic = defineFragment({
   <circle class="cavity" cx="${geometry.centerX}" cy="${geometry.centerY}" r="${geometry.cavityRadius}"/>
   <circle class="inspection-window" data-part="inspection-window" cx="${geometry.centerX}" cy="${geometry.centerY}" r="${geometry.windowRadius}"/>
   <circle class="window-ring" cx="${geometry.centerX}" cy="${geometry.centerY}" r="53" data-detail="fine"/>
-  <circle class="status-ring" data-part="status-ring" cx="${geometry.centerX}" cy="${geometry.centerY}" r="${geometry.statusRingRadius}"/>
+  <circle class="status-ring" data-part="status-ring" data-status-primary cx="${geometry.centerX}" cy="${geometry.centerY}" r="${geometry.statusRingRadius}"/>
 
   <path class="volute-accent" d="M202 99 C229 112 241 138 237 166" data-detail="fine"/>
   <path class="cutwater" d="M210 99 C235 82 250 62 257 40" data-detail="fine"/>
@@ -148,33 +148,30 @@ export const pumpDefinition = defineElementDefinition({
 <g data-mount="assembly"/>
 <g class="tag-panel" transform="translate(118 238)" data-part="tag-panel">
   <rect class="tag-plate" width="266" height="35" rx="7" data-detail="standard"/>
-  <rect class="status-strip" data-part="status-strip" width="5" height="35" rx="2.5" data-detail="standard"/>
+  <rect class="status-strip" data-part="status-strip" data-operation-marker width="5" height="35" rx="2.5" data-detail="standard"/>
+  <circle class="quality-indicator" data-part="quality-indicator" data-quality-indicator cx="258" cy="8" r="3" data-detail="standard"/>
   <text class="tag" x="16" y="22" data-detail="standard" data-part="label">P-101</text>
-  <text class="meta" x="86" y="21" data-detail="standard" data-part="meta">END-SUCTION · 1450 RPM</text>
-  <text class="readout" x="253" y="22" text-anchor="end" data-detail="standard" data-part="readout">6.2 BAR</text>
+  <text class="meta" data-quality-sensitive x="86" y="21" data-detail="standard" data-part="meta">END-SUCTION · 1450 RPM</text>
+  <text class="readout" data-quality-sensitive x="253" y="22" text-anchor="end" data-detail="standard" data-part="readout">6.2 BAR</text>
 </g>
 `,
   styles: `
 :host{display:inline-block;width:510px;max-width:100%;aspect-ratio:51/29;color:var(--elements-ink,#dbe7f3);container-type:inline-size;contain:layout style}svg{width:100%;height:100%;overflow:visible}
-.base,.base-rail,.foot{fill:#152637;stroke:#627b90;stroke-width:1.3}.suction-nozzle,.discharge-neck,.discharge-nozzle,.discharge-riser,.bearing{fill:url(#steel);stroke:#a9bbc9;stroke-width:1.5}.flange{fill:url(#steel);stroke:#c0ccd6;stroke-width:1.7}.bolt{fill:#263a4d;stroke:#bbc9d4;stroke-width:.7}.casing{fill:url(#pump-shell);stroke:#a7bac9;stroke-width:2.2}.cavity{fill:url(#pump-cavity);stroke:#708ba1;stroke-width:1.5}.inspection-window{fill:#071521;stroke:#6d8aa1;stroke-width:1.5}.window-ring{fill:none;stroke:#9db4c6;stroke-opacity:.42;stroke-width:1}.status-ring{fill:none;stroke:#56e29a;stroke-width:2.5;opacity:.76;filter:url(#green-glow)}.volute-accent{fill:none;stroke:#5ed2ff;stroke-opacity:.2;stroke-width:7;stroke-linecap:round}.cutwater{fill:none;stroke:#8adfff;stroke-opacity:.45;stroke-width:3;stroke-linecap:round}.rotor{transform-box:fill-box;transform-origin:center;opacity:.72}.impeller-shroud{fill:#102d43;stroke:#45a8ce;stroke-width:1.2}.vane{fill:#42c9f2;fill-opacity:.24;stroke:#5ed2ff;stroke-width:1.8}.vane-highlight{fill:none;stroke:#b8f3ff;stroke-opacity:.74;stroke-width:1.2}.eye-ring{fill:none;stroke:#50d2ff;stroke-opacity:.4;stroke-width:2}.eye{fill:url(#eye);stroke:#d1f4ff;stroke-width:1.1}.shaft{fill:url(#shaft);stroke:#c8d4dd;stroke-width:1}.coupling{transform-box:fill-box;transform-origin:center;opacity:.75}.coupling-rim{fill:url(#steel);stroke:#c0ced9;stroke-width:1.2}.coupling-hub{fill:#071521;stroke:#7390a5;stroke-width:1}.coupling-mark{fill:none;stroke:#8edfff;stroke-width:1.3}.guard{fill:url(#guard);stroke:#8ca2b5;stroke-width:1.4}.guard-vents circle{fill:#091622}.motor-group{transform-box:fill-box;transform-origin:center}.motor-shell{fill:url(#motor);stroke:#93a9bc;stroke-width:1.8}.motor-end{fill:#203449;stroke:#7890a5;stroke-width:1.3}.motor-fins rect{fill:#2a4054;stroke:#6f879a;stroke-width:.75}.terminal-box,.terminal-lid{fill:#142638;stroke:#748da3;stroke-width:1.2}.tag-plate{fill:#07121e;stroke:#4e6579;stroke-width:1}.status-strip{fill:#56e29a;filter:url(#green-glow)}.tag{fill:#edf4fa;font:700 14px/1 ui-monospace,monospace;letter-spacing:.08em}.meta{fill:#72889d;font:600 7px/1 ui-monospace,monospace;letter-spacing:.09em}.readout{fill:#71d8ff;font:700 10px/1 ui-monospace,monospace}
-:host([data-state~="running"]) .rotor,:host([data-state~="running"]) .coupling{opacity:1}:host([data-state~="warning"]) .status-ring{stroke:var(--elements-warning,#ffbe4a);filter:url(#amber-glow)}:host([data-state~="warning"]) .status-strip{fill:var(--elements-warning,#ffbe4a);filter:url(#amber-glow)}:host([data-state~="alarm"]) .status-ring{stroke:var(--elements-alarm,#ff5c74);filter:url(#red-glow)}:host([data-state~="alarm"]) .status-strip{fill:var(--elements-alarm,#ff5c74);filter:url(#red-glow)}:host([data-state~="alarm"]) .casing{stroke:var(--elements-alarm,#ff5c74)}:host([data-state~="bad-quality"]) svg{opacity:.42;filter:grayscale(1)}:host([data-state~="stale"]) svg{opacity:.64;filter:saturate(.35)}:host([detail="compact"]) [data-detail="fine"],:host([detail="symbol"]) [data-detail]{display:none}:host([detail="symbol"]) text{display:none}@container(max-width:460px){[data-detail="fine"]{display:none}}@container(max-width:300px){[data-detail="standard"]{display:none}.status-ring{stroke-width:3.5}.casing{stroke-width:2.8}}
+.base,.base-rail,.foot{fill:#152637;stroke:#627b90;stroke-width:1.3}.suction-nozzle,.discharge-neck,.discharge-nozzle,.discharge-riser,.bearing{fill:url(#steel);stroke:#a9bbc9;stroke-width:1.5}.flange{fill:url(#steel);stroke:#c0ccd6;stroke-width:1.7}.bolt{fill:#263a4d;stroke:#bbc9d4;stroke-width:.7}.casing{fill:url(#pump-shell);stroke:#a7bac9;stroke-width:2.2}.cavity{fill:url(#pump-cavity);stroke:#708ba1;stroke-width:1.5}.inspection-window{fill:#071521;stroke:#6d8aa1;stroke-width:1.5}.window-ring{fill:none;stroke:#9db4c6;stroke-opacity:.42;stroke-width:1}.status-ring{fill:none;stroke:#56e29a;stroke-width:2.5;opacity:.76;filter:url(#green-glow)}.volute-accent{fill:none;stroke:#5ed2ff;stroke-opacity:.2;stroke-width:7;stroke-linecap:round}.cutwater{fill:none;stroke:#8adfff;stroke-opacity:.45;stroke-width:3;stroke-linecap:round}.rotor{transform-box:fill-box;transform-origin:center;opacity:.72}.impeller-shroud{fill:#102d43;stroke:#45a8ce;stroke-width:1.2}.vane{fill:#42c9f2;fill-opacity:.24;stroke:#5ed2ff;stroke-width:1.8}.vane-highlight{fill:none;stroke:#b8f3ff;stroke-opacity:.74;stroke-width:1.2}.eye-ring{fill:none;stroke:#50d2ff;stroke-opacity:.4;stroke-width:2}.eye{fill:url(#eye);stroke:#d1f4ff;stroke-width:1.1}.shaft{fill:url(#shaft);stroke:#c8d4dd;stroke-width:1}.coupling{transform-box:fill-box;transform-origin:center;opacity:.75}.coupling-rim{fill:url(#steel);stroke:#c0ced9;stroke-width:1.2}.coupling-hub{fill:#071521;stroke:#7390a5;stroke-width:1}.coupling-mark{fill:none;stroke:#8edfff;stroke-width:1.3}.guard{fill:url(#guard);stroke:#8ca2b5;stroke-width:1.4}.guard-vents circle{fill:#091622}.motor-group{transform-box:fill-box;transform-origin:center}.motor-shell{fill:url(#motor);stroke:#93a9bc;stroke-width:1.8}.motor-end{fill:#203449;stroke:#7890a5;stroke-width:1.3}.motor-fins rect{fill:#2a4054;stroke:#6f879a;stroke-width:.75}.terminal-box,.terminal-lid{fill:#142638;stroke:#748da3;stroke-width:1.2}.tag-plate{fill:#07121e;stroke:#4e6579;stroke-width:1}.status-strip{fill:#52687b}.quality-indicator{fill:#72869a;stroke:#a8b7c5;stroke-width:.6}.tag{fill:#edf4fa;font:700 14px/1 ui-monospace,monospace;letter-spacing:.08em}.meta{fill:#72889d;font:600 7px/1 ui-monospace,monospace;letter-spacing:.09em}.readout{fill:#71d8ff;font:700 10px/1 ui-monospace,monospace}[data-quality-sensitive]{opacity:.42}
+:host([data-state~="running"]) .rotor,:host([data-state~="running"]) .coupling{opacity:1}:host([data-state~="running"]) .status-strip{fill:var(--elements-ok,#56e29a);filter:url(#green-glow)}:host([status="warning"]) .status-ring{stroke:var(--elements-warning,#ffbe4a);filter:url(#amber-glow)}:host([status="alarm"]) .status-ring{stroke:var(--elements-alarm,#ff5c74);filter:url(#red-glow)}:host([quality="good"]) [data-quality-sensitive]{opacity:1}:host([quality="stale"]) [data-quality-sensitive]{opacity:.62}:host([quality="bad"]) [data-quality-sensitive]{opacity:.26}:host([quality="good"]) [data-quality-indicator]{fill:var(--elements-ok,#56e29a);stroke:#baffd8}:host([quality="stale"]) [data-quality-indicator]{fill:var(--elements-warning,#ffbe4a);stroke:#ffe1a4}:host([quality="bad"]) [data-quality-indicator]{fill:var(--elements-alarm,#ff5c74);stroke:#ffc0ca}:host([detail="compact"]) [data-detail="fine"],:host([detail="symbol"]) [data-detail]{display:none}:host([detail="symbol"]) text{display:none}@container(max-width:460px){[data-detail="fine"]{display:none}}@container(max-width:300px){[data-detail="standard"]{display:none}.status-ring{stroke-width:3.5}.casing{stroke-width:2.8}}
 `,
   attributes: {
     label: attribute.string('label', { defaultValue: 'P-101', description: 'Equipment label.' }),
     running: attribute.boolean('running', { description: 'Whether the pump is commanded to run.' }),
-    speed: attribute.number('speed', { defaultValue: 0, minimum: 0, maximum: 3600, step: 10, unit: 'rpm', cssVariable: '--pump-speed', description: 'Shaft speed in rpm.' }),
+    speed: attribute.number('speed', { defaultValue: 0, cssVariable: '--pump-speed', description: 'Shaft speed in rpm.' }),
     value: attribute.number('value', { defaultValue: 0, description: 'Primary process value.' }),
     unit: attribute.string('unit', { defaultValue: 'bar', description: 'Primary process value unit.' }),
-    status: attribute.enum('status', ['idle', 'normal', 'warning', 'alarm'] as const, { defaultValue: 'idle', description: 'Process status independent from data quality.' }),
-    quality: attribute.enum('quality', ['good', 'stale', 'bad'] as const, { defaultValue: 'good', description: 'Telemetry quality independent from process status.' }),
+    status: attribute.enum('status', ['normal', 'warning', 'alarm'] as const, { defaultValue: 'normal', description: 'Severity independent from operation and data quality.' }),
+    quality: attribute.enum('quality', ['unknown', 'good', 'stale', 'bad'] as const, { defaultValue: 'unknown', description: 'Telemetry quality independent from process severity.' }),
     detail: attribute.enum('detail', ['auto', 'full', 'compact', 'symbol'] as const, { defaultValue: 'auto', description: 'Visual level of detail.' }),
   },
   states: {
     running: (context) => booleanValue(context, 'running') && numberValue(context, 'speed') > 0,
-    warning: (context) => stringValue(context, 'status') === 'warning',
-    alarm: (context) => stringValue(context, 'status') === 'alarm',
-    stale: (context) => stringValue(context, 'quality') === 'stale',
-    'bad-quality': (context) => stringValue(context, 'quality') === 'bad',
   },
   collections: [{ mount: 'assembly', items: () => assembly }],
   bindings: [
@@ -213,10 +210,11 @@ export const pumpDefinition = defineElementDefinition({
       options: { duration: 360, easing: 'ease-out' }, reducedMotion: 'finish',
     },
     {
-      id: 'alarm-pulse', type: 'loop', target: 'status-ring',
-      active: (context) => stateValue(context, 'alarm'),
-      keyframes: [{ opacity: .28 }, { opacity: 1 }, { opacity: .28 }],
-      options: { duration: 760, iterations: Infinity, easing: 'ease-in-out' }, reducedMotion: 'finish',
+      id: 'severity-change', type: 'transition', target: 'status-ring',
+      trigger: (context) => stringValue(context, 'status'),
+      enabled: (context) => stringValue(context, 'status') !== 'normal',
+      keyframes: [{ opacity: .35 }, { opacity: 1 }, { opacity: .72 }, { opacity: 1 }],
+      options: { duration: 420, easing: 'ease-out' }, reducedMotion: 'finish',
     },
   ],
   ports: [
@@ -230,8 +228,9 @@ export const pumpDefinition = defineElementDefinition({
     { name: 'rotor', description: 'Shrouded impeller with curved vanes.', detail: 'essential' },
     { name: 'coupling', description: 'Shaft coupling aligned with the impeller timeline.', detail: 'essential' },
     { name: 'motor-group', description: 'Electric motor assembly.', detail: 'essential' },
-    { name: 'status-ring', description: 'Concentric process-state ring.', detail: 'essential' },
-    { name: 'status-strip', description: 'Equipment-tag status indicator.', detail: 'standard' },
+    { name: 'status-ring', description: 'Primary severity indicator.', detail: 'essential' },
+    { name: 'status-strip', description: 'Running-state marker.', detail: 'standard' },
+    { name: 'quality-indicator', description: 'Telemetry quality marker.', detail: 'standard' },
     { name: 'label', detail: 'standard' },
     { name: 'readout', detail: 'standard' },
     { name: 'meta', detail: 'standard' },

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Semantic zoom · Elements</title>
+  </head>
+  <body>
+    <main class="zoom-shell">
+      <header class="zoom-header">
+        <div>
+          <a class="back-link" href="./index.html">← Element catalog</a>
+          <p class="eyebrow">SEMANTIC ZOOM LAB</p>
+          <h1>One device, several useful truths.</h1>
+        </div>
+        <p class="lede">Scroll over the stage to move from canonical P&amp;ID symbols to process, operational, and diagnostic layers. The standard silhouette never changes.</p>
+      </header>
+
+      <section class="zoom-layout" aria-label="Semantic zoom playground">
+        <article class="zoom-stage">
+          <div class="stage-toolbar">
+            <div>
+              <span class="tag">ABSTRACTION</span>
+              <strong id="level-name">Symbol</strong>
+            </div>
+            <output id="level-output" aria-live="polite">1 / 4</output>
+          </div>
+
+          <div id="zoom-viewport" class="zoom-viewport" tabindex="0" aria-label="Scroll up to reveal more detail and scroll down to hide detail">
+            <div class="device-grid">
+              <section class="device-cell">
+                <span>Centrifugal pump</span>
+                <pe-pid-pump id="pid-pump" label="P-101" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" abstraction="symbol"></pe-pid-pump>
+              </section>
+              <section class="device-cell">
+                <span>Control valve</span>
+                <pe-pid-valve id="pid-valve" label="FV-101" active position="72" value="12.4" unit="m³/h" status="normal" quality="good" abstraction="symbol"></pe-pid-valve>
+              </section>
+              <section class="device-cell">
+                <span>Process vessel</span>
+                <pe-pid-vessel id="pid-vessel" label="V-101" active level="64" value="4.8" unit="m" status="normal" quality="good" abstraction="symbol"></pe-pid-vessel>
+              </section>
+            </div>
+            <div class="wheel-hint"><span>↕</span> Mouse wheel · arrow keys</div>
+          </div>
+        </article>
+
+        <aside class="zoom-panel">
+          <div class="zoom-panel-heading">
+            <span class="tag">LEVELS</span>
+            <p id="level-description">Only the canonical engineering symbols and connection ports are visible.</p>
+          </div>
+
+          <div class="zoom-rail" role="group" aria-label="Abstraction level">
+            <button type="button" data-level="symbol"><span>01</span><strong>Symbol</strong><small>P&amp;ID identity</small></button>
+            <button type="button" data-level="process"><span>02</span><strong>Process</strong><small>Flow and level</small></button>
+            <button type="button" data-level="operational"><span>03</span><strong>Operational</strong><small>State and control</small></button>
+            <button type="button" data-level="diagnostic"><span>04</span><strong>Diagnostic</strong><small>Measurements and health</small></button>
+          </div>
+
+          <div class="zoom-buttons">
+            <button id="zoom-out" type="button">Zoom out</button>
+            <button id="zoom-in" type="button">Zoom in</button>
+          </div>
+
+          <div class="live-controls">
+            <label>Pump speed <output id="speed-output">1450 rpm</output><input id="speed" type="range" min="0" max="2900" step="10" value="1450" /></label>
+            <label>Valve position <output id="position-output">72%</output><input id="position" type="range" min="0" max="100" value="72" /></label>
+            <label>Vessel level <output id="level-value-output">64%</output><input id="vessel-level" type="range" min="0" max="100" value="64" /></label>
+            <label>Status <select id="status"><option>normal</option><option>warning</option><option>alarm</option></select></label>
+            <label>Quality <select id="quality"><option>unknown</option><option selected>good</option><option>stale</option><option>bad</option></select></label>
+            <button id="motion-toggle" type="button">Pause process</button>
+          </div>
+        </aside>
+      </section>
+
+      <section class="concept-notes">
+        <article><span>Invariant</span><p>The standard symbol remains the identity anchor at every level.</p></article>
+        <article><span>Composition</span><p>Every closer level adds a named layer instead of replacing the SVG.</p></article>
+        <article><span>Motion</span><p>Loop, transition, and scrub motions are reconciled by the existing runtime.</p></article>
+      </section>
+    </main>
+    <script type="module" src="./src/semantic-zoom.ts"></script>
+  </body>
+</html>
