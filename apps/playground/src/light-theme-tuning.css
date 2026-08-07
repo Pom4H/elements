@@ -1,14 +1,62 @@
-.studio-scene > pe-tank {
-  --light-device-filter: brightness(1.60) saturate(.78) contrast(.80);
-}
-.studio-scene > pe-pump {
-  --light-device-filter: brightness(1.35) saturate(.92) contrast(.90);
-}
-.studio-scene > pe-control-valve {
-  --light-device-filter: brightness(1.42) saturate(.92) contrast(.90);
-}
+.studio-scene > pe-tank,
+.studio-scene > pe-pump,
+.studio-scene > pe-control-valve,
 .studio-scene > pe-controller {
-  --light-device-filter: brightness(1.16) saturate(.80) contrast(.94);
+  filter: none !important;
+}
+
+/* Semantic shadow parts let the Studio skin equipment without reaching into
+   shadowRoot or recolouring alarm/status semantics with whole-SVG filters. */
+.studio-scene > pe-tank::part(shell) {
+  fill: #eef3f6;
+  fill-opacity: .18;
+  stroke: #667984;
+  stroke-width: 2.1;
+}
+.studio-scene > pe-tank::part(liquid-carrier) {
+  filter: saturate(1.12) brightness(1.04);
+}
+.studio-scene > pe-tank::part(gauge) {
+  filter: brightness(1.2) saturate(.82);
+}
+.studio-scene > pe-tank::part(tag-panel) {
+  filter: brightness(1.28) saturate(.8);
+}
+
+.studio-scene > pe-pump::part(process-body) {
+  filter: brightness(1.28) saturate(.84) contrast(.94);
+}
+.studio-scene > pe-pump::part(housing) {
+  fill: #dbe5eb;
+  stroke: #607684;
+}
+.studio-scene > pe-pump::part(motor-group) {
+  filter: brightness(1.22) saturate(.86) contrast(.95);
+}
+.studio-scene > pe-pump::part(tag-panel) {
+  filter: brightness(1.24) saturate(.82);
+}
+
+.studio-scene > pe-control-valve::part(body) {
+  fill: #d8e2e8;
+  stroke: #607581;
+}
+.studio-scene > pe-control-valve::part(travel-scale),
+.studio-scene > pe-control-valve::part(stem-travel),
+.studio-scene > pe-control-valve::part(tag) {
+  filter: brightness(1.18) saturate(.84);
+}
+
+.studio-scene > pe-controller::part(cpu-body),
+.studio-scene > pe-controller::part(module-body) {
+  fill: #dfe7ec;
+  stroke: #687b87;
+  filter: none;
+}
+.studio-scene > pe-controller::part(display),
+.studio-scene > pe-controller::part(scan-readout),
+.studio-scene > pe-controller::part(load-bar) {
+  filter: saturate(1.08);
 }
 
 @media (min-width: 1281px) {
