@@ -1,0 +1,17 @@
+.studio-scene > pe-tank {
+  --light-device-filter: invert(.78) hue-rotate(180deg) saturate(.95) contrast(.94) brightness(1.02);
+}
+.studio-scene > pe-pump {
+  --light-device-filter: brightness(1.35) saturate(.92) contrast(.90);
+}
+.studio-scene > pe-control-valve {
+  --light-device-filter: brightness(1.42) saturate(.92) contrast(.90);
+}
+.studio-scene > pe-controller {
+  --light-device-filter: brightness(1.16) saturate(.80) contrast(.94);
+}
+
+@media (min-width: 1281px) {
+  .library-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .library-grid button { min-height: 76px; padding-inline: 3px; }
+}
