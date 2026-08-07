@@ -12,6 +12,7 @@
     "dev": "bun run --filter @pom4h/elements-playground dev",
     "test": "bun test",
     "typecheck": "tsc -b --pretty false",
+    "release:check": "bun run scripts/release-check.ts",
     "check": "bun run build && bun test"
   },
   "devDependencies": {

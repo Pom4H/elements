@@ -1,7 +1,15 @@
 {
   "name": "@pom4h/process-elements",
   "version": "0.1.0",
+  "description": "Process automation elements built on @pom4h/elements-core.",
   "type": "module",
+  "license": "MIT",
+  "homepage": "https://github.com/Pom4H/elements#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pom4H/elements.git",
+    "directory": "packages/process-elements"
+  },
   "sideEffects": ["./dist/register.js"],
   "exports": {
     ".": {
@@ -18,11 +26,14 @@
     }
   },
   "files": ["dist"],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -b tsconfig.build.json --force",
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
-    "@pom4h/elements-core": "workspace:*"
+    "@pom4h/elements-core": "^0.1.0"
   }
 }
