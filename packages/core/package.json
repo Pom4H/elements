@@ -1,7 +1,15 @@
 {
   "name": "@pom4h/elements-core",
   "version": "0.1.0",
+  "description": "Runtime and registry primitives for composable, stateful SVG elements.",
   "type": "module",
+  "license": "MIT",
+  "homepage": "https://github.com/Pom4H/elements#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pom4H/elements.git",
+    "directory": "packages/core"
+  },
   "sideEffects": false,
   "exports": {
     ".": {
@@ -32,6 +40,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -b tsconfig.build.json --force",
     "typecheck": "tsc -b --pretty false",
