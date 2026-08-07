@@ -14,7 +14,7 @@ interface PackResult {
 const root = resolve(import.meta.dir, '..');
 const skipBuild = Bun.argv.includes('--skip-build');
 
-async function run(command: readonly string[], cwd: string): Promise<string> {
+async function run(command: string[], cwd: string): Promise<string> {
   const process = Bun.spawn(command, {
     cwd,
     stdout: 'pipe',
