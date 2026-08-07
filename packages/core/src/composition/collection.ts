@@ -49,6 +49,12 @@ export class CollectionController {
         } else {
           updateFragmentPlacement(instance, placement);
         }
+
+        // Fragment keys are already the stable identity used for reconciliation.
+        // Exporting that same identity as a shadow part gives applications a
+        // theming hook for a whole composed module without exposing its SVG
+        // implementation classes or reaching into shadowRoot.
+        instance.setAttribute('part', `fragment-${placement.key}`);
         mount.append(instance);
       }
 

@@ -13,7 +13,7 @@ async function filesUnder(directory: string): Promise<string[]> {
 await rm('./dist', { recursive: true, force: true });
 
 const result = await Bun.build({
-  entrypoints: ['./index.html', './scale.html', './semantic-zoom.html'],
+  entrypoints: ['./index.html', './catalog.html', './scale.html', './semantic-zoom.html'],
   outdir: './dist',
   target: 'browser',
   minify: true,
@@ -34,6 +34,7 @@ const javascriptFiles = (await filesUnder('./dist')).filter((path) => path.endsW
 const javascript = (await Promise.all(javascriptFiles.map((path) => readFile(path, 'utf8')))).join('\n');
 
 for (const requiredToken of [
+  'elements-studio-shell',
   'pe-pump',
   'pe-tank',
   'pe-control-valve',

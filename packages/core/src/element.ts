@@ -65,7 +65,6 @@ export abstract class ElementsElement extends HTMLElement {
     const shadow = this.attachShadow({ mode: 'open' });
     const initial = initialViewBox(this.#definition.viewBox);
     this.#svg = instantiateSvg(this.#definition.template, initial);
-    this.style.setProperty('--elements-aspect-ratio', aspectRatioFor(initial));
     shadow.append(this.#svg);
 
     if (this.#definition.styles) {
@@ -120,6 +119,11 @@ export abstract class ElementsElement extends HTMLElement {
 
   connectedCallback(): void {
     this.#connected = true;
+    // Custom element constructors must not add attributes. The style write is
+    // intentionally deferred until connection so document.createElement() can
+    // construct a registered element without a NotSupportedError.
+    const currentViewBox = this.#svg.getAttribute('viewBox') ?? initialViewBox(this.#definition.viewBox);
+    this.style.setProperty('--elements-aspect-ratio', aspectRatioFor(currentViewBox));
     this.#upgradeProperties();
     this.#motions.connect();
     if (this.#definition.detailBreakpoints !== undefined) this.#resizeObserver.observe(this);

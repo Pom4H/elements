@@ -4,131 +4,64 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark" />
-    <title>Elements</title>
+    <title>Elements Studio</title>
   </head>
   <body>
-    <main>
-      <header class="hero">
-        <div>
-          <p class="eyebrow">ELEMENTS RUNTIME</p>
-          <h1>Native elements for visual systems.</h1>
+    <div class="studio-shell" id="studio-shell" data-mode="edit" data-mobile-view="diagram" data-left-open="false" data-right-open="false">
+      <header class="topbar">
+        <div class="brand-block">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <div><strong>Elements Studio</strong><span>SCADA engineering workspace</span></div>
         </div>
-        <p class="lede">Attributes drive state, keyed fragments build geometry, and browser-native timelines coordinate motion.</p>
+        <nav class="project-breadcrumb" aria-label="Project path"><button type="button">Water treatment</button><span>/</span><button type="button">Area 01</button><span>/</span><strong>Feed &amp; recycle</strong></nav>
+        <div class="topbar-spacer"></div>
+        <div class="runtime-health" title="Runtime connection"><span class="health-dot"></span><strong>LIVE</strong><span>24 ms</span></div>
+        <div class="mode-switch" role="group" aria-label="Workspace mode"><button id="mode-run" type="button" data-mode="run">Run</button><button id="mode-edit" type="button" data-mode="edit" aria-pressed="true">Edit</button></div>
+        <button class="top-action top-action-secondary" id="new-project" type="button" title="Create an empty process view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New view</span></button>
+        <button class="top-action" id="save-project" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5zM8 4v6h8V4M8 20v-6h8v6"/></svg>Save</button>
+        <button class="icon-button" id="fullscreen" type="button" title="Fullscreen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/></svg></button>
       </header>
-
-      <section class="flow-bench" aria-label="Connected process scene">
-        <article class="stage-card flow-card">
-          <div class="stage-heading">
-            <div><span class="tag">SCENE COMPOSITION</span><h2>Header · tee · duty and standby trains</h2></div>
-            <code>&lt;elements-scene&gt; + &lt;el-pipe&gt;</code>
-          </div>
-          <elements-scene id="process-scene" class="process-scene">
-            <pe-tank id="t1" data-movable x="20" y="40" width="240" label="T-101" level="72" temperature="48" pressure="1.8" low-limit="15" high-limit="85" capacity="45" nozzles="2" medium="water" status="normal" detail="compact"></pe-tank>
-            <pe-control-valve id="v1" data-movable x="600" y="195" width="150" label="FV-101" position="68" command="68" medium="water" status="normal" powered detail="compact"></pe-control-valve>
-            <pe-control-valve id="v2" data-movable x="330" y="395" width="150" label="FV-102" position="35" command="35" medium="water" status="normal" powered detail="compact"></pe-control-valve>
-            <pe-pump id="p1" data-movable x="830" y="235" width="240" label="P-101" running speed="1450" value="6.2" unit="bar" status="normal" detail="compact"></pe-pump>
-            <pe-pump id="p2" data-movable x="830" y="435" width="240" label="P-102" speed="0" value="0" unit="bar" status="idle" detail="compact"></pe-pump>
-
-            <!-- A named point where runs meet, placed where no equipment stands. -->
-            <el-junction id="j1" data-movable x="300" y="296" medium="water" label="Suction manifold"></el-junction>
-
-            <el-pipe id="header" from="t1:out" to="j1" flowing speed="1" diameter="20" label="T-101 drain to suction manifold"></el-pipe>
-            <!-- One source, two targets: the second target taps the trunk as a tee. -->
-            <el-pipe id="branches" from="j1" to="v1:in v2:in" flowing speed="1" diameter="18" label="Manifold to FV-101 and FV-102"></el-pipe>
-            <el-pipe id="feed-a" from="v1:out" to="p1:in" flowing speed="1" diameter="18" label="FV-101 to P-101 suction"></el-pipe>
-            <el-pipe id="feed-b" from="v2:out" to="p2:in" speed="1" diameter="14" label="FV-102 to P-102 suction"></el-pipe>
-            <el-pipe id="recycle" from="p1:out" to="t1:in" flowing speed="1" diameter="14" insulated label="P-101 discharge recycle to T-101"></el-pipe>
-            <!-- A `from` without a port taps the named run instead of equipment. -->
-            <el-pipe id="vent" from="recycle" to="t1:vent" diameter="8" label="Recycle vent tap to T-101"></el-pipe>
-          </elements-scene>
-          <elements-inspector for="process-scene"></elements-inspector>
-          <div class="controls scene-controls">
-            <label>FV-101 command <output id="command-value">68%</output><input id="command" type="range" min="0" max="100" value="68" /></label>
-            <label>FV-102 command <output id="command-b-value">35%</output><input id="command-b" type="range" min="0" max="100" value="35" /></label>
-            <label>Medium <select id="medium"><option>water</option><option>oil</option><option>glycol</option><option>chemical</option><option>fuel</option></select></label>
-            <button id="pump-power" type="button">Stop P-101</button>
-            <button id="standby" type="button">Start P-102</button>
-            <button id="valve-jam" type="button">Jam FV-101</button>
-          </div>
-          <p class="scene-note" id="scene-note">Drag equipment or the manifold to re-route the lines; arrow keys nudge a focused item. Right-click anything to configure it or convert it to a compatible element.</p>
-        </article>
-      </section>
-
-      <section class="stage-grid" aria-label="Process element controls">
-        <article class="stage-card valve-card">
-          <div class="stage-heading">
-            <div><span class="tag">PROCESS</span><h2>Control valve</h2></div>
-            <code>&lt;pe-control-valve&gt;</code>
-          </div>
-          <div class="canvas valve-canvas">
-            <pe-control-valve id="valve" label="FV-201" position="68" command="75" actuator="pneumatic" action="normally-closed" status="normal" powered detail="auto"></pe-control-valve>
-          </div>
-          <div class="controls">
-            <label>Position <output id="valve-position-value">68%</output><input id="valve-position" type="range" min="0" max="100" value="68" /></label>
-            <label>Command <output id="valve-command-value">75%</output><input id="valve-command" type="range" min="0" max="100" value="75" /></label>
-            <label>Fail action <select id="valve-action"><option value="normally-closed">normally closed</option><option value="normally-open">normally open</option></select></label>
-            <button id="valve-mode" type="button">Go manual</button>
-          </div>
-        </article>
-
-        <article class="stage-card tank-card">
-          <div class="stage-heading">
-            <div><span class="tag">PROCESS</span><h2>Storage tank</h2></div>
-            <code>&lt;pe-tank&gt;</code>
-          </div>
-          <div class="canvas tank-canvas">
-            <pe-tank id="tank" label="T-201" level="72" temperature="48" pressure="1.8" low-limit="15" high-limit="85" capacity="45" nozzles="3" foam="5" agitator agitator-speed="55" heater heating detail="auto"></pe-tank>
-          </div>
-          <div class="controls">
-            <label>Level <output id="tank-level-value">72%</output><input id="tank-level" type="range" min="0" max="100" value="72" /></label>
-            <label>Nozzles <select id="tank-nozzles"><option>0</option><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></label>
-            <label>Body <select id="tank-orientation"><option>vertical</option><option>horizontal</option></select></label>
-            <button id="tank-agitator" type="button">Stop agitator</button>
-          </div>
-        </article>
-      </section>
-
-      <section class="stage-grid" aria-label="Rotating and control equipment">
-        <article class="stage-card pump-card">
-          <div class="stage-heading">
-            <div><span class="tag">PROCESS</span><h2>Centrifugal pump</h2></div>
-            <code>&lt;pe-pump&gt;</code>
-          </div>
-          <div class="canvas pump-canvas">
-            <pe-pump id="pump" label="P-201" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" detail="auto"></pe-pump>
-          </div>
-          <div class="controls">
-            <label>Speed <output id="speed-value">1450 rpm</output><input id="speed" type="range" min="0" max="2900" step="10" value="1450" /></label>
-            <label>Status <select id="pump-status"><option>normal</option><option>warning</option><option>alarm</option><option>idle</option></select></label>
-            <label>Quality <select id="pump-quality"><option>good</option><option>stale</option><option>bad</option></select></label>
-            <button id="pump-toggle" type="button">Stop</button>
-          </div>
-        </article>
-
-        <article class="stage-card controller-card">
-          <div class="stage-heading">
-            <div><span class="tag">CONTROL</span><h2>Programmable controller</h2></div>
-            <code>&lt;pe-controller&gt;</code>
-          </div>
-          <div class="canvas controller-canvas">
-            <pe-controller id="controller" label="PLC-X2" running inputs="16" outputs="16" input-state="1011010101011011" output-state="1100101000110101" scan-rate="10" load="62" activity="1" status="normal" quality="good" detail="auto"></pe-controller>
-          </div>
-          <div class="controls">
-            <label>I/O channels <select id="channels"><option value="8">8 + 8</option><option value="16" selected>16 + 16</option><option value="24">24 + 24</option><option value="32">32 + 32</option></select></label>
-            <label>CPU load <output id="load-value">62%</output><input id="load" type="range" min="0" max="100" value="62" /></label>
-            <button id="activity" type="button">Pulse network</button>
-            <button id="controller-alarm" type="button">Toggle fault</button>
-          </div>
-        </article>
-      </section>
-
-      <section class="quality-grid" aria-label="Responsive and state variants">
-        <article><span>Horizontal body</span><pe-tank orientation="horizontal" level="54" temperature="31" pressure="2.4" medium="oil" nozzles="3" detail="compact"></pe-tank></article>
-        <article><span>Low alarm</span><pe-tank level="4" temperature="19" pressure="0.3" low-limit="15" nozzles="2" detail="compact"></pe-tank></article>
-        <article><span>Electric actuator</span><pe-control-valve actuator="electric" position="42" command="42" mode="manual" powered detail="compact"></pe-control-valve></article>
-        <article><span>Alarm</span><pe-pump running speed="1450" value="8.7" unit="bar" status="alarm" detail="compact"></pe-pump></article>
-      </section>
-    </main>
-    <script type="module" src="./src/main.ts"></script>
+      <aside class="activitybar" aria-label="Workspace navigation">
+        <button class="activity-button is-active" type="button" data-left-panel="project" title="Project"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h6l2 2h8v12H4z"/></svg></button>
+        <button class="activity-button" type="button" data-left-panel="library" title="Element library"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/></svg></button>
+        <button class="activity-button" type="button" data-bottom-tab="alarms" title="Alarms"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 20h18zM12 9v5m0 3v.01"/></svg><span class="activity-badge" id="alarm-badge">0</span></button>
+        <button class="activity-button" type="button" data-bottom-tab="events" title="Events"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6zM9 8h6M9 12h6M9 16h4"/></svg></button>
+        <div class="activity-spacer"></div>
+        <a class="activity-button" href="./catalog.html" title="Component catalog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 9h16M9 9v10"/></svg></a>
+        <a class="activity-button" href="./semantic-zoom.html" title="Semantic zoom lab"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5M10 7v6M7 10h6"/></svg></a>
+        <button class="activity-button" id="settings-button" type="button" title="Workspace settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1"/></svg></button>
+      </aside>
+      <aside class="left-dock" id="left-dock">
+        <section class="left-panel is-active" data-panel="project">
+          <header class="dock-heading"><div><span>PROJECT</span><strong>Water treatment</strong></div><button class="small-icon-button" type="button" title="Project menu">•••</button></header>
+          <div class="project-filter"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg><input id="project-search" type="search" placeholder="Filter objects" /></div>
+          <div class="tree" id="project-tree"><button class="tree-row tree-root is-open" type="button"><span class="caret">⌄</span><span class="tree-icon">◫</span><strong>Feed &amp; recycle</strong><span class="tree-count">6</span></button><div class="tree-group" id="equipment-tree"></div><button class="tree-row" type="button"><span class="caret">›</span><span class="tree-icon">⌁</span>Connections<span class="tree-count" id="connection-count">6</span></button><button class="tree-row" type="button"><span class="caret">›</span><span class="tree-icon">◇</span>Signal mappings<span class="tree-count">12</span></button></div>
+          <div class="dock-section"><div class="section-title"><span>Views</span><button type="button">+</button></div><button class="view-row is-active" type="button"><span class="view-thumb process-thumb"></span><span><strong>Process overview</strong><small>1200 × 720</small></span></button><button class="view-row" type="button"><span class="view-thumb symbol-thumb"></span><span><strong>P&amp;ID abstraction</strong><small>Semantic zoom</small></span></button></div>
+        </section>
+        <section class="left-panel" data-panel="library">
+          <header class="dock-heading"><div><span>LIBRARY</span><strong>Process elements</strong></div><button class="small-icon-button" type="button" title="Library menu">•••</button></header>
+          <div class="project-filter"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg><input id="library-search" type="search" placeholder="Search elements" /></div>
+          <p class="library-hint">Choose an element, then click its intended position on the canvas.</p>
+          <div class="library-section"><h3>Equipment</h3><div class="library-grid"><button type="button" data-create="pe-tank"><span class="library-symbol tank-symbol"></span><strong>Tank</strong><small>Process</small></button><button type="button" data-create="pe-pump"><span class="library-symbol pump-symbol"></span><strong>Pump</strong><small>Rotating</small></button><button type="button" data-create="pe-control-valve"><span class="library-symbol valve-symbol"></span><strong>Control valve</strong><small>Final element</small></button><button type="button" data-create="pe-controller"><span class="library-symbol plc-symbol"></span><strong>Controller</strong><small>Control</small></button></div></div>
+          <div class="library-section"><h3>P&amp;ID primitives</h3><div class="library-grid compact-library"><button type="button" data-create="pe-pid-pump"><span class="pid-glyph">◯▶</span><strong>Pump symbol</strong></button><button type="button" data-create="pe-pid-valve"><span class="pid-glyph">▷◁</span><strong>Valve symbol</strong></button><button type="button" data-create="pe-pid-vessel"><span class="pid-glyph">▯</span><strong>Vessel symbol</strong></button></div></div>
+        </section>
+      </aside>
+      <main class="workspace">
+        <header class="canvas-toolbar">
+          <div class="tool-group" role="group" aria-label="Canvas tools"><button class="tool-button is-active" type="button" data-tool="select" title="Select (V)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 3 13 9-7 2-3 7z"/></svg></button><button class="tool-button" type="button" data-tool="pan" title="Pan (H)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11V6a2 2 0 0 1 4 0v4-6a2 2 0 0 1 4 0v6-4a2 2 0 0 1 4 0v7c0 5-3 8-8 8-3 0-5-1-7-4l-2-3a2 2 0 0 1 3-3l2 2"/></svg></button><button class="tool-button" type="button" data-tool="connect" title="Connect (C)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><path d="M9 12h6"/></svg></button></div>
+          <span class="toolbar-divider"></span><button class="tool-button" id="duplicate-selection" type="button" title="Duplicate selected"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11"/><path d="M5 16H4V4h12v1"/></svg></button><button class="tool-button" id="delete-selection" type="button" title="Delete selected"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M9 7V4h6v3m-8 0 1 13h8l1-13M10 10v7m4-7v7"/></svg></button><span class="toolbar-divider"></span><div class="view-title"><span>VIEW</span><strong>Process overview</strong></div>
+          <div class="mobile-view-switch" role="group" aria-label="Mobile workspace view"><button type="button" data-mobile-view="diagram" aria-pressed="true">Diagram</button><button type="button" data-mobile-view="devices">Devices</button></div><div class="canvas-toolbar-spacer"></div>
+          <button class="tool-button is-active" id="grid-toggle" type="button" title="Toggle grid"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4zM4 10h16M10 4v16M16 4v16M4 16h16"/></svg></button><div class="zoom-control"><button id="zoom-out" type="button" aria-label="Zoom out">−</button><output id="zoom-value">100%</output><button id="zoom-in" type="button" aria-label="Zoom in">+</button></div><button class="tool-button" id="fit-view" type="button" title="Fit view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/></svg></button><button class="tool-button mobile-inspector-toggle" id="mobile-inspector-toggle" type="button" title="Open inspector"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM9 4v16M12 8h4M12 12h4M12 16h3"/></svg></button>
+        </header>
+        <section class="viewport" id="viewport" aria-label="Engineering canvas"><div class="scene-stage" id="scene-stage"><elements-scene id="studio-scene" class="studio-scene"><pe-tank id="t1" data-movable x="70" y="145" width="230" label="T-101" level="72" temperature="48" pressure="1.8" low-limit="15" high-limit="85" capacity="45" nozzles="2" medium="water" status="normal" quality="good" detail="compact"></pe-tank><pe-control-valve id="v1" data-movable x="520" y="205" width="150" label="FV-101" position="68" command="68" medium="water" status="normal" quality="good" powered detail="compact"></pe-control-valve><pe-control-valve id="v2" data-movable x="520" y="455" width="150" label="FV-102" position="35" command="35" medium="water" status="normal" quality="good" powered detail="compact"></pe-control-valve><pe-pump id="p1" data-movable x="790" y="235" width="245" label="P-101" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" detail="compact"></pe-pump><pe-pump id="p2" data-movable x="790" y="485" width="245" label="P-102" speed="0" value="0" unit="bar" status="normal" quality="good" detail="compact"></pe-pump><pe-controller id="plc1" data-movable x="900" y="34" width="250" label="PLC-01" running inputs="16" outputs="16" input-state="1011010101011011" output-state="1100101000110101" scan-rate="10" load="62" activity="1" status="normal" quality="good" detail="symbol"></pe-controller><el-junction id="j1" data-movable x="365" y="355" medium="water" label="Suction manifold"></el-junction><el-pipe id="header" from="t1:out" to="j1" flowing speed="1" diameter="20" label="T-101 drain to suction manifold"></el-pipe><el-pipe id="branches" from="j1" to="v1:in v2:in" flowing speed="1" diameter="18" label="Manifold to duty and standby valves"></el-pipe><el-pipe id="feed-a" from="v1:out" to="p1:in" flowing speed="1" diameter="18" label="Duty suction"></el-pipe><el-pipe id="feed-b" from="v2:out" to="p2:in" speed="1" diameter="14" label="Standby suction"></el-pipe><el-pipe id="recycle" from="p1:out" to="t1:in" flowing speed="1" diameter="14" insulated label="P-101 discharge recycle"></el-pipe><el-pipe id="vent" from="recycle" to="t1:vent" diameter="8" label="Recycle vent"></el-pipe></elements-scene></div><div class="viewport-meta viewport-meta-top"><span class="live-chip"><i></i> live telemetry</span><span id="tool-hint">Select an object to inspect or edit it.</span></div><div class="viewport-meta viewport-meta-bottom"><span>Grid 12 px</span><span>Orthogonal routing</span><span id="scene-object-count">7 objects · 6 connections</span></div></section>
+        <section class="device-dispatcher" id="device-dispatcher" aria-label="Object device dispatcher"><header class="dispatcher-heading"><div><span>OBJECT DISPATCHER</span><strong>Feed &amp; recycle</strong></div><div class="dispatcher-summary"><span class="health-dot"></span><strong id="dispatcher-online">0 online</strong><span id="dispatcher-alerts">0 alarms</span></div></header><div class="dispatcher-filter"><input id="dispatcher-search" type="search" placeholder="Search tag, type or state" /><select id="dispatcher-filter" aria-label="Filter devices"><option value="all">All devices</option><option value="running">Running</option><option value="stopped">Stopped</option><option value="attention">Needs attention</option></select></div><div class="device-list" id="device-list"></div></section>
+        <section class="bottom-dock" id="bottom-dock" data-open="true"><header class="bottom-tabs"><button class="is-active" type="button" data-bottom-tab="alarms">Alarms <span id="alarm-tab-count">0</span></button><button type="button" data-bottom-tab="events">Events</button><button type="button" data-bottom-tab="diagnostics">Diagnostics</button><div class="bottom-tabs-spacer"></div><button class="small-icon-button" id="bottom-toggle" type="button" title="Collapse panel">⌄</button></header><div class="bottom-view is-active" data-bottom-view="alarms"><div class="table-head"><span>Severity</span><span>Source</span><span>Message</span><span>Value</span><span>State</span></div><div id="alarm-list" class="table-body"></div></div><div class="bottom-view" data-bottom-view="events"><div id="event-list" class="event-list"></div></div><div class="bottom-view" data-bottom-view="diagnostics"><div class="diagnostic-grid"><article><span>Render</span><strong id="render-health">60 fps</strong><small>Browser-native SVG</small></article><article><span>Routes</span><strong id="route-health">6 / 6</strong><small>All endpoints resolved</small></article><article><span>Motion</span><strong id="motion-health">active</strong><small>Shared MotionScope</small></article><article><span>Quality</span><strong id="quality-health">good</strong><small>Telemetry trust</small></article></div></div></section>
+      </main>
+      <aside class="right-dock" id="right-dock"><header class="selection-heading"><div class="selection-icon" id="selection-icon">T</div><div><span id="selection-type">PROCESS EQUIPMENT</span><strong id="selection-title">T-101</strong><small id="selection-subtitle">&lt;pe-tank&gt; · #t1</small></div><span class="selection-status is-normal" id="selection-status">normal</span></header><nav class="inspector-tabs" aria-label="Inspector sections"><button class="is-active" type="button" data-inspector-tab="properties">Properties</button><button type="button" data-inspector-tab="signals">Signals</button><button type="button" data-inspector-tab="operate">Operate</button></nav><div class="inspector-view is-active" data-inspector-view="properties"><div class="inspector-scroll" id="property-editor"></div></div><div class="inspector-view" data-inspector-view="signals"><div class="inspector-scroll" id="signal-inspector"></div></div><div class="inspector-view" data-inspector-view="operate"><div class="inspector-scroll" id="operator-panel"></div></div></aside>
+      <footer class="statusbar"><div><span class="status-indicator"></span><strong id="workspace-status">Ready</strong></div><span id="selected-path">Area 01 / T-101</span><div class="statusbar-spacer"></div><span id="cursor-position">X 0 · Y 0</span><span>Grid 12</span><span>UTF-8</span><span>Elements 0.1.0</span></footer>
+      <button class="mobile-scrim" id="mobile-scrim" type="button" aria-label="Close panel"></button><div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+    <script type="module" src="./src/studio.ts"></script>
+    <script type="module" src="./src/responsive.ts"></script>
   </body>
 </html>

@@ -14,6 +14,10 @@ export class PartMap {
     for (const element of this.#root.querySelectorAll<SVGElement>('[data-part]')) {
       const name = element.dataset.part;
       if (!name) continue;
+      // Semantic runtime parts are also native CSS shadow parts. This keeps the
+      // registry/binding vocabulary and the theming vocabulary identical while
+      // letting applications skin an element without reaching into shadowRoot.
+      element.setAttribute('part', name);
       const list = this.#parts.get(name);
       if (list) list.push(element);
       else this.#parts.set(name, [element]);
