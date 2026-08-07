@@ -1,5 +1,5 @@
 .studio-scene > pe-tank {
-  --light-device-filter: invert(.78) hue-rotate(180deg) saturate(.95) contrast(.94) brightness(1.02);
+  --light-device-filter: brightness(1.60) saturate(.78) contrast(.80);
 }
 .studio-scene > pe-pump {
   --light-device-filter: brightness(1.35) saturate(.92) contrast(.90);
