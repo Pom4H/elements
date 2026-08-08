@@ -19,6 +19,7 @@ jobs:
       - run: bun install
       - run: bun run check
       - run: bun run release:check --skip-build
+      - run: bun run registry:proof
       - uses: actions/upload-artifact@v4
         with:
           name: playground-dist
