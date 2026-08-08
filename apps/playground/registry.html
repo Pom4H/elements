@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Elements Registry Explorer</title>
+  </head>
+  <body>
+    <div id="registry-explorer" class="registry-explorer" aria-busy="true">
+      <header class="registry-topbar">
+        <a class="registry-brand" href="./index.html"><span class="registry-mark" aria-hidden="true"><i></i><i></i><i></i></span><span><strong>Elements</strong><small>Registry Explorer</small></span></a>
+        <div class="registry-contract"><span class="contract-dot"></span><span>manifest schema</span><strong id="schema-version">—</strong></div>
+        <a class="registry-github" href="https://github.com/Pom4H/elements">GitHub ↗</a>
+      </header>
+
+      <aside class="registry-sidebar">
+        <div class="sidebar-heading"><span>REGISTRY</span><strong>Process elements</strong></div>
+        <label class="registry-search"><span>⌕</span><input id="registry-search" type="search" placeholder="Search elements" autocomplete="off" /></label>
+        <nav id="registry-list" class="registry-list" aria-label="Registry elements"></nav>
+        <div class="sidebar-note"><strong>Source-owned</strong><p>Install the source, edit it locally, keep the runtime small.</p></div>
+      </aside>
+
+      <main class="registry-main">
+        <section class="registry-hero">
+          <div class="registry-title-row">
+            <div><span class="eyebrow" id="item-category">PROCESS / SCADA</span><h1 id="item-title">Loading…</h1><p id="item-description"></p></div>
+            <span class="source-owned-badge">SOURCE OWNED</span>
+          </div>
+          <div class="install-command"><code id="install-command"></code><button id="copy-command" type="button">Copy</button></div>
+          <div id="registry-stats" class="registry-stats"></div>
+        </section>
+
+        <section class="preview-card">
+          <header><div><span>LIVE PREVIEW</span><strong id="preview-tag"></strong></div><div class="preview-health"><i></i> browser native</div></header>
+          <div id="preview-stage" class="preview-stage"></div>
+          <footer><span>Attributes below write directly to the custom element.</span><span id="preview-viewbox"></span></footer>
+        </section>
+
+        <section class="api-card">
+          <header><div><span>PUBLIC API</span><strong>Generated from manifest</strong></div><div class="api-tabs" role="tablist"><button type="button" data-api-tab="attributes" aria-pressed="true">Attributes</button><button type="button" data-api-tab="ports">Ports</button><button type="button" data-api-tab="parts">Parts</button><button type="button" data-api-tab="motions">Motions</button></div></header>
+          <div id="api-content" class="api-content"></div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="./src/registry-explorer.ts"></script>
+  </body>
+</html>
