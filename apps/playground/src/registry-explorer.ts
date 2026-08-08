@@ -17,6 +17,16 @@ interface ManifestAttribute {
   readonly description?: string;
 }
 
+interface ManifestPort {
+  readonly id: string;
+  readonly x: number;
+  readonly y: number;
+  readonly direction: string;
+  readonly kind?: string;
+  readonly role?: string;
+  readonly medium?: string;
+}
+
 interface ManifestEntry {
   readonly tagName: string;
   readonly name: string;
@@ -26,7 +36,7 @@ interface ManifestEntry {
   readonly attributes: readonly ManifestAttribute[];
   readonly states: readonly string[];
   readonly parts: readonly { readonly name: string; readonly description?: string; readonly detail?: string }[];
-  readonly ports: readonly { readonly id: string; readonly x: number; readonly y: number; readonly direction: string; readonly kind?: string; readonly role?: string; readonly medium?: string }[];
+  readonly ports: readonly ManifestPort[];
   readonly dynamicPorts: boolean;
   readonly motions: readonly { readonly id: string; readonly type: string; readonly target: unknown }[];
   readonly composition: readonly string[];
@@ -62,6 +72,8 @@ interface RegistryFile {
   readonly name: string;
   readonly items: readonly RegistryItem[];
 }
+
+type RuntimeElement = HTMLElement & { readonly ports?: readonly ManifestPort[] };
 
 const required = <T extends Element>(selector: string): T => {
   const element = document.querySelector<T>(selector);
@@ -111,10 +123,12 @@ const previewViewBox = required<HTMLElement>('#preview-viewbox');
 const apiContent = required<HTMLElement>('#api-content');
 required<HTMLElement>('#schema-version').textContent = `v${manifest.schemaVersion}`;
 
-let activeTab: ApiTab = 'attributes';
+const initialUrl = new URL(location.href);
+const requestedTab = initialUrl.searchParams.get('tab');
+let activeTab: ApiTab = requestedTab === 'ports' || requestedTab === 'parts' || requestedTab === 'motions' ? requestedTab : 'attributes';
 let activeItem: RegistryItem | undefined;
 let activeEntry: ManifestEntry | undefined;
-let previewElement: HTMLElement | undefined;
+let previewElement: RuntimeElement | undefined;
 
 function initials(value: string): string {
   return value.split(/\s+/).map((part) => part[0]).filter(Boolean).join('').slice(0, 2).toUpperCase();
@@ -127,9 +141,33 @@ function stat(value: number, label: string): HTMLElement {
   return chip;
 }
 
+function livePorts(entry: ManifestEntry): readonly ManifestPort[] {
+  return previewElement?.ports ?? entry.ports;
+}
+
+function renderStats(entry: ManifestEntry): void {
+  const ports = livePorts(entry);
+  stats.replaceChildren(
+    stat(entry.attributes.length, 'attributes'),
+    stat(ports.length, entry.dynamicPorts ? 'live ports' : 'ports'),
+    stat(entry.parts.length, 'parts'),
+    stat(entry.motions.length, 'motions'),
+    stat(entry.states.length, 'states'),
+  );
+}
+
 function setAttributeValue(element: HTMLElement, attribute: ManifestAttribute, value: Primitive): void {
   if (attribute.kind === 'boolean') element.toggleAttribute(attribute.name, Boolean(value));
   else element.setAttribute(attribute.name, String(value));
+}
+
+function refreshLiveTopology(): void {
+  if (!activeEntry) return;
+  const entry = activeEntry;
+  requestAnimationFrame(() => {
+    renderStats(entry);
+    if (activeTab === 'ports') renderApi();
+  });
 }
 
 function renderList(): void {
@@ -199,6 +237,7 @@ function attributeControl(attribute: ManifestAttribute): HTMLElement {
     if (!previewElement) return;
     if (input instanceof HTMLInputElement && input.type === 'checkbox') previewElement.toggleAttribute(attribute.name, input.checked);
     else setAttributeValue(previewElement, attribute, attribute.kind === 'number' ? Number(input.value) : input.value);
+    refreshLiveTopology();
   });
   wrapper.append(input);
   return wrapper;
@@ -219,7 +258,7 @@ function renderApi(): void {
       apiContent.append(row);
     }
   } else if (activeTab === 'ports') {
-    for (const port of activeEntry.ports) {
+    for (const port of livePorts(activeEntry)) {
       apiContent.append(apiRow(port.id, `${port.kind ?? 'generic'} · ${port.role ?? port.direction}`, `${Math.round(port.x)}, ${Math.round(port.y)}${port.medium ? ` · ${port.medium}` : ''}`, 'port'));
     }
   } else if (activeTab === 'parts') {
@@ -230,7 +269,13 @@ function renderApi(): void {
   if (apiContent.childElementCount === 0) apiContent.append(text('div', `No ${activeTab} declared.`, 'empty-api'));
   const note = document.createElement('div');
   note.className = 'manifest-note';
-  note.append('No element-specific Explorer code. This panel is rendered from ', text('code', 'elements.manifest.json'), '.');
+  note.append(
+    activeTab === 'ports' && activeEntry.dynamicPorts
+      ? 'Dynamic ports are read from the live custom element; the manifest supplies the initial topology and declares that the set is dynamic. '
+      : 'No element-specific Explorer code. This panel is rendered from ',
+    text('code', activeTab === 'ports' && activeEntry.dynamicPorts ? '.ports' : 'elements.manifest.json'),
+    '.',
+  );
   apiContent.append(note);
 }
 
@@ -239,6 +284,7 @@ async function activate(item: RegistryItem): Promise<void> {
   if (!entry) return;
   activeItem = item;
   activeEntry = entry;
+  previewElement = undefined;
   renderList();
   title.textContent = item.title;
   description.textContent = item.description;
@@ -246,15 +292,9 @@ async function activate(item: RegistryItem): Promise<void> {
   command.textContent = `bunx shadcn@latest add Pom4H/elements/${item.name}`;
   previewTag.textContent = `<${entry.tagName}>`;
   previewViewBox.textContent = `${entry.viewBox}${entry.dynamicViewBox ? ' · dynamic' : ''}`;
-  stats.replaceChildren(
-    stat(entry.attributes.length, 'attributes'),
-    stat(entry.ports.length, entry.dynamicPorts ? 'initial ports' : 'ports'),
-    stat(entry.parts.length, 'parts'),
-    stat(entry.motions.length, 'motions'),
-    stat(entry.states.length, 'states'),
-  );
+  renderStats(entry);
 
-  const element = document.createElement(entry.tagName) as HTMLElement;
+  const element = document.createElement(entry.tagName) as RuntimeElement;
   element.dataset.registryPreview = '';
   for (const attribute of entry.attributes) {
     const example = item.meta.elements.example?.[attribute.name];
@@ -265,17 +305,24 @@ async function activate(item: RegistryItem): Promise<void> {
   renderApi();
   const url = new URL(location.href);
   url.searchParams.set('item', item.name);
+  url.searchParams.set('tab', activeTab);
   history.replaceState(null, '', url);
   await customElements.whenDefined(entry.tagName);
   await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+  renderStats(entry);
+  if (activeTab === 'ports') renderApi();
   document.documentElement.dataset.registryReady = item.name;
 }
 
 for (const button of document.querySelectorAll<HTMLButtonElement>('[data-api-tab]')) {
+  button.setAttribute('aria-pressed', String(button.dataset.apiTab === activeTab));
   button.addEventListener('click', () => {
     activeTab = button.dataset.apiTab as ApiTab;
     for (const candidate of document.querySelectorAll<HTMLButtonElement>('[data-api-tab]')) candidate.setAttribute('aria-pressed', String(candidate === button));
     renderApi();
+    const url = new URL(location.href);
+    url.searchParams.set('tab', activeTab);
+    history.replaceState(null, '', url);
   });
 }
 
@@ -286,7 +333,7 @@ copy.addEventListener('click', async () => {
   setTimeout(() => { copy.textContent = 'Copy'; }, 1000);
 });
 
-const requested = new URL(location.href).searchParams.get('item');
+const requested = initialUrl.searchParams.get('item');
 const initial = registry.items.find((item) => item.name === requested) ?? registry.items[0];
 if (!initial) throw new Error('Registry contains no items.');
 await activate(initial);
