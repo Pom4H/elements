@@ -36,14 +36,14 @@ const chrome = Bun.which('google-chrome') ?? Bun.which('google-chrome-stable') ?
 if (!chrome) throw new Error('No headless Chrome/Chromium binary found on the CI runner.');
 
 const cases = [
-  { name: 'registry-explorer-desktop.png', item: 'process-pump', size: '1440,1000' },
-  { name: 'registry-explorer-tablet.png', item: 'process-tank', size: '1024,900' },
-  { name: 'registry-explorer-mobile.png', item: 'process-control-valve', size: '390,844' },
+  { name: 'registry-explorer-desktop.png', item: 'process-pump', tab: 'attributes', size: '1440,1000' },
+  { name: 'registry-explorer-tablet.png', item: 'process-tank', tab: 'ports', size: '1024,900', expectedLivePorts: 6 },
+  { name: 'registry-explorer-mobile.png', item: 'process-control-valve', tab: 'attributes', size: '390,844' },
 ] as const;
 
 try {
   for (const shot of cases) {
-    const url = `http://127.0.0.1:${server.port}/${registryHtmlName}?item=${shot.item}`;
+    const url = `http://127.0.0.1:${server.port}/${registryHtmlName}?item=${shot.item}&tab=${shot.tab}`;
     const dom = await run([
       chrome,
       '--headless=new',
@@ -56,6 +56,12 @@ try {
     ]);
     if (!dom.includes(`data-registry-ready=\"${shot.item}\"`)) {
       throw new Error(`Registry Explorer did not become ready for ${shot.item}`);
+    }
+    if ('expectedLivePorts' in shot) {
+      const livePortChip = new RegExp(`<strong>${shot.expectedLivePorts}</strong><span>live ports</span>`);
+      if (!livePortChip.test(dom)) {
+        throw new Error(`${shot.item} did not expose ${shot.expectedLivePorts} live dynamic ports`);
+      }
     }
     const path = join(screenshots, shot.name);
     await run([
