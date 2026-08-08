@@ -2,5 +2,1705 @@
   "schemaVersion": 1,
   "name": "@pom4h/process-elements",
   "version": "0.1.0",
-  "elements": []
+  "elements": [
+    {
+      "tagName": "pe-tank",
+      "name": "Storage tank",
+      "description": "A process vessel with clip-path liquid level, limit bands, a generated nozzle set with matching ports, optional agitator and heater, and vertical or horizontal bodies.",
+      "viewBox": "0 0 380 452",
+      "dynamicViewBox": true,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "T-101",
+          "description": "Equipment label."
+        },
+        {
+          "name": "level",
+          "property": "level",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 100,
+          "step": 1,
+          "unit": "%",
+          "description": "Liquid level from 0 to 100 percent."
+        },
+        {
+          "name": "temperature",
+          "property": "temperature",
+          "kind": "number",
+          "default": 0,
+          "step": 1,
+          "unit": "°C",
+          "description": "Contents temperature in degrees Celsius."
+        },
+        {
+          "name": "pressure",
+          "property": "pressure",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 0.1,
+          "unit": "bar",
+          "description": "Vapour space pressure in bar."
+        },
+        {
+          "name": "low-limit",
+          "property": "lowLimit",
+          "kind": "number",
+          "default": 20,
+          "description": "Low level warning threshold."
+        },
+        {
+          "name": "high-limit",
+          "property": "highLimit",
+          "kind": "number",
+          "default": 80,
+          "description": "High level warning threshold."
+        },
+        {
+          "name": "low-alarm",
+          "property": "lowAlarm",
+          "kind": "number",
+          "default": 5,
+          "description": "Low level alarm threshold."
+        },
+        {
+          "name": "high-alarm",
+          "property": "highAlarm",
+          "kind": "number",
+          "default": 95,
+          "description": "High level alarm threshold."
+        },
+        {
+          "name": "medium",
+          "property": "medium",
+          "kind": "enum",
+          "default": "water",
+          "values": [
+            "water",
+            "steam",
+            "condensate",
+            "oil",
+            "fuel",
+            "gas",
+            "air",
+            "chemical",
+            "slurry",
+            "glycol"
+          ],
+          "description": "Stored substance. Sets the liquid colour and propagates to the process ports."
+        },
+        {
+          "name": "capacity",
+          "property": "capacity",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 1,
+          "unit": "m³",
+          "description": "Nominal capacity in cubic metres."
+        },
+        {
+          "name": "orientation",
+          "property": "orientation",
+          "kind": "enum",
+          "default": "vertical",
+          "values": [
+            "vertical",
+            "horizontal"
+          ],
+          "description": "Body style. Changes the viewport, the shell and the nozzle axis."
+        },
+        {
+          "name": "nozzles",
+          "property": "nozzles",
+          "kind": "number",
+          "default": 2,
+          "minimum": 0,
+          "maximum": 6,
+          "step": 1,
+          "description": "Number of generated shell nozzles from 0 to 6. Each one adds a port."
+        },
+        {
+          "name": "foam",
+          "property": "foam",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 100,
+          "step": 1,
+          "unit": "%",
+          "description": "Foam layer thickness from 0 to 100 percent of the vessel height."
+        },
+        {
+          "name": "agitator",
+          "property": "agitator",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether an agitator is installed."
+        },
+        {
+          "name": "agitator-speed",
+          "property": "agitatorSpeed",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 5,
+          "unit": "rpm",
+          "description": "Agitator shaft speed in rpm."
+        },
+        {
+          "name": "heater",
+          "property": "heater",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether a heating coil is installed."
+        },
+        {
+          "name": "heating",
+          "property": "heating",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the heating coil is energised."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "idle",
+          "values": [
+            "idle",
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Process status independent from data quality."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "good",
+          "values": [
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Telemetry quality independent from process status."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual level of detail."
+        }
+      ],
+      "states": [
+        "horizontal",
+        "empty",
+        "full",
+        "low",
+        "high",
+        "low-alarm",
+        "high-alarm",
+        "agitating",
+        "heating",
+        "foaming",
+        "warning",
+        "alarm",
+        "stale",
+        "bad-quality"
+      ],
+      "parts": [
+        {
+          "name": "shell",
+          "description": "Vessel shell outline.",
+          "detail": "essential"
+        },
+        {
+          "name": "liquid-carrier",
+          "description": "Clipped liquid stack driven by the level.",
+          "detail": "essential"
+        },
+        {
+          "name": "surface-wave",
+          "description": "Nested surface ripple that rides on the level.",
+          "detail": "standard"
+        },
+        {
+          "name": "foam-band",
+          "description": "Foam layer whose thickness follows the foam value.",
+          "detail": "standard"
+        },
+        {
+          "name": "vortex",
+          "description": "Surface vortex shown while the agitator runs.",
+          "detail": "standard"
+        },
+        {
+          "name": "impeller",
+          "description": "Agitator impeller.",
+          "detail": "essential"
+        },
+        {
+          "name": "heater-coil",
+          "description": "Heating coil.",
+          "detail": "standard"
+        },
+        {
+          "name": "gauge",
+          "description": "Level gauge with warning bands and alarm marks.",
+          "detail": "standard"
+        },
+        {
+          "name": "level-marker",
+          "description": "Level pointer on the gauge.",
+          "detail": "standard"
+        },
+        {
+          "name": "band-low",
+          "detail": "standard"
+        },
+        {
+          "name": "band-high",
+          "detail": "standard"
+        },
+        {
+          "name": "temperature-readout",
+          "detail": "standard"
+        },
+        {
+          "name": "pressure-readout",
+          "detail": "standard"
+        },
+        {
+          "name": "status-strip",
+          "detail": "standard"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "standard"
+        },
+        {
+          "name": "meta",
+          "detail": "standard"
+        }
+      ],
+      "ports": [
+        {
+          "id": "in",
+          "x": 130,
+          "y": 30,
+          "direction": "top",
+          "kind": "process",
+          "role": "inlet",
+          "medium": "water",
+          "label": "Fill"
+        },
+        {
+          "id": "out",
+          "x": 182,
+          "y": 408,
+          "direction": "bottom",
+          "kind": "process",
+          "role": "outlet",
+          "medium": "water",
+          "label": "Drain"
+        },
+        {
+          "id": "vent",
+          "x": 239,
+          "y": 48,
+          "direction": "top",
+          "kind": "process",
+          "role": "outlet",
+          "label": "Vent"
+        },
+        {
+          "id": "nozzle-1",
+          "x": 44,
+          "y": 174,
+          "direction": "left",
+          "kind": "process",
+          "role": "bidirectional",
+          "medium": "water",
+          "label": "Nozzle 1"
+        },
+        {
+          "id": "nozzle-2",
+          "x": 44,
+          "y": 274,
+          "direction": "left",
+          "kind": "process",
+          "role": "bidirectional",
+          "medium": "water",
+          "label": "Nozzle 2"
+        }
+      ],
+      "dynamicPorts": true,
+      "motions": [
+        {
+          "id": "liquid-level",
+          "type": "scrub",
+          "target": "liquid-carrier"
+        },
+        {
+          "id": "level-marker",
+          "type": "scrub",
+          "target": "level-marker"
+        },
+        {
+          "id": "surface-wave",
+          "type": "loop",
+          "target": "surface-wave"
+        },
+        {
+          "id": "vortex-swirl",
+          "type": "loop",
+          "target": "vortex"
+        },
+        {
+          "id": "impeller-spin",
+          "type": "loop",
+          "target": "impeller"
+        },
+        {
+          "id": "impeller-upper-spin",
+          "type": "loop",
+          "target": "impeller-upper"
+        },
+        {
+          "id": "heater-glow",
+          "type": "loop",
+          "target": "heater-coil"
+        },
+        {
+          "id": "alarm-pulse",
+          "type": "loop",
+          "target": "status-strip"
+        }
+      ],
+      "composition": [
+        "vessel"
+      ]
+    },
+    {
+      "tagName": "pe-pump",
+      "name": "End-suction centrifugal pump",
+      "description": "A horizontal end-suction pump with short equipment nozzles. The scene owns all external process piping and flow animation.",
+      "viewBox": "0 0 510 290",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "P-101",
+          "description": "Equipment label."
+        },
+        {
+          "name": "running",
+          "property": "running",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the pump is commanded to run."
+        },
+        {
+          "name": "speed",
+          "property": "speed",
+          "kind": "number",
+          "default": 0,
+          "description": "Shaft speed in rpm."
+        },
+        {
+          "name": "value",
+          "property": "value",
+          "kind": "number",
+          "default": 0,
+          "description": "Primary process value."
+        },
+        {
+          "name": "unit",
+          "property": "unit",
+          "kind": "string",
+          "default": "bar",
+          "description": "Primary process value unit."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Severity independent from operation and data quality."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Telemetry quality independent from process severity."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual level of detail."
+        }
+      ],
+      "states": [
+        "running"
+      ],
+      "parts": [
+        {
+          "name": "housing",
+          "description": "Pump casing. External pipes are scene-owned.",
+          "detail": "essential"
+        },
+        {
+          "name": "inspection-window",
+          "description": "Circular impeller inspection window.",
+          "detail": "essential"
+        },
+        {
+          "name": "rotor",
+          "description": "Shrouded impeller with curved vanes.",
+          "detail": "essential"
+        },
+        {
+          "name": "coupling",
+          "description": "Shaft coupling aligned with the impeller timeline.",
+          "detail": "essential"
+        },
+        {
+          "name": "motor-group",
+          "description": "Electric motor assembly.",
+          "detail": "essential"
+        },
+        {
+          "name": "status-ring",
+          "description": "Primary severity indicator.",
+          "detail": "essential"
+        },
+        {
+          "name": "status-strip",
+          "description": "Running-state marker.",
+          "detail": "standard"
+        },
+        {
+          "name": "quality-indicator",
+          "description": "Telemetry quality marker.",
+          "detail": "standard"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "standard"
+        },
+        {
+          "name": "meta",
+          "detail": "standard"
+        }
+      ],
+      "ports": [
+        {
+          "id": "in",
+          "x": 10,
+          "y": 145,
+          "direction": "left",
+          "kind": "process"
+        },
+        {
+          "id": "out",
+          "x": 273,
+          "y": 31,
+          "direction": "top",
+          "kind": "process"
+        },
+        {
+          "id": "power",
+          "x": 474,
+          "y": 145,
+          "direction": "right",
+          "kind": "electrical"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [
+        {
+          "id": "rotor-spin",
+          "type": "loop",
+          "target": "rotor"
+        },
+        {
+          "id": "coupling-spin",
+          "type": "loop",
+          "target": "coupling"
+        },
+        {
+          "id": "motor-hum",
+          "type": "loop",
+          "target": "motor-group"
+        },
+        {
+          "id": "start-status",
+          "type": "transition",
+          "target": "status-strip"
+        },
+        {
+          "id": "severity-change",
+          "type": "transition",
+          "target": "status-ring"
+        }
+      ],
+      "composition": [
+        "assembly"
+      ]
+    },
+    {
+      "tagName": "pe-control-valve",
+      "name": "Control valve",
+      "description": "A globe control valve drawn as an operator sees it: body, yoke, stem travel, actuator and positioner. Piping and flow belong to the scene.",
+      "viewBox": "0 0 200 250",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "FV-101",
+          "description": "Equipment tag."
+        },
+        {
+          "name": "position",
+          "property": "position",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 100,
+          "step": 1,
+          "unit": "%",
+          "description": "Actual travel from 0 (shut) to 100 (open)."
+        },
+        {
+          "name": "command",
+          "property": "command",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 100,
+          "step": 1,
+          "unit": "%",
+          "description": "Commanded travel from 0 (shut) to 100 (open)."
+        },
+        {
+          "name": "actuator",
+          "property": "actuator",
+          "kind": "enum",
+          "default": "pneumatic",
+          "values": [
+            "pneumatic",
+            "electric"
+          ],
+          "description": "Actuator type. Swaps the actuator and its auxiliary port."
+        },
+        {
+          "name": "action",
+          "property": "action",
+          "kind": "enum",
+          "default": "normally-closed",
+          "values": [
+            "normally-closed",
+            "normally-open"
+          ],
+          "description": "Fail position on loss of signal or motive power."
+        },
+        {
+          "name": "medium",
+          "property": "medium",
+          "kind": "enum",
+          "default": "water",
+          "values": [
+            "water",
+            "steam",
+            "condensate",
+            "oil",
+            "fuel",
+            "gas",
+            "air",
+            "chemical",
+            "slurry",
+            "glycol"
+          ],
+          "description": "Process substance. Propagates to the inlet and outlet ports."
+        },
+        {
+          "name": "mode",
+          "property": "mode",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "manual"
+          ],
+          "description": "Auto follows the command, manual follows the handwheel."
+        },
+        {
+          "name": "deadband",
+          "property": "deadband",
+          "kind": "number",
+          "default": 0.5,
+          "minimum": 0,
+          "step": 0.1,
+          "unit": "%",
+          "description": "Travel difference below which the valve counts as settled."
+        },
+        {
+          "name": "stuck",
+          "property": "stuck",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the trim has stopped following the command."
+        },
+        {
+          "name": "powered",
+          "property": "powered",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether actuator power or instrument air is available."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "idle",
+          "values": [
+            "idle",
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Process status independent from data quality."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "good",
+          "values": [
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Telemetry quality independent from process status."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual level of detail. Symbol swaps to the P&ID symbol."
+        }
+      ],
+      "states": [
+        "open",
+        "closed",
+        "opening",
+        "closing",
+        "travelling",
+        "stuck",
+        "manual",
+        "powered",
+        "electric",
+        "fail-open",
+        "warning",
+        "alarm",
+        "stale",
+        "bad-quality"
+      ],
+      "parts": [
+        {
+          "name": "body",
+          "description": "Valve body silhouette.",
+          "detail": "essential"
+        },
+        {
+          "name": "stem-travel",
+          "description": "Stem and the travel pointer clamped to it.",
+          "detail": "essential"
+        },
+        {
+          "name": "travel-pointer",
+          "description": "Actual travel read against the scale.",
+          "detail": "essential"
+        },
+        {
+          "name": "command-marker",
+          "description": "Commanded travel on the same scale.",
+          "detail": "standard"
+        },
+        {
+          "name": "travel-scale",
+          "description": "Travel scale on the yoke.",
+          "detail": "standard"
+        },
+        {
+          "name": "positioner-led",
+          "description": "Positioner power and command indicator.",
+          "detail": "essential"
+        },
+        {
+          "name": "positioner-readout",
+          "detail": "standard"
+        },
+        {
+          "name": "handwheel",
+          "description": "Manual override on the electric actuator.",
+          "detail": "standard"
+        },
+        {
+          "name": "status-strip",
+          "detail": "standard"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "standard"
+        },
+        {
+          "name": "meta",
+          "detail": "fine"
+        }
+      ],
+      "ports": [
+        {
+          "id": "in",
+          "x": 42,
+          "y": 190,
+          "direction": "left",
+          "kind": "process",
+          "role": "inlet",
+          "medium": "water",
+          "label": "Inlet flange"
+        },
+        {
+          "id": "out",
+          "x": 158,
+          "y": 190,
+          "direction": "right",
+          "kind": "process",
+          "role": "outlet",
+          "medium": "water",
+          "label": "Outlet flange"
+        },
+        {
+          "id": "signal",
+          "x": 18,
+          "y": 123,
+          "direction": "left",
+          "kind": "signal",
+          "role": "inlet",
+          "label": "Positioner signal"
+        },
+        {
+          "id": "supply",
+          "x": 174,
+          "y": 78,
+          "direction": "right",
+          "kind": "process",
+          "role": "inlet",
+          "medium": "air"
+        }
+      ],
+      "dynamicPorts": true,
+      "motions": [
+        {
+          "id": "stem-travel",
+          "type": "scrub",
+          "target": "stem-travel"
+        },
+        {
+          "id": "command-marker",
+          "type": "scrub",
+          "target": "command-marker"
+        },
+        {
+          "id": "handwheel-turn",
+          "type": "loop",
+          "target": "handwheel"
+        },
+        {
+          "id": "command-received",
+          "type": "transition",
+          "target": "positioner-led"
+        },
+        {
+          "id": "alarm-pulse",
+          "type": "loop",
+          "target": "status-strip"
+        }
+      ],
+      "composition": [
+        "assembly"
+      ]
+    },
+    {
+      "tagName": "pe-controller",
+      "name": "Programmable controller",
+      "description": "A modular programmable controller with generated I/O modules, dynamic viewport and semantic level of detail.",
+      "viewBox": "0 0 606 260",
+      "dynamicViewBox": true,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "PLC-X2",
+          "description": "Controller label."
+        },
+        {
+          "name": "running",
+          "property": "running",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the controller scan cycle is running."
+        },
+        {
+          "name": "inputs",
+          "property": "inputs",
+          "kind": "number",
+          "default": 16,
+          "description": "Digital input channel count from 0 to 32."
+        },
+        {
+          "name": "outputs",
+          "property": "outputs",
+          "kind": "number",
+          "default": 16,
+          "description": "Digital output channel count from 0 to 32."
+        },
+        {
+          "name": "input-state",
+          "property": "inputState",
+          "kind": "string",
+          "default": "",
+          "description": "Input bit string."
+        },
+        {
+          "name": "output-state",
+          "property": "outputState",
+          "kind": "string",
+          "default": "",
+          "description": "Output bit string."
+        },
+        {
+          "name": "scan-rate",
+          "property": "scanRate",
+          "kind": "number",
+          "default": 10,
+          "description": "Scan cycles per second."
+        },
+        {
+          "name": "load",
+          "property": "load",
+          "kind": "number",
+          "default": 0,
+          "description": "Controller load from 0 to 100."
+        },
+        {
+          "name": "activity",
+          "property": "activity",
+          "kind": "number",
+          "default": 0,
+          "description": "Monotonic communication activity sequence."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Controller severity independent from operation and data quality."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Controller telemetry quality."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual level of detail. Auto uses container queries."
+        }
+      ],
+      "states": [
+        "running"
+      ],
+      "parts": [
+        {
+          "name": "cpu-body",
+          "detail": "essential"
+        },
+        {
+          "name": "display",
+          "detail": "essential"
+        },
+        {
+          "name": "status-led",
+          "description": "Primary severity indicator.",
+          "detail": "essential"
+        },
+        {
+          "name": "quality-led",
+          "description": "Telemetry quality indicator.",
+          "detail": "essential"
+        },
+        {
+          "name": "comm-led",
+          "detail": "essential"
+        },
+        {
+          "name": "module-body",
+          "detail": "essential"
+        },
+        {
+          "name": "channel-led",
+          "detail": "essential"
+        },
+        {
+          "name": "module-name",
+          "detail": "essential"
+        },
+        {
+          "name": "module-range",
+          "detail": "standard"
+        },
+        {
+          "name": "terminal",
+          "detail": "standard"
+        },
+        {
+          "name": "load-bar",
+          "detail": "standard"
+        },
+        {
+          "name": "scan-line",
+          "detail": "standard"
+        },
+        {
+          "name": "module-sub",
+          "detail": "fine"
+        }
+      ],
+      "ports": [
+        {
+          "id": "power",
+          "x": 18,
+          "y": 58,
+          "direction": "left",
+          "kind": "electrical"
+        },
+        {
+          "id": "network",
+          "x": 192,
+          "y": 85,
+          "direction": "right",
+          "kind": "network"
+        },
+        {
+          "id": "io-bus",
+          "x": 120,
+          "y": 210,
+          "direction": "bottom",
+          "kind": "signal"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [
+        {
+          "id": "scan-cycle",
+          "type": "loop",
+          "target": "scan-line"
+        },
+        {
+          "id": "communication-flash",
+          "type": "transition",
+          "target": "comm-led"
+        },
+        {
+          "id": "load-progress",
+          "type": "scrub",
+          "target": "load-bar"
+        },
+        {
+          "id": "severity-change",
+          "type": "transition",
+          "target": "status-led"
+        }
+      ],
+      "composition": [
+        "controller"
+      ]
+    },
+    {
+      "tagName": "pe-pid-pump",
+      "name": "Semantic zoom centrifugal pump",
+      "description": "A symbol-first centrifugal pump that progressively reveals live process, operational, and diagnostic layers.",
+      "viewBox": "0 0 320 220",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "P-101",
+          "description": "Equipment label."
+        },
+        {
+          "name": "running",
+          "property": "running",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the pump is running."
+        },
+        {
+          "name": "speed",
+          "property": "speed",
+          "kind": "number",
+          "default": 0,
+          "description": "Shaft speed in rpm."
+        },
+        {
+          "name": "value",
+          "property": "value",
+          "kind": "number",
+          "default": 0,
+          "description": "Primary process value."
+        },
+        {
+          "name": "unit",
+          "property": "unit",
+          "kind": "string",
+          "default": "bar",
+          "description": "Primary process value unit."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ]
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ]
+        },
+        {
+          "name": "abstraction",
+          "property": "abstraction",
+          "kind": "enum",
+          "default": "symbol",
+          "values": [
+            "symbol",
+            "process",
+            "operational",
+            "diagnostic"
+          ],
+          "description": "Semantic zoom level."
+        }
+      ],
+      "states": [
+        "running"
+      ],
+      "parts": [
+        {
+          "name": "symbol",
+          "description": "Canonical ISO-style pump silhouette.",
+          "detail": "essential"
+        },
+        {
+          "name": "process-layer",
+          "description": "Process direction and moving flow markers.",
+          "detail": "standard"
+        },
+        {
+          "name": "operational-layer",
+          "description": "Rotor, drive, state, and tag.",
+          "detail": "standard"
+        },
+        {
+          "name": "diagnostic-layer",
+          "description": "Readouts and shaft-load visualization.",
+          "detail": "fine"
+        },
+        {
+          "name": "rotor",
+          "detail": "standard"
+        },
+        {
+          "name": "flow-marker",
+          "detail": "standard"
+        },
+        {
+          "name": "status-ring",
+          "description": "Primary severity indicator.",
+          "detail": "essential"
+        },
+        {
+          "name": "state-dot",
+          "description": "Running-state marker.",
+          "detail": "standard"
+        },
+        {
+          "name": "quality-indicator",
+          "description": "Telemetry quality marker.",
+          "detail": "fine"
+        },
+        {
+          "name": "load-bar",
+          "detail": "fine"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "fine"
+        },
+        {
+          "name": "speed-label",
+          "detail": "fine"
+        }
+      ],
+      "ports": [
+        {
+          "id": "in",
+          "x": 8,
+          "y": 110,
+          "direction": "left",
+          "kind": "process"
+        },
+        {
+          "id": "out",
+          "x": 312,
+          "y": 110,
+          "direction": "right",
+          "kind": "process"
+        },
+        {
+          "id": "power",
+          "x": 271,
+          "y": 89,
+          "direction": "top",
+          "kind": "electrical"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [
+        {
+          "id": "pid-pump-rotor",
+          "type": "loop",
+          "target": "rotor"
+        },
+        {
+          "id": "pid-pump-flow",
+          "type": "loop",
+          "target": "flow-marker"
+        },
+        {
+          "id": "pid-pump-start",
+          "type": "transition",
+          "target": "state-dot"
+        },
+        {
+          "id": "pid-pump-load",
+          "type": "scrub",
+          "target": "load-bar"
+        },
+        {
+          "id": "pid-pump-severity",
+          "type": "transition",
+          "target": "status-ring"
+        }
+      ],
+      "composition": []
+    },
+    {
+      "tagName": "pe-pid-valve",
+      "name": "Semantic zoom control valve",
+      "description": "A standard control-valve symbol with cumulative process, operational, and diagnostic layers.",
+      "viewBox": "0 0 300 220",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "FV-101",
+          "description": "Equipment label."
+        },
+        {
+          "name": "active",
+          "property": "active",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether process flow is active."
+        },
+        {
+          "name": "position",
+          "property": "position",
+          "kind": "number",
+          "default": 0,
+          "description": "Valve opening from 0 to 100 percent."
+        },
+        {
+          "name": "value",
+          "property": "value",
+          "kind": "number",
+          "default": 0,
+          "description": "Primary process value."
+        },
+        {
+          "name": "unit",
+          "property": "unit",
+          "kind": "string",
+          "default": "m³/h",
+          "description": "Primary process value unit."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ]
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ]
+        },
+        {
+          "name": "abstraction",
+          "property": "abstraction",
+          "kind": "enum",
+          "default": "symbol",
+          "values": [
+            "symbol",
+            "process",
+            "operational",
+            "diagnostic"
+          ],
+          "description": "Semantic zoom level."
+        }
+      ],
+      "states": [
+        "open",
+        "closed",
+        "flowing"
+      ],
+      "parts": [
+        {
+          "name": "symbol",
+          "description": "Canonical control-valve silhouette.",
+          "detail": "essential"
+        },
+        {
+          "name": "process-layer",
+          "description": "Flow direction and moving markers.",
+          "detail": "standard"
+        },
+        {
+          "name": "operational-layer",
+          "description": "Position, aperture, state, and tag.",
+          "detail": "standard"
+        },
+        {
+          "name": "diagnostic-layer",
+          "description": "Readout and instrument signal.",
+          "detail": "fine"
+        },
+        {
+          "name": "flow-marker",
+          "detail": "standard"
+        },
+        {
+          "name": "stem-indicator",
+          "detail": "standard"
+        },
+        {
+          "name": "aperture",
+          "detail": "standard"
+        },
+        {
+          "name": "status-outline",
+          "description": "Primary severity indicator.",
+          "detail": "essential"
+        },
+        {
+          "name": "state-dot",
+          "description": "Open and flowing-state marker.",
+          "detail": "standard"
+        },
+        {
+          "name": "quality-indicator",
+          "description": "Telemetry quality marker.",
+          "detail": "fine"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "position-label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "fine"
+        }
+      ],
+      "ports": [
+        {
+          "id": "in",
+          "x": 8,
+          "y": 112,
+          "direction": "left",
+          "kind": "process"
+        },
+        {
+          "id": "out",
+          "x": 292,
+          "y": 112,
+          "direction": "right",
+          "kind": "process"
+        },
+        {
+          "id": "signal",
+          "x": 248,
+          "y": 4,
+          "direction": "top",
+          "kind": "signal"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [
+        {
+          "id": "pid-valve-flow",
+          "type": "loop",
+          "target": "flow-marker"
+        },
+        {
+          "id": "pid-valve-stem",
+          "type": "scrub",
+          "target": "stem-indicator"
+        },
+        {
+          "id": "pid-valve-aperture",
+          "type": "scrub",
+          "target": "aperture"
+        },
+        {
+          "id": "pid-valve-severity",
+          "type": "transition",
+          "target": "status-outline"
+        }
+      ],
+      "composition": []
+    },
+    {
+      "tagName": "pe-pid-vessel",
+      "name": "Semantic zoom process vessel",
+      "description": "A standard vessel silhouette with cumulative level, operating-state, and diagnostic layers.",
+      "viewBox": "0 0 260 280",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "V-101",
+          "description": "Equipment label."
+        },
+        {
+          "name": "active",
+          "property": "active",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the vessel has active inflow or agitation."
+        },
+        {
+          "name": "level",
+          "property": "level",
+          "kind": "number",
+          "default": 0,
+          "description": "Liquid level from 0 to 100 percent."
+        },
+        {
+          "name": "value",
+          "property": "value",
+          "kind": "number",
+          "default": 0,
+          "description": "Primary process value."
+        },
+        {
+          "name": "unit",
+          "property": "unit",
+          "kind": "string",
+          "default": "m",
+          "description": "Primary process value unit."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ]
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ]
+        },
+        {
+          "name": "abstraction",
+          "property": "abstraction",
+          "kind": "enum",
+          "default": "symbol",
+          "values": [
+            "symbol",
+            "process",
+            "operational",
+            "diagnostic"
+          ],
+          "description": "Semantic zoom level."
+        }
+      ],
+      "states": [
+        "active"
+      ],
+      "parts": [
+        {
+          "name": "symbol",
+          "description": "Canonical vertical-vessel silhouette.",
+          "detail": "essential"
+        },
+        {
+          "name": "process-layer",
+          "description": "Liquid level and surface motion.",
+          "detail": "standard"
+        },
+        {
+          "name": "operational-layer",
+          "description": "Gauge, state, and equipment tag.",
+          "detail": "standard"
+        },
+        {
+          "name": "diagnostic-layer",
+          "description": "Level transmitter and numeric readout.",
+          "detail": "fine"
+        },
+        {
+          "name": "level-group",
+          "detail": "standard"
+        },
+        {
+          "name": "surface-wave",
+          "detail": "standard"
+        },
+        {
+          "name": "bubbles",
+          "detail": "standard"
+        },
+        {
+          "name": "gauge-fill",
+          "detail": "standard"
+        },
+        {
+          "name": "status-outline",
+          "description": "Primary severity indicator.",
+          "detail": "essential"
+        },
+        {
+          "name": "state-dot",
+          "description": "Active-process marker.",
+          "detail": "standard"
+        },
+        {
+          "name": "quality-indicator",
+          "description": "Telemetry quality marker.",
+          "detail": "fine"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "level-label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "fine"
+        }
+      ],
+      "ports": [
+        {
+          "id": "in",
+          "x": 8,
+          "y": 92,
+          "direction": "left",
+          "kind": "process"
+        },
+        {
+          "id": "out",
+          "x": 252,
+          "y": 188,
+          "direction": "right",
+          "kind": "process"
+        },
+        {
+          "id": "drain",
+          "x": 130,
+          "y": 272,
+          "direction": "bottom",
+          "kind": "process"
+        },
+        {
+          "id": "level",
+          "x": 241,
+          "y": 17,
+          "direction": "top",
+          "kind": "signal"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [
+        {
+          "id": "pid-vessel-level",
+          "type": "scrub",
+          "target": "level-group"
+        },
+        {
+          "id": "pid-vessel-gauge",
+          "type": "scrub",
+          "target": "gauge-fill"
+        },
+        {
+          "id": "pid-vessel-surface",
+          "type": "loop",
+          "target": "surface-wave"
+        },
+        {
+          "id": "pid-vessel-bubbles",
+          "type": "loop",
+          "target": "bubbles"
+        },
+        {
+          "id": "pid-vessel-severity",
+          "type": "transition",
+          "target": "status-outline"
+        }
+      ],
+      "composition": []
+    }
+  ]
 }
