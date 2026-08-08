@@ -7,26 +7,14 @@
       "name": "process-pump",
       "type": "registry:item",
       "title": "Process Pump",
-      "description": "Source-owned pe-pump element: SVG definition, shared value helpers and a browser registration entrypoint.",
+      "description": "Source-owned pe-pump element with mechanical motion, process values and live connection ports.",
       "author": "Pom4H",
       "files": [
-        {
-          "path": "packages/process-elements/src/shared.ts",
-          "type": "registry:file",
-          "target": "~/src/elements/shared.ts"
-        },
-        {
-          "path": "packages/process-elements/src/elements/pump.ts",
-          "type": "registry:file",
-          "target": "~/src/elements/process-pump/pump.ts"
-        },
-        {
-          "path": "registry/process-pump/register.ts",
-          "type": "registry:file",
-          "target": "~/src/elements/process-pump/register.ts"
-        }
+        { "path": "packages/process-elements/src/shared.ts", "type": "registry:file", "target": "~/src/elements/shared.ts" },
+        { "path": "packages/process-elements/src/elements/pump.ts", "type": "registry:file", "target": "~/src/elements/process-pump/pump.ts" },
+        { "path": "registry/process-pump/register.ts", "type": "registry:file", "target": "~/src/elements/process-pump/register.ts" }
       ],
-      "docs": "Install @pom4h/elements-core, import ./src/elements/process-pump/register.ts from a browser entrypoint, then use <pe-pump>. The copied source belongs to your project and is intended to be edited.",
+      "docs": "Install @pom4h/elements-core, import ./src/elements/process-pump/register.ts from a browser entrypoint, then use <pe-pump>.",
       "categories": ["elements", "process", "scada"],
       "meta": {
         "elements": {
@@ -34,8 +22,62 @@
           "tagName": "pe-pump",
           "sourceOwned": true,
           "runtimePackage": "@pom4h/elements-core",
+          "manifest": "registry/elements.manifest.json#pe-pump",
           "definition": "src/elements/process-pump/pump.ts",
-          "register": "src/elements/process-pump/register.ts"
+          "register": "src/elements/process-pump/register.ts",
+          "example": { "running": true, "speed": 1450, "value": 6.2, "unit": "bar", "status": "normal", "quality": "good", "detail": "full" }
+        }
+      }
+    },
+    {
+      "name": "process-tank",
+      "type": "registry:item",
+      "title": "Process Tank",
+      "description": "Parametric source-owned tank with level, limits, generated nozzles and dynamic ports.",
+      "author": "Pom4H",
+      "files": [
+        { "path": "packages/process-elements/src/shared.ts", "type": "registry:file", "target": "~/src/elements/shared.ts" },
+        { "path": "packages/process-elements/src/elements/tank.ts", "type": "registry:file", "target": "~/src/elements/process-tank/tank.ts" },
+        { "path": "registry/process-tank/register.ts", "type": "registry:file", "target": "~/src/elements/process-tank/register.ts" }
+      ],
+      "docs": "Install @pom4h/elements-core, import ./src/elements/process-tank/register.ts from a browser entrypoint, then use <pe-tank>.",
+      "categories": ["elements", "process", "scada"],
+      "meta": {
+        "elements": {
+          "schemaVersion": 1,
+          "tagName": "pe-tank",
+          "sourceOwned": true,
+          "runtimePackage": "@pom4h/elements-core",
+          "manifest": "registry/elements.manifest.json#pe-tank",
+          "definition": "src/elements/process-tank/tank.ts",
+          "register": "src/elements/process-tank/register.ts",
+          "example": { "label": "T-101", "level": 72, "temperature": 48, "pressure": 1.8, "capacity": 45, "nozzles": 3, "medium": "water", "status": "normal", "quality": "good", "detail": "full" }
+        }
+      }
+    },
+    {
+      "name": "process-control-valve",
+      "type": "registry:item",
+      "title": "Control Valve",
+      "description": "Source-owned final control element with command/actual travel, actuator variants and semantic ports.",
+      "author": "Pom4H",
+      "files": [
+        { "path": "packages/process-elements/src/shared.ts", "type": "registry:file", "target": "~/src/elements/shared.ts" },
+        { "path": "packages/process-elements/src/elements/control-valve.ts", "type": "registry:file", "target": "~/src/elements/process-control-valve/control-valve.ts" },
+        { "path": "registry/process-control-valve/register.ts", "type": "registry:file", "target": "~/src/elements/process-control-valve/register.ts" }
+      ],
+      "docs": "Install @pom4h/elements-core, import ./src/elements/process-control-valve/register.ts from a browser entrypoint, then use <pe-control-valve>.",
+      "categories": ["elements", "process", "scada"],
+      "meta": {
+        "elements": {
+          "schemaVersion": 1,
+          "tagName": "pe-control-valve",
+          "sourceOwned": true,
+          "runtimePackage": "@pom4h/elements-core",
+          "manifest": "registry/elements.manifest.json#pe-control-valve",
+          "definition": "src/elements/process-control-valve/control-valve.ts",
+          "register": "src/elements/process-control-valve/register.ts",
+          "example": { "label": "FV-101", "position": 68, "command": 68, "medium": "water", "status": "normal", "quality": "good", "powered": true, "detail": "full" }
         }
       }
     }

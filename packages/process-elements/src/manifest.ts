@@ -1,4 +1,4 @@
-import { createManifestEntry } from '@pom4h/elements-core';
+import { createElementsManifest, createManifestEntry } from '@pom4h/elements-core';
 import { controlValveDefinition } from './elements/control-valve.js';
 import { controllerDefinition } from './elements/controller.js';
 import { pidPumpDefinition } from './elements/pid-pump.js';
@@ -7,8 +7,8 @@ import { pidVesselDefinition } from './elements/pid-vessel.js';
 import { pumpDefinition } from './elements/pump.js';
 import { tankDefinition } from './elements/tank.js';
 
-export const processElementsManifest = Object.freeze({
-  name: 'process-elements',
+export const processElementsManifest = createElementsManifest({
+  name: '@pom4h/process-elements',
   version: '0.1.0',
   elements: [
     createManifestEntry(tankDefinition),

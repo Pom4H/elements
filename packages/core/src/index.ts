@@ -33,7 +33,13 @@ export {
   type PortsDefinition,
   type ViewBoxDefinition,
 } from './definition.js';
-export { createManifestEntry, type ElementsManifestEntry } from './manifest.js';
+export {
+  ELEMENTS_MANIFEST_SCHEMA_VERSION,
+  createElementsManifest,
+  createManifestEntry,
+  type ElementsManifest,
+  type ElementsManifestEntry,
+} from './manifest.js';
 export type {
   LoopMotionDefinition,
   MotionDefinition,
