@@ -1,4 +1,4 @@
-import { mkdir, readFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dir, '..');
@@ -17,15 +17,15 @@ async function run(command: string[]): Promise<string> {
 }
 
 await mkdir(screenshots, { recursive: true });
-const registryHtml = Bun.file(join(dist, 'registry.html'));
-if (!(await registryHtml.exists())) throw new Error('Registry Explorer build output is missing registry.html');
+const registryHtmlName = (await readdir(dist)).find((name) => name === 'registry.html' || /^registry-[^.]+\.html$/.test(name));
+if (!registryHtmlName) throw new Error('Registry Explorer production HTML entrypoint is missing.');
 
 const server = Bun.serve({
   hostname: '127.0.0.1',
   port: 0,
   async fetch(request) {
     const url = new URL(request.url);
-    const relative = url.pathname === '/' ? 'registry.html' : url.pathname.slice(1);
+    const relative = url.pathname === '/' ? registryHtmlName : url.pathname.slice(1);
     const file = Bun.file(join(dist, relative));
     if (!(await file.exists())) return new Response('Not found', { status: 404 });
     return new Response(file);
@@ -43,7 +43,7 @@ const cases = [
 
 try {
   for (const shot of cases) {
-    const url = `http://127.0.0.1:${server.port}/registry.html?item=${shot.item}`;
+    const url = `http://127.0.0.1:${server.port}/${registryHtmlName}?item=${shot.item}`;
     const dom = await run([
       chrome,
       '--headless=new',
@@ -74,7 +74,7 @@ try {
     if (bytes.byteLength < 20_000) throw new Error(`${shot.name} is unexpectedly small: ${bytes.byteLength} bytes`);
     console.log(`${shot.name}: ${bytes.byteLength} bytes`);
   }
-  console.log('registry Explorer browser proof passed: 3 responsive screenshots');
+  console.log(`registry Explorer browser proof passed from ${registryHtmlName}: 3 responsive screenshots`);
 } finally {
   server.stop(true);
 }
