@@ -13,6 +13,7 @@
     "test": "bun test",
     "typecheck": "tsc -b --pretty false",
     "release:check": "bun run scripts/release-check.ts",
+    "registry:proof": "bun run scripts/registry-proof.ts",
     "check": "bun run build && bun test"
   },
   "devDependencies": {

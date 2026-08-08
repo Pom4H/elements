@@ -1,0 +1,43 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "elements",
+  "homepage": "https://github.com/Pom4H/elements",
+  "items": [
+    {
+      "name": "process-pump",
+      "type": "registry:item",
+      "title": "Process Pump",
+      "description": "Source-owned pe-pump element: SVG definition, shared value helpers and a browser registration entrypoint.",
+      "author": "Pom4H",
+      "files": [
+        {
+          "path": "packages/process-elements/src/shared.ts",
+          "type": "registry:file",
+          "target": "~/src/elements/shared.ts"
+        },
+        {
+          "path": "packages/process-elements/src/elements/pump.ts",
+          "type": "registry:file",
+          "target": "~/src/elements/process-pump/pump.ts"
+        },
+        {
+          "path": "registry/process-pump/register.ts",
+          "type": "registry:file",
+          "target": "~/src/elements/process-pump/register.ts"
+        }
+      ],
+      "docs": "Install @pom4h/elements-core, import ./src/elements/process-pump/register.ts from a browser entrypoint, then use <pe-pump>. The copied source belongs to your project and is intended to be edited.",
+      "categories": ["elements", "process", "scada"],
+      "meta": {
+        "elements": {
+          "schemaVersion": 1,
+          "tagName": "pe-pump",
+          "sourceOwned": true,
+          "runtimePackage": "@pom4h/elements-core",
+          "definition": "src/elements/process-pump/pump.ts",
+          "register": "src/elements/process-pump/register.ts"
+        }
+      }
+    }
+  ]
+}
