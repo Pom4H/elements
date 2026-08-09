@@ -57,8 +57,6 @@ try {
     if (!(await exists(path))) throw new Error(`shadcn did not install expected source file: ${path}`);
   }
 
-  // Prove application ownership by changing rendering behavior in the copied source,
-  // not merely setting a public attribute from the consumer.
   const labelBinding = "bind.text('label', (context) => stringValue(context, 'label'), ['label']),";
   await customize(pumpPath, labelBinding, "bind.text('label', () => 'P-CUSTOM', ['label']),");
   await customize(motorPath, labelBinding, "bind.text('label', () => 'M-CUSTOM', ['label']),");
@@ -68,6 +66,7 @@ import './src/elements/process-pump/register.ts';
 import './src/elements/electrical-motor/register.ts';
 
 const pump = document.createElement('pe-pump');
+pump.setAttribute('label', 'P-ORIGINAL');
 pump.setAttribute('running', '');
 pump.setAttribute('speed', '1450');
 pump.setAttribute('value', '6.2');
@@ -75,6 +74,7 @@ pump.setAttribute('quality', 'good');
 document.body.append(pump);
 
 const motor = document.createElement('ee-motor');
+motor.setAttribute('label', 'M-ORIGINAL');
 motor.setAttribute('running', '');
 motor.setAttribute('speed', '1450');
 motor.setAttribute('load', '72');
