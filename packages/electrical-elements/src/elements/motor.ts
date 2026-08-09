@@ -22,11 +22,13 @@ export const motorDefinition = defineElementDefinition({
 <circle class="outline status-primary" data-part="status-ring" cx="154" cy="110" r="66"/>
 <circle class="outline" data-part="body" cx="154" cy="110" r="54"/>
 <text class="motor-mark" x="154" y="118" text-anchor="middle">M</text>
-<g data-part="rotor" class="rotor" transform="translate(154 110)">
-  <path d="M0 -28 L8 -8 L0 0 L-8 -8 Z"/>
-  <path d="M28 0 L8 8 L0 0 L8 -8 Z"/>
-  <path d="M0 28 L-8 8 L0 0 L8 8 Z"/>
-  <path d="M-28 0 L-8 -8 L0 0 L-8 8 Z"/>
+<g transform="translate(154 110)">
+  <g data-part="rotor" class="rotor">
+    <path d="M0 -28 L8 -8 L0 0 L-8 -8 Z"/>
+    <path d="M28 0 L8 8 L0 0 L8 -8 Z"/>
+    <path d="M0 28 L-8 8 L0 0 L8 8 Z"/>
+    <path d="M-28 0 L-8 -8 L0 0 L-8 8 Z"/>
+  </g>
 </g>
 <path class="outline" d="M208 110 H267" data-detail="standard"/>
 <rect class="shaft" x="267" y="104" width="42" height="12" rx="4" data-detail="standard"/>
