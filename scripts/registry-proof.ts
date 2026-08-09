@@ -57,8 +57,11 @@ try {
     if (!(await exists(path))) throw new Error(`shadcn did not install expected source file: ${path}`);
   }
 
-  await customize(pumpPath, "defaultValue: 'P-101'", "defaultValue: 'P-CUSTOM'");
-  await customize(motorPath, "defaultValue: 'M-101'", "defaultValue: 'M-CUSTOM'");
+  // Prove application ownership by changing rendering behavior in the copied source,
+  // not merely setting a public attribute from the consumer.
+  const labelBinding = "bind.text('label', (context) => stringValue(context, 'label'), ['label']),";
+  await customize(pumpPath, labelBinding, "bind.text('label', () => 'P-CUSTOM', ['label']),");
+  await customize(motorPath, labelBinding, "bind.text('label', () => 'M-CUSTOM', ['label']),");
 
   await writeFile(join(consumer, 'browser.ts'), `
 import './src/elements/process-pump/register.ts';
@@ -79,10 +82,16 @@ motor.setAttribute('quality', 'good');
 document.body.append(motor);
 
 setTimeout(() => {
-  const pumpOk = Boolean(pump.shadowRoot?.querySelector('svg')) && pump.shadowRoot?.textContent?.includes('P-CUSTOM') === true;
-  const motorOk = Boolean(motor.shadowRoot?.querySelector('svg')) && motor.shadowRoot?.textContent?.includes('M-CUSTOM') === true;
-  document.body.dataset.proof = pumpOk && motorOk ? 'rendered-two-custom-domains' : 'failed';
-}, 50);
+  const pumpRendered = Boolean(pump.shadowRoot?.querySelector('svg'));
+  const pumpCustomized = pump.shadowRoot?.textContent?.includes('P-CUSTOM') === true;
+  const motorRendered = Boolean(motor.shadowRoot?.querySelector('svg'));
+  const motorCustomized = motor.shadowRoot?.textContent?.includes('M-CUSTOM') === true;
+  document.body.dataset.pumpProof = `${pumpRendered}:${pumpCustomized}`;
+  document.body.dataset.motorProof = `${motorRendered}:${motorCustomized}`;
+  document.body.dataset.proof = pumpRendered && pumpCustomized && motorRendered && motorCustomized
+    ? 'rendered-two-custom-domains'
+    : 'failed';
+}, 80);
 `);
   await run(['bun', 'build', 'browser.ts', '--target=browser', '--outfile=browser.js'], consumer);
   await writeFile(join(consumer, 'index.html'), '<!doctype html><html><body><script type="module" src="/browser.js"></script></body></html>');
@@ -116,7 +125,7 @@ setTimeout(() => {
   }
 
   console.log(`shadcn source registry proof passed for ${processItem} and ${electricalItem}`);
-  console.log('two domains -> copied source -> consumer edits -> browser render: P-CUSTOM + M-CUSTOM');
+  console.log('two domains -> copied source -> consumer rendering edits -> browser render: P-CUSTOM + M-CUSTOM');
 } finally {
   server?.stop(true);
   await rm(temporary, { recursive: true, force: true });
