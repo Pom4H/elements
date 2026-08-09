@@ -86,8 +86,8 @@ setTimeout(() => {
   const pumpCustomized = pump.shadowRoot?.textContent?.includes('P-CUSTOM') === true;
   const motorRendered = Boolean(motor.shadowRoot?.querySelector('svg'));
   const motorCustomized = motor.shadowRoot?.textContent?.includes('M-CUSTOM') === true;
-  document.body.dataset.pumpProof = `${pumpRendered}:${pumpCustomized}`;
-  document.body.dataset.motorProof = `${motorRendered}:${motorCustomized}`;
+  document.body.dataset.pumpProof = String(pumpRendered) + ':' + String(pumpCustomized);
+  document.body.dataset.motorProof = String(motorRendered) + ':' + String(motorCustomized);
   document.body.dataset.proof = pumpRendered && pumpCustomized && motorRendered && motorCustomized
     ? 'rendered-two-custom-domains'
     : 'failed';
