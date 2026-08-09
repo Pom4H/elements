@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@pom4h/elements-core": "workspace:*",
-    "@pom4h/process-elements": "workspace:*"
+    "@pom4h/process-elements": "workspace:*",
+    "@pom4h/electrical-elements": "workspace:*"
   }
 }

@@ -80,6 +80,136 @@
           "example": { "label": "FV-101", "position": 68, "command": 68, "medium": "water", "status": "normal", "quality": "good", "powered": true, "detail": "full" }
         }
       }
+    },
+    {
+      "name": "electrical-motor",
+      "type": "registry:item",
+      "title": "Three-phase Motor",
+      "description": "Source-owned induction motor with running motion, electrical supply, thermal feedback and load telemetry.",
+      "author": "Pom4H",
+      "files": [
+        { "path": "packages/electrical-elements/src/electrical-shared.ts", "type": "registry:file", "target": "~/src/elements/electrical-shared.ts" },
+        { "path": "packages/electrical-elements/src/elements/motor.ts", "type": "registry:file", "target": "~/src/elements/electrical-motor/motor.ts" },
+        { "path": "registry/electrical-motor/register.ts", "type": "registry:file", "target": "~/src/elements/electrical-motor/register.ts" }
+      ],
+      "docs": "Install @pom4h/elements-core, import ./src/elements/electrical-motor/register.ts from a browser entrypoint, then use <ee-motor>.",
+      "categories": ["elements", "electrical", "power"],
+      "meta": {
+        "elements": {
+          "schemaVersion": 1,
+          "tagName": "ee-motor",
+          "sourceOwned": true,
+          "runtimePackage": "@pom4h/elements-core",
+          "manifest": "registry/electrical-elements.manifest.json#ee-motor",
+          "definition": "src/elements/electrical-motor/motor.ts",
+          "register": "src/elements/electrical-motor/register.ts",
+          "example": { "label": "M-101", "running": true, "speed": 1450, "load": 72, "current": 12.4, "voltage": 400, "status": "normal", "quality": "good", "detail": "full" }
+        }
+      }
+    },
+    {
+      "name": "electrical-breaker",
+      "type": "registry:item",
+      "title": "Circuit Breaker",
+      "description": "Source-owned 1–4 pole breaker with topology that changes with pole count and live trip state.",
+      "author": "Pom4H",
+      "files": [
+        { "path": "packages/electrical-elements/src/electrical-shared.ts", "type": "registry:file", "target": "~/src/elements/electrical-shared.ts" },
+        { "path": "packages/electrical-elements/src/elements/breaker.ts", "type": "registry:file", "target": "~/src/elements/electrical-breaker/breaker.ts" },
+        { "path": "registry/electrical-breaker/register.ts", "type": "registry:file", "target": "~/src/elements/electrical-breaker/register.ts" }
+      ],
+      "docs": "Install @pom4h/elements-core, import ./src/elements/electrical-breaker/register.ts from a browser entrypoint, then use <ee-breaker>.",
+      "categories": ["elements", "electrical", "protection"],
+      "meta": {
+        "elements": {
+          "schemaVersion": 1,
+          "tagName": "ee-breaker",
+          "sourceOwned": true,
+          "runtimePackage": "@pom4h/elements-core",
+          "manifest": "registry/electrical-elements.manifest.json#ee-breaker",
+          "definition": "src/elements/electrical-breaker/breaker.ts",
+          "register": "src/elements/electrical-breaker/register.ts",
+          "example": { "label": "QF-101", "poles": 3, "closed": true, "current": 42.1, "rating": 63, "status": "normal", "quality": "good", "detail": "full" }
+        }
+      }
+    },
+    {
+      "name": "electrical-contactor",
+      "type": "registry:item",
+      "title": "Power Contactor",
+      "description": "Source-owned contactor with electrical line/load/coil ports, auxiliary state and welded-contact fault state.",
+      "author": "Pom4H",
+      "files": [
+        { "path": "packages/electrical-elements/src/electrical-shared.ts", "type": "registry:file", "target": "~/src/elements/electrical-shared.ts" },
+        { "path": "packages/electrical-elements/src/elements/contactor.ts", "type": "registry:file", "target": "~/src/elements/electrical-contactor/contactor.ts" },
+        { "path": "registry/electrical-contactor/register.ts", "type": "registry:file", "target": "~/src/elements/electrical-contactor/register.ts" }
+      ],
+      "docs": "Install @pom4h/elements-core, import ./src/elements/electrical-contactor/register.ts from a browser entrypoint, then use <ee-contactor>.",
+      "categories": ["elements", "electrical", "control"],
+      "meta": {
+        "elements": {
+          "schemaVersion": 1,
+          "tagName": "ee-contactor",
+          "sourceOwned": true,
+          "runtimePackage": "@pom4h/elements-core",
+          "manifest": "registry/electrical-elements.manifest.json#ee-contactor",
+          "definition": "src/elements/electrical-contactor/contactor.ts",
+          "register": "src/elements/electrical-contactor/register.ts",
+          "example": { "label": "KM-101", "energized": true, "current": 31.2, "coil-voltage": 24, "status": "normal", "quality": "good", "detail": "full" }
+        }
+      }
+    },
+    {
+      "name": "electrical-transformer",
+      "type": "registry:item",
+      "title": "Power Transformer",
+      "description": "Source-owned two-winding transformer with electrical topology, voltage ratio telemetry and load scrubbing.",
+      "author": "Pom4H",
+      "files": [
+        { "path": "packages/electrical-elements/src/electrical-shared.ts", "type": "registry:file", "target": "~/src/elements/electrical-shared.ts" },
+        { "path": "packages/electrical-elements/src/elements/transformer.ts", "type": "registry:file", "target": "~/src/elements/electrical-transformer/transformer.ts" },
+        { "path": "registry/electrical-transformer/register.ts", "type": "registry:file", "target": "~/src/elements/electrical-transformer/register.ts" }
+      ],
+      "docs": "Install @pom4h/elements-core, import ./src/elements/electrical-transformer/register.ts from a browser entrypoint, then use <ee-transformer>.",
+      "categories": ["elements", "electrical", "power"],
+      "meta": {
+        "elements": {
+          "schemaVersion": 1,
+          "tagName": "ee-transformer",
+          "sourceOwned": true,
+          "runtimePackage": "@pom4h/elements-core",
+          "manifest": "registry/electrical-elements.manifest.json#ee-transformer",
+          "definition": "src/elements/electrical-transformer/transformer.ts",
+          "register": "src/elements/electrical-transformer/register.ts",
+          "example": { "label": "TR-101", "energized": true, "primary-voltage": 10000, "secondary-voltage": 400, "load": 68, "status": "normal", "quality": "good", "detail": "full" }
+        }
+      }
+    },
+    {
+      "name": "electrical-meter",
+      "type": "registry:item",
+      "title": "Power Meter",
+      "description": "Source-owned inline meter with electrical line topology, live measurements and a telemetry output.",
+      "author": "Pom4H",
+      "files": [
+        { "path": "packages/electrical-elements/src/electrical-shared.ts", "type": "registry:file", "target": "~/src/elements/electrical-shared.ts" },
+        { "path": "packages/electrical-elements/src/elements/meter.ts", "type": "registry:file", "target": "~/src/elements/electrical-meter/meter.ts" },
+        { "path": "registry/electrical-meter/register.ts", "type": "registry:file", "target": "~/src/elements/electrical-meter/register.ts" }
+      ],
+      "docs": "Install @pom4h/elements-core, import ./src/elements/electrical-meter/register.ts from a browser entrypoint, then use <ee-meter>.",
+      "categories": ["elements", "electrical", "metering"],
+      "meta": {
+        "elements": {
+          "schemaVersion": 1,
+          "tagName": "ee-meter",
+          "sourceOwned": true,
+          "runtimePackage": "@pom4h/elements-core",
+          "manifest": "registry/electrical-elements.manifest.json#ee-meter",
+          "definition": "src/elements/electrical-meter/meter.ts",
+          "register": "src/elements/electrical-meter/register.ts",
+          "example": { "label": "EM-101", "voltage": 400, "current": 24.8, "power": 16.4, "frequency": 50, "current-range": 100, "status": "normal", "quality": "good", "detail": "full" }
+        }
+      }
     }
   ]
 }

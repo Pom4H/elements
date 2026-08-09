@@ -39,6 +39,9 @@ const cases = [
   { name: 'registry-explorer-desktop.png', item: 'process-pump', tab: 'attributes', size: '1440,1000' },
   { name: 'registry-explorer-tablet.png', item: 'process-tank', tab: 'ports', size: '1024,900', expectedLivePorts: 6 },
   { name: 'registry-explorer-mobile.png', item: 'process-control-valve', tab: 'attributes', size: '390,844' },
+  { name: 'registry-electrical-motor-desktop.png', item: 'electrical-motor', tab: 'attributes', size: '1440,1000' },
+  { name: 'registry-electrical-breaker-tablet.png', item: 'electrical-breaker', tab: 'ports', size: '1024,900', expectedLivePorts: 6 },
+  { name: 'registry-electrical-meter-mobile.png', item: 'electrical-meter', tab: 'attributes', size: '390,844' },
 ] as const;
 
 try {
@@ -50,7 +53,7 @@ try {
       '--no-sandbox',
       '--disable-gpu',
       '--hide-scrollbars',
-      '--virtual-time-budget=2200',
+      '--virtual-time-budget=2400',
       '--dump-dom',
       url,
     ]);
@@ -72,7 +75,7 @@ try {
       '--hide-scrollbars',
       '--force-device-scale-factor=1',
       `--window-size=${shot.size}`,
-      '--virtual-time-budget=2200',
+      '--virtual-time-budget=2400',
       `--screenshot=${path}`,
       url,
     ]);
@@ -80,7 +83,7 @@ try {
     if (bytes.byteLength < 20_000) throw new Error(`${shot.name} is unexpectedly small: ${bytes.byteLength} bytes`);
     console.log(`${shot.name}: ${bytes.byteLength} bytes`);
   }
-  console.log(`registry Explorer browser proof passed from ${registryHtmlName}: 3 responsive screenshots`);
+  console.log(`registry Explorer browser proof passed from ${registryHtmlName}: ${cases.length} responsive screenshots across 2 domains`);
 } finally {
   server.stop(true);
 }

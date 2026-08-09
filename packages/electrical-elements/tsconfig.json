@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "paths": {
+      "@pom4h/elements-core": ["../core/src/index.ts"],
+      "@pom4h/elements-core/register": ["../core/src/register.ts"],
+      "@pom4h/elements-core/runtime": ["../core/src/runtime.ts"]
+    }
+  },
+  "references": [{ "path": "../core" }],
+  "include": ["src/**/*.ts"]
+}
