@@ -7,12 +7,15 @@
       "@pom4h/elements-core": ["../../packages/core/src/index.ts"],
       "@pom4h/elements-core/runtime": ["../../packages/core/src/runtime.ts"],
       "@pom4h/process-elements": ["../../packages/process-elements/src/index.ts"],
-      "@pom4h/process-elements/register": ["../../packages/process-elements/src/register.ts"]
+      "@pom4h/process-elements/register": ["../../packages/process-elements/src/register.ts"],
+      "@pom4h/electrical-elements": ["../../packages/electrical-elements/src/index.ts"],
+      "@pom4h/electrical-elements/register": ["../../packages/electrical-elements/src/register.ts"]
     }
   },
   "references": [
     { "path": "../../packages/core" },
-    { "path": "../../packages/process-elements" }
+    { "path": "../../packages/process-elements" },
+    { "path": "../../packages/electrical-elements" }
   ],
   "include": ["src/**/*.ts"]
 }

@@ -22,6 +22,13 @@ async function exists(path: string): Promise<boolean> {
   return Bun.file(path).exists();
 }
 
+async function customize(path: string, from: string, to: string): Promise<void> {
+  const source = await readFile(path, 'utf8');
+  const customized = source.replace(from, to);
+  if (customized === source) throw new Error(`could not locate customization token in ${path}`);
+  await writeFile(path, customized);
+}
+
 let server: ReturnType<typeof Bun.serve> | undefined;
 
 try {
@@ -35,38 +42,56 @@ try {
   }, null, 2)}\n`);
   await run(['npm', 'install', '--ignore-scripts'], consumer);
 
-  const item = `Pom4H/elements/process-pump#${ref}`;
-  await run(['bunx', 'shadcn@latest', 'add', item, '--yes', '--cwd', consumer], consumer);
+  const processItem = `Pom4H/elements/process-pump#${ref}`;
+  const electricalItem = `Pom4H/elements/electrical-motor#${ref}`;
+  await run(['bunx', 'shadcn@latest', 'add', processItem, '--yes', '--cwd', consumer], consumer);
+  await run(['bunx', 'shadcn@latest', 'add', electricalItem, '--yes', '--cwd', consumer], consumer);
 
   const pumpPath = join(consumer, 'src/elements/process-pump/pump.ts');
-  const sharedPath = join(consumer, 'src/elements/shared.ts');
-  const registerPath = join(consumer, 'src/elements/process-pump/register.ts');
-  for (const path of [pumpPath, sharedPath, registerPath]) {
+  const processSharedPath = join(consumer, 'src/elements/shared.ts');
+  const pumpRegisterPath = join(consumer, 'src/elements/process-pump/register.ts');
+  const motorPath = join(consumer, 'src/elements/electrical-motor/motor.ts');
+  const electricalSharedPath = join(consumer, 'src/elements/electrical-shared.ts');
+  const motorRegisterPath = join(consumer, 'src/elements/electrical-motor/register.ts');
+  for (const path of [pumpPath, processSharedPath, pumpRegisterPath, motorPath, electricalSharedPath, motorRegisterPath]) {
     if (!(await exists(path))) throw new Error(`shadcn did not install expected source file: ${path}`);
   }
 
-  // This is the point of the source-registry model: edit the copied component and
-  // prove the application receives the customization without a fork or override.
-  const pumpSource = await readFile(pumpPath, 'utf8');
-  const customized = pumpSource.replace("defaultValue: 'P-101'", "defaultValue: 'P-CUSTOM'");
-  if (customized === pumpSource) throw new Error('could not locate the pump default label for ownership proof');
-  await writeFile(pumpPath, customized);
+  const labelBinding = "bind.text('label', (context) => stringValue(context, 'label'), ['label']),";
+  await customize(pumpPath, labelBinding, "bind.text('label', () => 'P-CUSTOM', ['label']),");
+  await customize(motorPath, labelBinding, "bind.text('label', () => 'M-CUSTOM', ['label']),");
 
   await writeFile(join(consumer, 'browser.ts'), `
 import './src/elements/process-pump/register.ts';
+import './src/elements/electrical-motor/register.ts';
 
 const pump = document.createElement('pe-pump');
+pump.setAttribute('label', 'P-ORIGINAL');
 pump.setAttribute('running', '');
 pump.setAttribute('speed', '1450');
 pump.setAttribute('value', '6.2');
 pump.setAttribute('quality', 'good');
 document.body.append(pump);
 
+const motor = document.createElement('ee-motor');
+motor.setAttribute('label', 'M-ORIGINAL');
+motor.setAttribute('running', '');
+motor.setAttribute('speed', '1450');
+motor.setAttribute('load', '72');
+motor.setAttribute('quality', 'good');
+document.body.append(motor);
+
 setTimeout(() => {
-  const rendered = Boolean(pump.shadowRoot?.querySelector('svg'));
-  const customized = pump.shadowRoot?.textContent?.includes('P-CUSTOM') === true;
-  document.body.dataset.proof = rendered && customized ? 'rendered-custom-source' : 'failed';
-}, 50);
+  const pumpRendered = Boolean(pump.shadowRoot?.querySelector('svg'));
+  const pumpCustomized = pump.shadowRoot?.textContent?.includes('P-CUSTOM') === true;
+  const motorRendered = Boolean(motor.shadowRoot?.querySelector('svg'));
+  const motorCustomized = motor.shadowRoot?.textContent?.includes('M-CUSTOM') === true;
+  document.body.dataset.pumpProof = String(pumpRendered) + ':' + String(pumpCustomized);
+  document.body.dataset.motorProof = String(motorRendered) + ':' + String(motorCustomized);
+  document.body.dataset.proof = pumpRendered && pumpCustomized && motorRendered && motorCustomized
+    ? 'rendered-two-custom-domains'
+    : 'failed';
+}, 80);
 `);
   await run(['bun', 'build', 'browser.ts', '--target=browser', '--outfile=browser.js'], consumer);
   await writeFile(join(consumer, 'index.html'), '<!doctype html><html><body><script type="module" src="/browser.js"></script></body></html>');
@@ -90,17 +115,17 @@ setTimeout(() => {
     '--headless=new',
     '--no-sandbox',
     '--disable-gpu',
-    '--virtual-time-budget=2000',
+    '--virtual-time-budget=2200',
     '--dump-dom',
     `http://127.0.0.1:${server.port}/`,
   ], consumer);
 
-  if (!dom.includes('data-proof="rendered-custom-source"')) {
+  if (!dom.includes('data-proof="rendered-two-custom-domains"')) {
     throw new Error(`source registry browser proof failed\n${dom}`);
   }
 
-  console.log(`shadcn source registry proof passed for ${item}`);
-  console.log('installed source -> consumer edit -> browser render: P-CUSTOM');
+  console.log(`shadcn source registry proof passed for ${processItem} and ${electricalItem}`);
+  console.log('two domains -> copied source -> consumer rendering edits -> browser render: P-CUSTOM + M-CUSTOM');
 } finally {
   server?.stop(true);
   await rm(temporary, { recursive: true, force: true });

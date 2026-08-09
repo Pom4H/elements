@@ -1,0 +1,918 @@
+{
+  "schemaVersion": 1,
+  "name": "@pom4h/electrical-elements",
+  "version": "0.1.0",
+  "elements": [
+    {
+      "tagName": "ee-motor",
+      "name": "Three-phase motor",
+      "description": "A three-phase induction motor with electrical supply, thermal feedback, running state and load telemetry.",
+      "viewBox": "0 0 320 220",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "M-101",
+          "description": "Equipment tag."
+        },
+        {
+          "name": "running",
+          "property": "running",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the motor is commanded to run."
+        },
+        {
+          "name": "speed",
+          "property": "speed",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 1,
+          "unit": "rpm",
+          "description": "Measured shaft speed."
+        },
+        {
+          "name": "load",
+          "property": "load",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 150,
+          "step": 1,
+          "unit": "%",
+          "description": "Mechanical load as percent of rated load."
+        },
+        {
+          "name": "current",
+          "property": "current",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 0.1,
+          "unit": "A",
+          "description": "Measured line current."
+        },
+        {
+          "name": "voltage",
+          "property": "voltage",
+          "kind": "number",
+          "default": 400,
+          "minimum": 0,
+          "step": 1,
+          "unit": "V",
+          "description": "Measured line voltage."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Electrical equipment severity."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Telemetry quality."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual level of detail."
+        }
+      ],
+      "states": [
+        "running",
+        "overloaded"
+      ],
+      "parts": [
+        {
+          "name": "body",
+          "description": "Motor body silhouette.",
+          "detail": "essential"
+        },
+        {
+          "name": "status-ring",
+          "description": "Severity outline.",
+          "detail": "essential"
+        },
+        {
+          "name": "rotor",
+          "description": "Running-state rotor.",
+          "detail": "standard"
+        },
+        {
+          "name": "state-dot",
+          "description": "Operation marker.",
+          "detail": "standard"
+        },
+        {
+          "name": "load-bar",
+          "description": "Rated-load scrub indicator.",
+          "detail": "fine"
+        },
+        {
+          "name": "load-label",
+          "detail": "fine"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "standard"
+        }
+      ],
+      "ports": [
+        {
+          "id": "power",
+          "x": 8,
+          "y": 110,
+          "direction": "left",
+          "kind": "electrical",
+          "role": "inlet",
+          "label": "Three-phase supply"
+        },
+        {
+          "id": "thermal",
+          "x": 154,
+          "y": 10,
+          "direction": "top",
+          "kind": "signal",
+          "role": "outlet",
+          "label": "Thermal feedback"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [
+        {
+          "id": "motor-rotor",
+          "type": "loop",
+          "target": "rotor"
+        },
+        {
+          "id": "motor-load",
+          "type": "scrub",
+          "target": "load-bar"
+        },
+        {
+          "id": "motor-severity",
+          "type": "transition",
+          "target": "status-ring"
+        }
+      ],
+      "composition": []
+    },
+    {
+      "tagName": "ee-breaker",
+      "name": "Circuit breaker",
+      "description": "A 1–4 pole circuit breaker whose live electrical terminal topology follows the configured pole count.",
+      "viewBox": "0 0 300 260",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "QF-101",
+          "description": "Breaker tag."
+        },
+        {
+          "name": "poles",
+          "property": "poles",
+          "kind": "number",
+          "default": 3,
+          "minimum": 1,
+          "maximum": 4,
+          "step": 1,
+          "description": "Number of switched poles. Each pole adds a line and load terminal."
+        },
+        {
+          "name": "closed",
+          "property": "closed",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the breaker contacts are closed."
+        },
+        {
+          "name": "tripped",
+          "property": "tripped",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether protection has tripped the breaker."
+        },
+        {
+          "name": "current",
+          "property": "current",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 0.1,
+          "unit": "A",
+          "description": "Measured phase current."
+        },
+        {
+          "name": "rating",
+          "property": "rating",
+          "kind": "number",
+          "default": 63,
+          "minimum": 1,
+          "step": 1,
+          "unit": "A",
+          "description": "Breaker current rating."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Breaker severity independent from trip state."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Telemetry quality."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual level of detail."
+        }
+      ],
+      "states": [
+        "tripped",
+        "closed",
+        "open",
+        "overloaded"
+      ],
+      "parts": [
+        {
+          "name": "case",
+          "description": "Breaker enclosure and severity outline.",
+          "detail": "essential"
+        },
+        {
+          "name": "pole",
+          "description": "Repeated switched pole geometry.",
+          "detail": "essential"
+        },
+        {
+          "name": "contact-blade",
+          "description": "Contact position for each pole.",
+          "detail": "essential"
+        },
+        {
+          "name": "status-dot",
+          "description": "Trip marker.",
+          "detail": "standard"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "standard"
+        },
+        {
+          "name": "pole-count",
+          "detail": "standard"
+        }
+      ],
+      "ports": [
+        {
+          "id": "line-1",
+          "x": 72,
+          "y": 8,
+          "direction": "top",
+          "kind": "electrical",
+          "role": "inlet",
+          "label": "Line 1"
+        },
+        {
+          "id": "load-1",
+          "x": 72,
+          "y": 240,
+          "direction": "bottom",
+          "kind": "electrical",
+          "role": "outlet",
+          "label": "Load 1"
+        },
+        {
+          "id": "line-2",
+          "x": 150,
+          "y": 8,
+          "direction": "top",
+          "kind": "electrical",
+          "role": "inlet",
+          "label": "Line 2"
+        },
+        {
+          "id": "load-2",
+          "x": 150,
+          "y": 240,
+          "direction": "bottom",
+          "kind": "electrical",
+          "role": "outlet",
+          "label": "Load 2"
+        },
+        {
+          "id": "line-3",
+          "x": 228,
+          "y": 8,
+          "direction": "top",
+          "kind": "electrical",
+          "role": "inlet",
+          "label": "Line 3"
+        },
+        {
+          "id": "load-3",
+          "x": 228,
+          "y": 240,
+          "direction": "bottom",
+          "kind": "electrical",
+          "role": "outlet",
+          "label": "Load 3"
+        }
+      ],
+      "dynamicPorts": true,
+      "motions": [
+        {
+          "id": "breaker-trip",
+          "type": "transition",
+          "target": "status-dot"
+        }
+      ],
+      "composition": [
+        "poles"
+      ]
+    },
+    {
+      "tagName": "ee-contactor",
+      "name": "Power contactor",
+      "description": "An electrically actuated contactor with power path, coil input, auxiliary feedback and welded-contact fault state.",
+      "viewBox": "0 0 300 240",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "KM-101",
+          "description": "Contactor tag."
+        },
+        {
+          "name": "energized",
+          "property": "energized",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the contactor coil is energized."
+        },
+        {
+          "name": "welded",
+          "property": "welded",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the main contacts are welded closed."
+        },
+        {
+          "name": "current",
+          "property": "current",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 0.1,
+          "unit": "A",
+          "description": "Measured load current."
+        },
+        {
+          "name": "coil-voltage",
+          "property": "coilVoltage",
+          "kind": "number",
+          "default": 24,
+          "minimum": 0,
+          "step": 1,
+          "unit": "V",
+          "description": "Coil control voltage."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Contactor severity."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Telemetry quality."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual level of detail."
+        }
+      ],
+      "states": [
+        "energized",
+        "closed",
+        "fault"
+      ],
+      "parts": [
+        {
+          "name": "case",
+          "description": "Contactor body and severity outline.",
+          "detail": "essential"
+        },
+        {
+          "name": "armature",
+          "description": "Main contact armature.",
+          "detail": "essential"
+        },
+        {
+          "name": "coil",
+          "description": "Actuator coil.",
+          "detail": "standard"
+        },
+        {
+          "name": "coil-dot",
+          "description": "Coil state marker.",
+          "detail": "standard"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "standard"
+        }
+      ],
+      "ports": [
+        {
+          "id": "line",
+          "x": 150,
+          "y": 8,
+          "direction": "top",
+          "kind": "electrical",
+          "role": "inlet",
+          "label": "Line"
+        },
+        {
+          "id": "load",
+          "x": 150,
+          "y": 232,
+          "direction": "bottom",
+          "kind": "electrical",
+          "role": "outlet",
+          "label": "Load"
+        },
+        {
+          "id": "coil",
+          "x": 8,
+          "y": 120,
+          "direction": "left",
+          "kind": "electrical",
+          "role": "inlet",
+          "label": "Coil supply"
+        },
+        {
+          "id": "aux",
+          "x": 292,
+          "y": 120,
+          "direction": "right",
+          "kind": "signal",
+          "role": "outlet",
+          "label": "Auxiliary state"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [
+        {
+          "id": "contactor-coil",
+          "type": "transition",
+          "target": "coil-dot"
+        }
+      ],
+      "composition": []
+    },
+    {
+      "tagName": "ee-transformer",
+      "name": "Power transformer",
+      "description": "A two-winding transformer with primary/secondary electrical ports, live ratio telemetry and load indication.",
+      "viewBox": "0 0 340 240",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "TR-101",
+          "description": "Transformer tag."
+        },
+        {
+          "name": "energized",
+          "property": "energized",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the primary winding is energized."
+        },
+        {
+          "name": "primary-voltage",
+          "property": "primaryVoltage",
+          "kind": "number",
+          "default": 10000,
+          "minimum": 0,
+          "step": 1,
+          "unit": "V",
+          "description": "Primary RMS voltage."
+        },
+        {
+          "name": "secondary-voltage",
+          "property": "secondaryVoltage",
+          "kind": "number",
+          "default": 400,
+          "minimum": 0,
+          "step": 1,
+          "unit": "V",
+          "description": "Secondary RMS voltage."
+        },
+        {
+          "name": "load",
+          "property": "load",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 150,
+          "step": 1,
+          "unit": "%",
+          "description": "Transformer loading versus rated apparent power."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Transformer severity."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Telemetry quality."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual level of detail."
+        }
+      ],
+      "states": [
+        "energized",
+        "overloaded"
+      ],
+      "parts": [
+        {
+          "name": "core",
+          "description": "Magnetic core and severity outline.",
+          "detail": "essential"
+        },
+        {
+          "name": "windings",
+          "description": "Primary and secondary windings.",
+          "detail": "essential"
+        },
+        {
+          "name": "state-dot",
+          "description": "Energized-state marker.",
+          "detail": "standard"
+        },
+        {
+          "name": "load-bar",
+          "description": "Loading scrub indicator.",
+          "detail": "fine"
+        },
+        {
+          "name": "load-label",
+          "detail": "fine"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "standard"
+        }
+      ],
+      "ports": [
+        {
+          "id": "primary",
+          "x": 8,
+          "y": 120,
+          "direction": "left",
+          "kind": "electrical",
+          "role": "inlet",
+          "label": "Primary winding"
+        },
+        {
+          "id": "secondary",
+          "x": 332,
+          "y": 120,
+          "direction": "right",
+          "kind": "electrical",
+          "role": "outlet",
+          "label": "Secondary winding"
+        },
+        {
+          "id": "ground",
+          "x": 170,
+          "y": 232,
+          "direction": "bottom",
+          "kind": "electrical",
+          "role": "bidirectional",
+          "label": "Protective earth"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [
+        {
+          "id": "transformer-flux",
+          "type": "loop",
+          "target": "core"
+        },
+        {
+          "id": "transformer-load",
+          "type": "scrub",
+          "target": "load-bar"
+        }
+      ],
+      "composition": []
+    },
+    {
+      "tagName": "ee-meter",
+      "name": "Power meter",
+      "description": "An inline electrical meter exposing voltage, current, active power, frequency and a telemetry output port.",
+      "viewBox": "0 0 300 220",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "EM-101",
+          "description": "Meter tag."
+        },
+        {
+          "name": "voltage",
+          "property": "voltage",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 0.1,
+          "unit": "V",
+          "description": "RMS line voltage."
+        },
+        {
+          "name": "current",
+          "property": "current",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 0.1,
+          "unit": "A",
+          "description": "RMS line current."
+        },
+        {
+          "name": "power",
+          "property": "power",
+          "kind": "number",
+          "default": 0,
+          "step": 0.1,
+          "unit": "kW",
+          "description": "Active power."
+        },
+        {
+          "name": "frequency",
+          "property": "frequency",
+          "kind": "number",
+          "default": 50,
+          "minimum": 0,
+          "step": 0.01,
+          "unit": "Hz",
+          "description": "Measured line frequency."
+        },
+        {
+          "name": "current-range",
+          "property": "currentRange",
+          "kind": "number",
+          "default": 100,
+          "minimum": 1,
+          "step": 1,
+          "unit": "A",
+          "description": "Full-scale current used by the visual load bar."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Meter severity."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Measurement quality."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual level of detail."
+        }
+      ],
+      "states": [],
+      "parts": [
+        {
+          "name": "case",
+          "description": "Meter enclosure and severity outline.",
+          "detail": "essential"
+        },
+        {
+          "name": "display",
+          "description": "Primary electrical readout.",
+          "detail": "essential"
+        },
+        {
+          "name": "voltage-readout",
+          "detail": "essential"
+        },
+        {
+          "name": "current-readout",
+          "detail": "standard"
+        },
+        {
+          "name": "frequency-readout",
+          "detail": "standard"
+        },
+        {
+          "name": "current-bar",
+          "detail": "fine"
+        },
+        {
+          "name": "quality-dot",
+          "description": "Measurement quality marker.",
+          "detail": "standard"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        }
+      ],
+      "ports": [
+        {
+          "id": "line-in",
+          "x": 8,
+          "y": 110,
+          "direction": "left",
+          "kind": "electrical",
+          "role": "inlet",
+          "label": "Measured line in"
+        },
+        {
+          "id": "line-out",
+          "x": 292,
+          "y": 110,
+          "direction": "right",
+          "kind": "electrical",
+          "role": "outlet",
+          "label": "Measured line out"
+        },
+        {
+          "id": "telemetry",
+          "x": 150,
+          "y": 212,
+          "direction": "bottom",
+          "kind": "signal",
+          "role": "outlet",
+          "label": "Telemetry"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [
+        {
+          "id": "meter-current",
+          "type": "scrub",
+          "target": "current-bar"
+        }
+      ],
+      "composition": []
+    }
+  ]
+}

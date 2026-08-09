@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/core" },
     { "path": "./packages/process-elements" },
+    { "path": "./packages/electrical-elements" },
     { "path": "./apps/playground" },
     { "path": "./tsconfig.tools.json" }
   ]

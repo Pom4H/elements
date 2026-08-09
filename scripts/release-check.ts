@@ -71,6 +71,13 @@ try {
     'dist/register.js',
     'dist/manifest.js',
   ]);
+  const electricalTarball = await pack(join(root, 'packages/electrical-elements'), packs, [
+    'package.json',
+    'dist/index.js',
+    'dist/index.d.ts',
+    'dist/register.js',
+    'dist/manifest.js',
+  ]);
 
   await writeFile(join(consumer, 'package.json'), `${JSON.stringify({
     private: true,
@@ -78,6 +85,7 @@ try {
     dependencies: {
       '@pom4h/elements-core': `file:${coreTarball}`,
       '@pom4h/process-elements': `file:${processTarball}`,
+      '@pom4h/electrical-elements': `file:${electricalTarball}`,
     },
   }, null, 2)}\n`);
 
@@ -85,27 +93,37 @@ try {
 
   await writeFile(join(consumer, 'server.mjs'), `
 import { processElementsManifest } from '@pom4h/process-elements/manifest';
+import { electricalElementsManifest } from '@pom4h/electrical-elements/manifest';
 
 if (!Array.isArray(processElementsManifest.elements) || processElementsManifest.elements.length === 0) {
   throw new Error('process-elements manifest contains no elements');
 }
+if (electricalElementsManifest.elements.length !== 5) {
+  throw new Error('electrical-elements manifest must contain five reference elements');
+}
 if (typeof globalThis.document !== 'undefined' || typeof globalThis.customElements !== 'undefined') {
   throw new Error('server smoke test unexpectedly has DOM globals');
 }
-console.log('server-safe manifest:', processElementsManifest.elements.length, 'elements');
+console.log('server-safe manifests:', processElementsManifest.elements.length + electricalElementsManifest.elements.length, 'elements');
 `);
   await run(['bun', 'server.mjs'], consumer);
 
   await writeFile(join(consumer, 'browser.ts'), `
 import '@pom4h/process-elements/register';
+import '@pom4h/electrical-elements/register';
 
 const pump = document.createElement('pe-pump');
 pump.setAttribute('label', 'P-101');
 document.body.append(pump);
+const motor = document.createElement('ee-motor');
+motor.setAttribute('running', '');
+motor.setAttribute('speed', '1450');
+document.body.append(motor);
+if (!customElements.get('pe-pump') || !customElements.get('ee-motor')) throw new Error('browser registration failed');
 `);
   await run(['bun', 'build', 'browser.ts', '--target=browser', '--outdir=browser-dist'], consumer);
 
-  console.log('release package smoke test passed');
+  console.log('release package smoke test passed for core + process + electrical');
 } finally {
   await rm(temporary, { recursive: true, force: true });
 }

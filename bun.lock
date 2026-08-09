@@ -13,6 +13,7 @@
       "name": "@pom4h/elements-playground",
       "version": "0.1.0",
       "dependencies": {
+        "@pom4h/electrical-elements": "workspace:*",
         "@pom4h/elements-core": "workspace:*",
         "@pom4h/process-elements": "workspace:*",
       },
@@ -21,15 +22,24 @@
       "name": "@pom4h/elements-core",
       "version": "0.1.0",
     },
+    "packages/electrical-elements": {
+      "name": "@pom4h/electrical-elements",
+      "version": "0.1.0",
+      "dependencies": {
+        "@pom4h/elements-core": "^0.1.0",
+      },
+    },
     "packages/process-elements": {
       "name": "@pom4h/process-elements",
       "version": "0.1.0",
       "dependencies": {
-        "@pom4h/elements-core": "workspace:*",
+        "@pom4h/elements-core": "^0.1.0",
       },
     },
   },
   "packages": {
+    "@pom4h/electrical-elements": ["@pom4h/electrical-elements@workspace:packages/electrical-elements"],
+
     "@pom4h/elements-core": ["@pom4h/elements-core@workspace:packages/core"],
 
     "@pom4h/elements-playground": ["@pom4h/elements-playground@workspace:apps/playground"],

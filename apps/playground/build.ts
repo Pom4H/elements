@@ -1,4 +1,4 @@
-import { copyFile, readdir, readFile, rm } from 'node:fs/promises';
+import { cp, copyFile, readdir, readFile, rm } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 async function filesUnder(directory: string): Promise<string[]> {
@@ -32,7 +32,7 @@ if (!result.success) {
 
 await Promise.all([
   copyFile(resolve(import.meta.dir, '../../registry.json'), './dist/registry.json'),
-  copyFile(resolve(import.meta.dir, '../../registry/elements.manifest.json'), './dist/elements.manifest.json'),
+  cp(resolve(import.meta.dir, '../../registry'), './dist/registry', { recursive: true }),
 ]);
 
 const javascriptFiles = (await filesUnder('./dist')).filter((path) => path.endsWith('.js'));
@@ -48,6 +48,11 @@ for (const requiredToken of [
   'pe-pid-pump',
   'pe-pid-valve',
   'pe-pid-vessel',
+  'ee-motor',
+  'ee-breaker',
+  'ee-contactor',
+  'ee-transformer',
+  'ee-meter',
   'semantic-zoom',
   'elements-scene',
   'el-connection',
