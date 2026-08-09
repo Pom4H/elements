@@ -36,9 +36,9 @@ export const motorDefinition = defineElementDefinition({
 <path class="wire signal" d="M154 44 V10" data-detail="standard"/>
 <circle class="terminal" cx="154" cy="10" r="5" data-detail="standard"/>
 <g data-detail="standard">
-  <rect class="panel" x="72" y="181" width="164" height="31" rx="6"/>
-  <text class="label" data-part="label" x="84" y="201">M-101</text>
-  <text class="readout" data-part="readout" data-quality-sensitive x="225" y="201" text-anchor="end">1450 RPM · 12.4 A</text>
+  <rect class="panel" x="72" y="174" width="164" height="46" rx="6"/>
+  <text class="label" data-part="label" x="84" y="193">M-101</text>
+  <text class="readout" data-part="readout" data-quality-sensitive x="84" y="210">1450 RPM · 12.4 A</text>
 </g>
 <g data-detail="fine" data-quality-sensitive>
   <rect class="load-track" x="238" y="184" width="70" height="7" rx="3.5"/>
