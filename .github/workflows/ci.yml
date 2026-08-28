@@ -20,6 +20,7 @@ jobs:
       - run: bun run check
       - run: bun run release:check --skip-build
       - run: bun run registry:proof
+      - run: bun run registry:sync
       - run: bun run registry:check
       - run: bun run registry:demo-proof
       - uses: actions/upload-artifact@v4
