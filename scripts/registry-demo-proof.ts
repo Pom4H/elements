@@ -4,6 +4,7 @@ import { join, resolve } from 'node:path';
 const root = resolve(import.meta.dir, '..');
 const dist = join(root, 'apps/playground/dist');
 const screenshots = join(root, 'docs/screenshots');
+const virtualTimeBudget = '8000';
 
 async function run(command: string[]): Promise<string> {
   const process = Bun.spawn(command, { cwd: root, stdout: 'pipe', stderr: 'pipe' });
@@ -53,7 +54,7 @@ try {
       '--no-sandbox',
       '--disable-gpu',
       '--hide-scrollbars',
-      '--virtual-time-budget=2400',
+      `--virtual-time-budget=${virtualTimeBudget}`,
       '--dump-dom',
       url,
     ]);
@@ -75,7 +76,7 @@ try {
       '--hide-scrollbars',
       '--force-device-scale-factor=1',
       `--window-size=${shot.size}`,
-      '--virtual-time-budget=2400',
+      `--virtual-time-budget=${virtualTimeBudget}`,
       `--screenshot=${path}`,
       url,
     ]);

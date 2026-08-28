@@ -1,6 +1,7 @@
 import { createElementsManifest, createManifestEntry } from '@pom4h/elements-core';
 import { breakerDefinition } from './elements/breaker.js';
 import { contactorDefinition } from './elements/contactor.js';
+import { hardwareWalletDefinition } from './elements/hardware-wallet.js';
 import { meterDefinition } from './elements/meter.js';
 import { motorDefinition } from './elements/motor.js';
 import { transformerDefinition } from './elements/transformer.js';
@@ -14,5 +15,6 @@ export const electricalElementsManifest = createElementsManifest({
     createManifestEntry(contactorDefinition),
     createManifestEntry(transformerDefinition),
     createManifestEntry(meterDefinition),
+    createManifestEntry(hardwareWalletDefinition),
   ],
 });

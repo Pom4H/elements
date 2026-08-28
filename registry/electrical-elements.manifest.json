@@ -913,6 +913,201 @@
         }
       ],
       "composition": []
+    },
+    {
+      "tagName": "ee-hardware-wallet",
+      "name": "Hardware wallet reference device",
+      "description": "A USB-powered two-button hardware-wallet reference device with a 128×64 trusted display and state-driven review surface.",
+      "viewBox": "0 0 580 320",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "screen-title",
+          "property": "screenTitle",
+          "kind": "string",
+          "default": "REVIEW TRANSACTION",
+          "description": "Trusted display heading."
+        },
+        {
+          "name": "screen-line-1",
+          "property": "screenLine1",
+          "kind": "string",
+          "default": "SEND 0.10 BTC",
+          "description": "Primary trusted display line."
+        },
+        {
+          "name": "screen-line-2",
+          "property": "screenLine2",
+          "kind": "string",
+          "default": "TO BC1Q…7X2",
+          "description": "Secondary trusted display line."
+        },
+        {
+          "name": "screen-footer",
+          "property": "screenFooter",
+          "kind": "string",
+          "default": "VERIFY ON DEVICE",
+          "description": "Trusted display footer."
+        },
+        {
+          "name": "left-label",
+          "property": "leftLabel",
+          "kind": "string",
+          "default": "REJECT",
+          "description": "Left physical-button label."
+        },
+        {
+          "name": "right-label",
+          "property": "rightLabel",
+          "kind": "string",
+          "default": "CONFIRM",
+          "description": "Right physical-button label."
+        },
+        {
+          "name": "state",
+          "property": "state",
+          "kind": "enum",
+          "default": "locked",
+          "values": [
+            "setup",
+            "locked",
+            "review",
+            "approved",
+            "rejected",
+            "signed",
+            "warning"
+          ],
+          "description": "Current device-owned interaction state."
+        },
+        {
+          "name": "connected",
+          "property": "connected",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether USB power and transport are present."
+        },
+        {
+          "name": "pressed",
+          "property": "pressed",
+          "kind": "enum",
+          "default": "none",
+          "values": [
+            "none",
+            "left",
+            "right"
+          ],
+          "description": "Momentary physical-button visualization."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual level of detail."
+        }
+      ],
+      "states": [
+        "connected",
+        "reviewing",
+        "approved",
+        "rejected"
+      ],
+      "parts": [
+        {
+          "name": "body",
+          "description": "USB-powered reference enclosure.",
+          "detail": "essential"
+        },
+        {
+          "name": "usb-shell",
+          "description": "Physical USB connector.",
+          "detail": "standard"
+        },
+        {
+          "name": "usb-slot",
+          "detail": "fine"
+        },
+        {
+          "name": "screen-bezel",
+          "detail": "essential"
+        },
+        {
+          "name": "screen",
+          "description": "Trusted 128×64 display surface.",
+          "detail": "essential"
+        },
+        {
+          "name": "screen-title",
+          "detail": "essential"
+        },
+        {
+          "name": "screen-line-1",
+          "detail": "essential"
+        },
+        {
+          "name": "screen-line-2",
+          "detail": "standard"
+        },
+        {
+          "name": "screen-footer",
+          "detail": "standard"
+        },
+        {
+          "name": "button-left",
+          "description": "Left physical button.",
+          "detail": "essential"
+        },
+        {
+          "name": "button-right",
+          "description": "Right physical button.",
+          "detail": "essential"
+        },
+        {
+          "name": "left-label",
+          "detail": "fine"
+        },
+        {
+          "name": "right-label",
+          "detail": "fine"
+        },
+        {
+          "name": "connection-led",
+          "detail": "standard"
+        },
+        {
+          "name": "device-mark",
+          "detail": "fine"
+        }
+      ],
+      "ports": [
+        {
+          "id": "usb-power",
+          "x": 572,
+          "y": 144,
+          "direction": "right",
+          "kind": "electrical",
+          "role": "inlet",
+          "label": "USB 5 V power"
+        },
+        {
+          "id": "usb-data",
+          "x": 572,
+          "y": 176,
+          "direction": "right",
+          "kind": "signal",
+          "role": "bidirectional",
+          "label": "USB device transport"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [],
+      "composition": []
     }
   ]
 }

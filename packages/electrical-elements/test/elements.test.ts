@@ -2,15 +2,16 @@ import { describe, expect, test } from 'bun:test';
 import { createManifestEntry, portCompatibility, resolvePorts, type ElementContext } from '@pom4h/elements-core';
 import { electricalElementsManifest } from '../src/manifest.js';
 import { breakerDefinition } from '../src/elements/breaker.js';
+import { hardwareWalletDefinition } from '../src/elements/hardware-wallet.js';
 import { motorDefinition } from '../src/elements/motor.js';
 import { transformerDefinition } from '../src/elements/transformer.js';
 
 function contextWith(attributes: Record<string, unknown>): ElementContext {
-  return { host: {} as HTMLElement, attributes, states: {} };
+  return { host: {} as HTMLElement, attributes, states: {}, detail: 'full' };
 }
 
 describe('@pom4h/electrical-elements', () => {
-  test('publishes a server-safe package manifest with five elements', () => {
+  test('publishes a server-safe package manifest with six elements', () => {
     expect(electricalElementsManifest.name).toBe('@pom4h/electrical-elements');
     expect(electricalElementsManifest.version).toBe('0.1.0');
     expect(electricalElementsManifest.elements.map((entry) => entry.tagName)).toEqual([
@@ -19,6 +20,7 @@ describe('@pom4h/electrical-elements', () => {
       'ee-contactor',
       'ee-transformer',
       'ee-meter',
+      'ee-hardware-wallet',
     ]);
   });
 
@@ -58,5 +60,24 @@ describe('@pom4h/electrical-elements', () => {
       ['secondary', 'electrical', 'outlet'],
       ['ground', 'electrical', 'bidirectional'],
     ]);
+  });
+
+  test('hardware wallet exposes the exact reference interaction surface', () => {
+    expect(hardwareWalletDefinition.viewBox).toBe('0 0 580 320');
+    expect(hardwareWalletDefinition.parts?.map((part) => part.name)).toEqual(expect.arrayContaining([
+      'screen',
+      'button-left',
+      'button-right',
+      'usb-shell',
+    ]));
+    const ports = resolvePorts(hardwareWalletDefinition.ports, contextWith({}));
+    expect(ports.map((port) => [port.id, port.kind, port.role])).toEqual([
+      ['usb-power', 'electrical', 'inlet'],
+      ['usb-data', 'signal', 'bidirectional'],
+    ]);
+    const states = hardwareWalletDefinition.states ?? {};
+    expect(states.reviewing?.(contextWith({ state: 'review' }))).toBe(true);
+    expect(states.approved?.(contextWith({ state: 'signed' }))).toBe(true);
+    expect(states.rejected?.(contextWith({ state: 'warning' }))).toBe(true);
   });
 });
