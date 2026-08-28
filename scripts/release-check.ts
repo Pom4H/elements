@@ -98,8 +98,11 @@ import { electricalElementsManifest } from '@pom4h/electrical-elements/manifest'
 if (!Array.isArray(processElementsManifest.elements) || processElementsManifest.elements.length === 0) {
   throw new Error('process-elements manifest contains no elements');
 }
-if (electricalElementsManifest.elements.length !== 5) {
-  throw new Error('electrical-elements manifest must contain five reference elements');
+if (electricalElementsManifest.elements.length !== 6) {
+  throw new Error('electrical-elements manifest must contain six reference elements');
+}
+if (!electricalElementsManifest.elements.some((entry) => entry.tagName === 'ee-hardware-wallet')) {
+  throw new Error('electrical-elements manifest is missing ee-hardware-wallet');
 }
 if (typeof globalThis.document !== 'undefined' || typeof globalThis.customElements !== 'undefined') {
   throw new Error('server smoke test unexpectedly has DOM globals');
@@ -119,7 +122,13 @@ const motor = document.createElement('ee-motor');
 motor.setAttribute('running', '');
 motor.setAttribute('speed', '1450');
 document.body.append(motor);
-if (!customElements.get('pe-pump') || !customElements.get('ee-motor')) throw new Error('browser registration failed');
+const wallet = document.createElement('ee-hardware-wallet');
+wallet.setAttribute('state', 'review');
+wallet.setAttribute('screen-line-1', 'SEND 0.10 BTC');
+document.body.append(wallet);
+if (!customElements.get('pe-pump') || !customElements.get('ee-motor') || !customElements.get('ee-hardware-wallet')) {
+  throw new Error('browser registration failed');
+}
 `);
   await run(['bun', 'build', 'browser.ts', '--target=browser', '--outdir=browser-dist'], consumer);
 
