@@ -40,8 +40,10 @@ export const pumpDefinition = defineElementDefinition({
   <path class="line" d="M10 145 H87"/>
   <circle class="body" data-part="housing" cx="160" cy="145" r="70"/>
   <circle class="inner" cx="160" cy="145" r="48"/>
-  <g data-part="rotor" class="rotor" transform="translate(160 145)">
-    <path class="process-fill" d="M0 -32 L10 -8 L32 0 L10 8 L0 32 L-10 8 L-32 0 L-10 -8 Z"/>
+  <g transform="translate(160 145)">
+    <g data-part="rotor" class="rotor">
+      <path class="process-fill" d="M0 -32 L10 -8 L32 0 L10 8 L0 32 L-10 8 L-32 0 L-10 -8 Z"/>
+    </g>
   </g>
   <path class="line" d="M208 96 H273 V31"/>
   <path class="shaft" d="M230 145 H330"/>
@@ -60,8 +62,10 @@ export const pumpDefinition = defineElementDefinition({
   <path class="fitting" d="M254 96 H286 V41 H306 V122 H268 V145 H244 V116 H254 Z"/>
   <rect class="fitting" x="263" y="22" width="56" height="18" rx="3"/>
   <circle class="inner" cx="160" cy="145" r="49"/>
-  <g data-part="rotor" class="rotor" transform="translate(160 145)">
-    <path class="process-fill" d="M0 -34 C12 -25 21 -13 26 0 C16 4 8 13 0 28 C-9 15 -18 7 -29 2 C-22 -12 -12 -24 0 -34 Z"/>
+  <g transform="translate(160 145)">
+    <g data-part="rotor" class="rotor">
+      <path class="process-fill" d="M0 -34 C12 -25 21 -13 26 0 C16 4 8 13 0 28 C-9 15 -18 7 -29 2 C-22 -12 -12 -24 0 -34 Z"/>
+    </g>
   </g>
   <path class="shaft" d="M209 145 H337"/>
   <rect class="drive" data-part="motor-group" x="337" y="98" width="113" height="94" rx="20"/>
@@ -85,6 +89,7 @@ export const pumpDefinition = defineElementDefinition({
 :host{display:inline-block;width:510px;max-width:100%;aspect-ratio:51/29;color:var(--elements-ink,#dbe7f3);container-type:inline-size;contain:layout style;--eq-body:var(--elements-equipment-body,#31485a);--eq-body-2:var(--elements-equipment-body-alt,#3d566a);--eq-stroke:var(--elements-equipment-stroke,#9aafbd);--eq-line:var(--elements-line,#8095a4);--eq-panel:var(--elements-panel,#0d1922);--eq-muted:var(--elements-muted,#7890a1);--eq-process:var(--elements-process,#43bce8)}
 svg{width:100%;height:100%;overflow:visible}.view{display:none}:host(:not([view])) .equipment-view,:host([view="equipment"]) .equipment-view,:host([view="flat"]) .flat-view,:host([view="pid"]) .pid-view{display:inline}
 .body{fill:var(--eq-body);stroke:var(--eq-stroke);stroke-width:2}.inner{fill:color-mix(in srgb,var(--eq-body) 72%,#000);stroke:var(--eq-line);stroke-width:1.4}.fitting,.drive{fill:var(--eq-body-2);stroke:var(--eq-stroke);stroke-width:1.6}.drive-line{fill:none;stroke:var(--eq-line);stroke-width:2}.base{fill:var(--eq-body);stroke:var(--eq-line);stroke-width:1.4}.line,.shaft{fill:none;stroke:var(--eq-line);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.line.secondary{stroke-width:2}.process-mark{fill:none;stroke:var(--eq-stroke);stroke-width:3;stroke-linejoin:round}.process-fill{fill:var(--eq-process);stroke:color-mix(in srgb,var(--eq-process) 70%,white);stroke-width:1.5}.rotor{transform-box:fill-box;transform-origin:center;opacity:.32}.view-mark{fill:currentColor;font:800 26px/1 ui-monospace,monospace}.status-ring{fill:none;stroke:transparent;stroke-width:3}.operation-dot,.operation-strip{fill:var(--eq-muted)}.panel{fill:var(--eq-panel);stroke:var(--eq-line);stroke-width:1}.tag{fill:currentColor;font:700 13px/1 ui-monospace,monospace;letter-spacing:.06em}.meta{fill:var(--eq-muted);font:650 8px/1 ui-monospace,monospace}.readout{fill:var(--eq-process);font:750 10px/1 ui-monospace,monospace}.quality{fill:var(--eq-muted)}[data-quality-sensitive]{opacity:.4}
+:host([view="pid"]) .tag-panel .panel{fill:transparent;stroke:none}:host([view="pid"]) .tag-panel .operation-strip,:host([view="pid"]) .tag-panel .meta,:host([view="pid"]) .tag-panel .readout,:host([view="pid"]) .tag-panel .quality{display:none}
 :host([data-state~="running"]) .rotor{opacity:1}:host([data-state~="running"]) .operation-dot,:host([data-state~="running"]) .operation-strip{fill:var(--elements-ok,#56e29a)}:host([status="warning"]) .status-ring{stroke:var(--elements-warning,#ffbe4a)}:host([status="alarm"]) .status-ring{stroke:var(--elements-alarm,#ff5c74)}:host([quality="good"]) [data-quality-sensitive]{opacity:1}:host([quality="stale"]) [data-quality-sensitive]{opacity:.62}:host([quality="bad"]) [data-quality-sensitive]{opacity:.26}:host([quality="good"]) .quality{fill:var(--elements-ok,#56e29a)}:host([quality="stale"]) .quality{fill:var(--elements-warning,#ffbe4a)}:host([quality="bad"]) .quality{fill:var(--elements-alarm,#ff5c74)}
 :host([detail="compact"]) [data-detail="fine"],:host([detail="symbol"]) [data-detail]{display:none}:host([detail="symbol"]) text{display:none}@container(max-width:300px){[data-detail="standard"]{display:none}.status-ring{stroke-width:4}}
 `,
