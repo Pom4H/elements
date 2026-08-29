@@ -41,15 +41,15 @@ export const controlValveDefinition = defineElementDefinition({
   viewBox: '0 0 200 250',
   detailBreakpoints: { symbol: 132, compact: 200 },
   template: svg`
-<!-- P&ID -->
+<!-- P&ID: same connection centres, larger notation geometry. -->
 <g class="view pid-view">
-  <path class="line" d="M42 190 H58 M142 190 H158"/>
-  <path class="body" data-part="body" d="M58 166 L100 190 L58 214 Z M142 166 L100 190 L142 214 Z"/>
-  <path class="stem" d="M100 190 V142"/>
-  <path class="actuator pneumatic-only" d="M66 142 A34 25 0 0 1 134 142 Z"/>
-  <rect class="actuator electric-only" x="70" y="112" width="60" height="30" rx="3"/>
-  <text class="view-mark electric-only" x="100" y="133" text-anchor="middle">M</text>
-  <path class="status-outline" data-part="status-outline" d="M50 158 H150 V220 H50 Z"/>
+  <path class="line" d="M42 190 H48 M152 190 H158"/>
+  <path class="body" data-part="body" d="M48 156 L100 190 L48 224 Z M152 156 L100 190 L152 224 Z"/>
+  <path class="stem" d="M100 190 V112"/>
+  <path class="actuator pneumatic-only" d="M54 112 A46 34 0 0 1 146 112 Z"/>
+  <rect class="actuator electric-only" x="58" y="72" width="84" height="40" rx="4"/>
+  <text class="view-mark electric-only" x="100" y="98" text-anchor="middle">M</text>
+  <path class="status-outline" data-part="status-outline" d="M38 64 H162 V232 H38 Z"/>
 </g>
 
 <!-- Flat SCADA -->
@@ -97,7 +97,7 @@ export const controlValveDefinition = defineElementDefinition({
 `,
   styles: `
 :host{display:inline-block;width:200px;max-width:100%;aspect-ratio:4/5;color:var(--elements-ink,#dbe7f3);container-type:inline-size;contain:layout style;--eq-body:var(--elements-equipment-body,#31485a);--eq-body-2:var(--elements-equipment-body-alt,#3d566a);--eq-stroke:var(--elements-equipment-stroke,#9aafbd);--eq-line:var(--elements-line,#8095a4);--eq-panel:var(--elements-panel,#0d1922);--eq-muted:var(--elements-muted,#7890a1);--eq-process:var(--elements-process,#43bce8)}svg{width:100%;height:100%;overflow:visible}.view{display:none}:host(:not([view])) .equipment-view,:host([view="equipment"]) .equipment-view,:host([view="flat"]) .flat-view,:host([view="pid"]) .pid-view{display:inline}.electric-only{display:none}:host([actuator="electric"]) .electric-only{display:inline}:host([actuator="electric"]) .pneumatic-only{display:none}
-.body{fill:var(--eq-body);stroke:var(--eq-stroke);stroke-width:2}.fitting,.actuator,.positioner{fill:var(--eq-body-2);stroke:var(--eq-stroke);stroke-width:1.6}.line,.stem-guide,.yoke{fill:none;stroke:var(--eq-line);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}.stem{fill:var(--eq-stroke);stroke:none}.travel-pointer{fill:var(--eq-process)}.command-mark{fill:var(--elements-warning,#ffbe4a)}.travel-scale{fill:var(--eq-panel);stroke:var(--eq-line);stroke-width:1}.positioner-led{fill:var(--eq-muted)}.position-readout{fill:currentColor;font:700 9px/1 ui-monospace,monospace}.handwheel{fill:none;stroke:var(--eq-stroke);stroke-width:2}.status-outline{fill:none;stroke:transparent;stroke-width:3}.panel{fill:var(--eq-panel);stroke:var(--eq-line);stroke-width:1}.operation-strip{fill:var(--eq-muted)}.tag{fill:currentColor;font:700 12px/1 ui-monospace,monospace}.meta{fill:var(--eq-muted);font:650 7px/1 ui-monospace,monospace}.readout{fill:var(--eq-process);font:750 9px/1 ui-monospace,monospace}.view-mark{fill:currentColor;font:800 14px/1 ui-monospace,monospace}
+.body{fill:var(--eq-body);stroke:var(--eq-stroke);stroke-width:2}.fitting,.actuator,.positioner{fill:var(--eq-body-2);stroke:var(--eq-stroke);stroke-width:1.6}.line,.stem-guide,.yoke{fill:none;stroke:var(--eq-line);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}.stem{fill:var(--eq-stroke);stroke:none}.travel-pointer{fill:var(--eq-process)}.command-mark{fill:var(--elements-warning,#ffbe4a)}.travel-scale{fill:var(--eq-panel);stroke:var(--eq-line);stroke-width:1}.positioner-led{fill:var(--eq-muted)}.position-readout{fill:currentColor;font:700 9px/1 ui-monospace,monospace}.handwheel{fill:none;stroke:var(--eq-stroke);stroke-width:2}.status-outline{fill:none;stroke:transparent;stroke-width:3}.panel{fill:var(--eq-panel);stroke:var(--eq-line);stroke-width:1}.operation-strip{fill:var(--eq-muted)}.tag{fill:currentColor;font:700 12px/1 ui-monospace,monospace}.meta{fill:var(--eq-muted);font:650 7px/1 ui-monospace,monospace}.readout{fill:var(--eq-process);font:750 9px/1 ui-monospace,monospace}.view-mark{fill:currentColor;font:800 14px/1 ui-monospace,monospace}:host([view="pid"]) .tag-panel .panel{fill:transparent;stroke:none}:host([view="pid"]) .tag-panel .operation-strip,:host([view="pid"]) .tag-panel .meta,:host([view="pid"]) .tag-panel .readout{display:none}
 :host([data-state~="open"]) .operation-strip{fill:var(--elements-ok,#56e29a)}:host([data-state~="powered"]) .positioner-led{fill:var(--elements-ok,#56e29a)}:host([data-state~="stuck"]) .travel-pointer,:host([data-state~="stuck"]) .stem{fill:var(--elements-alarm,#ff5c74)}:host([data-state~="warning"]) .status-outline{stroke:var(--elements-warning,#ffbe4a)}:host([data-state~="alarm"]) .status-outline{stroke:var(--elements-alarm,#ff5c74)}:host([data-state~="manual"]) .handwheel{stroke:var(--elements-warning,#ffbe4a)}:host([data-state~="bad-quality"]) .readout{opacity:.26}:host([data-state~="stale"]) .readout{opacity:.62}
 :host([detail="compact"]) [data-detail="fine"],:host([detail="symbol"]) [data-detail]{display:none}:host([detail="symbol"]) text{display:none}
 `,
