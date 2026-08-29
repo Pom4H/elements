@@ -1,0 +1,42 @@
+name: Sync SCADA registry once
+
+on:
+  push:
+    paths:
+      - .github/workflows/sync-scada-registry-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: agent/scada-visual-themes
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
+      - name: Sync generated manifests and restore check mode
+        run: |
+          bun run registry:sync
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('package.json')
+          source = path.read_text()
+          source = source.replace(
+              '"registry:check": "bun run scripts/registry-sync.ts",',
+              '"registry:check": "bun run scripts/registry-sync.ts --check",',
+          )
+          path.write_text(source)
+          PY
+          rm .github/workflows/sync-scada-registry-once.yml
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add registry/*.manifest.json package.json .github/workflows/sync-scada-registry-once.yml
+          git commit -m "sync SCADA visual family manifests"
+          git push origin HEAD:agent/scada-visual-themes
