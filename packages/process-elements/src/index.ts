@@ -1,8 +1,13 @@
+export { compressorDefinition } from './elements/compressor.js';
 export { controlValveDefinition } from './elements/control-valve.js';
 export { controllerDefinition } from './elements/controller.js';
+export { fanDefinition } from './elements/fan.js';
+export { heatExchangerDefinition } from './elements/heat-exchanger.js';
+export { instrumentDefinition } from './elements/instrument.js';
 export { pidPumpDefinition } from './elements/pid-pump.js';
 export { pidValveDefinition } from './elements/pid-valve.js';
 export { pidVesselDefinition } from './elements/pid-vessel.js';
 export { pumpDefinition } from './elements/pump.js';
 export { tankDefinition } from './elements/tank.js';
+export { valveDefinition } from './elements/valve.js';
 export { processElementsManifest } from './manifest.js';
