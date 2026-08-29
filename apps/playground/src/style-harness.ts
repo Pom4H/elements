@@ -1,9 +1,11 @@
+import { registerElectricalElements } from '@pom4h/electrical-elements/register';
 import { registerProcessElements } from '@pom4h/process-elements/register';
 import './style-harness.css';
 
 // Internal designer board only. It is intentionally absent from production
-// entrypoints and CI; render it, look at the whole matrix, then edit elements.
+// entrypoints and CI; render it, look at the whole board, then edit elements.
 registerProcessElements();
+registerElectricalElements();
 
 type Theme = 'light' | 'dark';
 
@@ -35,9 +37,27 @@ function applyMotion(nextPaused: boolean): void {
 const initialTheme: Theme = query.get('theme') === 'dark' ? 'dark' : 'light';
 applyTheme(initialTheme);
 
-for (const tag of ['pe-tank', 'pe-pump', 'pe-control-valve', 'pe-controller']) {
-  await customElements.whenDefined(tag);
-}
+const tags = [
+  'pe-tank',
+  'pe-pump',
+  'pe-control-valve',
+  'pe-controller',
+  'pe-pid-pump',
+  'pe-pid-valve',
+  'pe-pid-vessel',
+  'ee-motor',
+  'ee-breaker',
+  'ee-contactor',
+  'ee-transformer',
+  'ee-meter',
+  'elements-scene',
+  'el-pipe',
+  'el-wire',
+  'el-signal',
+  'el-junction',
+] as const;
+
+for (const tag of tags) await customElements.whenDefined(tag);
 await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 applyMotion(paused);
 
