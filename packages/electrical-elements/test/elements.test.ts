@@ -63,7 +63,7 @@ describe('@pom4h/electrical-elements', () => {
   });
 
   test('hardware wallet exposes the exact reference interaction surface', () => {
-    expect(hardwareWalletDefinition.viewBox).toBe('0 0 580 320');
+    expect(hardwareWalletDefinition.viewBox).toBe('0 0 620 390');
     expect(hardwareWalletDefinition.parts?.map((part) => part.name)).toEqual(expect.arrayContaining([
       'screen',
       'button-left',

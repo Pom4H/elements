@@ -7,7 +7,7 @@ import {
 } from '@pom4h/elements-core';
 
 const details = ['auto', 'full', 'compact', 'symbol'] as const;
-const deviceStates = ['setup', 'locked', 'review', 'approved', 'rejected', 'signed', 'warning'] as const;
+const deviceStates = ['setup', 'menu', 'locked', 'review', 'approved', 'rejected', 'signed', 'sleeping', 'warning'] as const;
 
 function stringValue(context: ElementContext, name: string, fallback = ''): string {
   const value = context.attributes[name];
@@ -70,7 +70,9 @@ svg{width:100%;height:100%;overflow:visible}.body-shadow{fill:#171713;opacity:.1
 :host([state="approved"]),:host([state="signed"]){--wallet-screen-ink:#b8ffd1}:host([state="approved"]) .screen,:host([state="signed"]) .screen{stroke:#1c8a50}
 :host([state="rejected"]),:host([state="warning"]){--wallet-screen-ink:#ffc7bd}:host([state="rejected"]) .screen,:host([state="warning"]) .screen{stroke:#d3492f}
 :host([state="locked"]){--wallet-screen-ink:#b9c8c0}:host([state="locked"]) .screen{stroke:#65736d}
-:host([pressed="left"]) [data-part="button-left"] .button-cap,:host([pressed="right"]) [data-part="button-right"] .button-cap{transform:translateY(7px)}
+:host([state="menu"]){--wallet-screen-ink:#d8f6e2}:host([state="menu"]) .screen{stroke:#78a88b}
+:host([state="sleeping"]) .screen{fill:#020403;stroke:#252a27}:host([state="sleeping"]) .screen-title,:host([state="sleeping"]) .screen-line,:host([state="sleeping"]) .screen-footer{opacity:0}:host([state="sleeping"]) .connection-led,:host([state="sleeping"]) .connection-led-inner{fill:#4b4943}
+:host([pressed="left"]) [data-part="button-left"] .button-cap,:host([pressed="right"]) [data-part="button-right"] .button-cap,:host([pressed="both"]) [data-part="button-left"] .button-cap,:host([pressed="both"]) [data-part="button-right"] .button-cap{transform:translateY(7px)}
 @container(max-width:390px){.device-mark,.button-label{display:none}.body{stroke-width:5}.screen-title{font-size:14px}.screen-line{font-size:27px}.screen-line.secondary{font-size:19px}.button-well{stroke-width:3}.button-cap{stroke-width:3}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 `,
@@ -83,7 +85,7 @@ svg{width:100%;height:100%;overflow:visible}.body-shadow{fill:#171713;opacity:.1
     rightLabel: attribute.string('rightLabel', { attribute: 'right-label', defaultValue: 'CONFIRM', description: 'Right physical-button label.' }),
     state: attribute.enum('state', deviceStates, { defaultValue: 'locked', description: 'Current device-owned interaction state.' }),
     connected: attribute.boolean('connected', { description: 'Whether USB power and transport are present.' }),
-    pressed: attribute.enum('pressed', ['none', 'left', 'right'] as const, { defaultValue: 'none', description: 'Momentary physical-button visualization.' }),
+    pressed: attribute.enum('pressed', ['none', 'left', 'right', 'both'] as const, { defaultValue: 'none', description: 'Momentary left, right, or simultaneous two-button visualization.' }),
     detail: attribute.enum('detail', details, { defaultValue: 'auto', description: 'Visual level of detail.' }),
   },
   states: {
