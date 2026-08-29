@@ -1,0 +1,61 @@
+name: Add hardware wallet chord visualization once
+
+on:
+  push:
+    paths:
+      - .github/workflows/hardware-wallet-chord-once.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76
+        with:
+          bun-version: 1.4.0
+
+      - name: Extend the semantic device state
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('packages/electrical-elements/src/elements/hardware-wallet.ts')
+          source = path.read_text()
+          source = source.replace(
+              "const deviceStates = ['setup', 'locked', 'review', 'approved', 'rejected', 'signed', 'warning'] as const;",
+              "const deviceStates = ['setup', 'menu', 'locked', 'review', 'approved', 'rejected', 'signed', 'sleeping', 'warning'] as const;",
+              1,
+          )
+          source = source.replace(
+              ':host([state="locked"]){--wallet-screen-ink:#b9c8c0}:host([state="locked"]) .screen{stroke:#65736d}\n:host([pressed="left"]) [data-part="button-left"] .button-cap,:host([pressed="right"]) [data-part="button-right"] .button-cap{transform:translateY(7px)}',
+              ':host([state="locked"]){--wallet-screen-ink:#b9c8c0}:host([state="locked"]) .screen{stroke:#65736d}\n:host([state="menu"]){--wallet-screen-ink:#d8f6e2}:host([state="menu"]) .screen{stroke:#78a88b}\n:host([state="sleeping"]) .screen{fill:#020403;stroke:#252a27}:host([state="sleeping"]) .screen-title,:host([state="sleeping"]) .screen-line,:host([state="sleeping"]) .screen-footer{opacity:0}:host([state="sleeping"]) .connection-led,:host([state="sleeping"]) .connection-led-inner{fill:#4b4943}\n:host([pressed="left"]) [data-part="button-left"] .button-cap,:host([pressed="right"]) [data-part="button-right"] .button-cap,:host([pressed="both"]) [data-part="button-left"] .button-cap,:host([pressed="both"]) [data-part="button-right"] .button-cap{transform:translateY(7px)}',
+              1,
+          )
+          source = source.replace(
+              "pressed: attribute.enum('pressed', ['none', 'left', 'right'] as const, { defaultValue: 'none', description: 'Momentary physical-button visualization.' }),",
+              "pressed: attribute.enum('pressed', ['none', 'left', 'right', 'both'] as const, { defaultValue: 'none', description: 'Momentary left, right, or simultaneous two-button visualization.' }),",
+              1,
+          )
+          path.write_text(source)
+          PY
+
+      - name: Verify package
+        run: |
+          bun install --frozen-lockfile
+          bun test
+          bun run build
+
+      - name: Commit and remove trigger
+        run: |
+          rm .github/workflows/hardware-wallet-chord-once.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "Visualize simultaneous hardware wallet button presses"
+          git pull --rebase origin main
+          git push origin main
