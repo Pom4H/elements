@@ -71,7 +71,7 @@ main { padding: 14px; }
   overflow: hidden;
   display: grid;
   place-items: center;
-  padding: 26px 14px 10px;
+  padding: 30px 14px 10px;
   border: 1px solid var(--board-border);
   border-radius: 8px;
   background:
@@ -83,7 +83,7 @@ main { padding: 14px; }
   background-size: 48px 48px, 48px 48px, 12px 12px, 12px 12px, auto;
 }
 .style-cell::before {
-  content: attr(data-family) " · " attr(data-state);
+  content: attr(data-family);
   position: absolute;
   top: 9px;
   left: 11px;
@@ -92,12 +92,44 @@ main { padding: 14px; }
   letter-spacing: .06em;
   text-transform: uppercase;
 }
+.style-cell::after {
+  content: attr(data-kind);
+  position: absolute;
+  top: 7px;
+  right: 9px;
+  padding: 4px 7px;
+  border: 1px solid var(--board-border);
+  border-radius: 999px;
+  background: var(--board-panel);
+  color: var(--board-muted);
+  font: 700 8px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-transform: uppercase;
+}
 
-/* The board equalises optical footprint only. It does not restyle internals. */
-.style-cell > pe-tank { width: 158px; }
-.style-cell > pe-pump { width: 238px; }
-.style-cell > pe-control-valve { width: 170px; }
-.style-cell > pe-controller { width: 250px; }
+/* Optical footprints only. The board never recolours a private SVG class. */
+.style-cell > pe-tank { width: 150px; }
+.style-cell > pe-pump { width: 250px; }
+.style-cell > pe-control-valve { width: 160px; }
+.style-cell > pe-controller { width: 270px; }
+.style-cell > pe-pid-pump,
+.style-cell > pe-pid-valve,
+.style-cell > pe-pid-vessel { width: 185px; }
+.style-cell > ee-motor { width: 220px; }
+.style-cell > ee-breaker,
+.style-cell > ee-contactor,
+.style-cell > ee-meter { width: 205px; }
+.style-cell > ee-transformer { width: 230px; }
+
+.mini-scene {
+  display: block;
+  width: 460px;
+  max-width: 100%;
+  height: 190px;
+  --elements-process-flow: #42c8ff;
+  --elements-pipe-shell: #637682;
+  --elements-pipe-bore: var(--board-panel);
+}
+.mini-scene > * { pointer-events: none; }
 
 @media (max-width: 1280px) {
   .style-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
