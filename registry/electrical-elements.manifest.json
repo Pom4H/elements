@@ -6,7 +6,7 @@
     {
       "tagName": "ee-motor",
       "name": "Three-phase motor",
-      "description": "A three-phase induction motor with electrical supply, thermal feedback, running state and load telemetry.",
+      "description": "A motor with P&ID/electrical, flat SCADA and equipment SVG views over one electrical and telemetry contract.",
       "viewBox": "0 0 320 220",
       "dynamicViewBox": false,
       "attributes": [
@@ -102,6 +102,18 @@
             "symbol"
           ],
           "description": "Visual level of detail."
+        },
+        {
+          "name": "view",
+          "property": "view",
+          "kind": "enum",
+          "default": "equipment",
+          "values": [
+            "pid",
+            "flat",
+            "equipment"
+          ],
+          "description": "SVG visual family. Does not change motor data, states or ports."
         }
       ],
       "states": [
@@ -111,7 +123,7 @@
       "parts": [
         {
           "name": "body",
-          "description": "Motor body silhouette.",
+          "description": "Motor silhouette in every visual family.",
           "detail": "essential"
         },
         {
@@ -917,8 +929,8 @@
     {
       "tagName": "ee-hardware-wallet",
       "name": "Hardware wallet reference device",
-      "description": "A USB-powered two-button hardware-wallet reference device with a 128×64 trusted display and state-driven review surface.",
-      "viewBox": "0 0 580 320",
+      "description": "A USB-powered two-button hardware-wallet reference device centered on a 128×64 trusted display and physical confirmation controls.",
+      "viewBox": "0 0 620 390",
       "dynamicViewBox": false,
       "attributes": [
         {
@@ -970,11 +982,13 @@
           "default": "locked",
           "values": [
             "setup",
+            "menu",
             "locked",
             "review",
             "approved",
             "rejected",
             "signed",
+            "sleeping",
             "warning"
           ],
           "description": "Current device-owned interaction state."
@@ -994,9 +1008,10 @@
           "values": [
             "none",
             "left",
-            "right"
+            "right",
+            "both"
           ],
-          "description": "Momentary physical-button visualization."
+          "description": "Momentary left, right, or simultaneous two-button visualization."
         },
         {
           "name": "detail",
@@ -1088,8 +1103,8 @@
       "ports": [
         {
           "id": "usb-power",
-          "x": 572,
-          "y": 144,
+          "x": 615,
+          "y": 178,
           "direction": "right",
           "kind": "electrical",
           "role": "inlet",
@@ -1097,8 +1112,8 @@
         },
         {
           "id": "usb-data",
-          "x": 572,
-          "y": 176,
+          "x": 615,
+          "y": 211,
           "direction": "right",
           "kind": "signal",
           "role": "bidirectional",

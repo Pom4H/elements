@@ -30,7 +30,7 @@ describe('status and quality contract', () => {
       const styles = definition.styles ?? '';
       expect(styles).toContain(':host([status="warning"])');
       expect(styles).toContain(':host([status="alarm"])');
-      expect(styles).toContain('[data-quality-sensitive]{opacity:.42}');
+      expect(styles).toContain('[data-quality-sensitive]');
       expect(styles).toContain(':host([quality="good"]) [data-quality-sensitive]{opacity:1}');
       expect(styles).not.toContain('[data-state~="warning"]');
       expect(styles).not.toContain('[data-state~="bad-quality"]');

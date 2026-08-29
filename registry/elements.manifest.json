@@ -6,7 +6,7 @@
     {
       "tagName": "pe-tank",
       "name": "Storage tank",
-      "description": "A process vessel with clip-path liquid level, limit bands, a generated nozzle set with matching ports, optional agitator and heater, and vertical or horizontal bodies.",
+      "description": "A vessel with P&ID, flat SCADA and equipment SVG views sharing one level, threshold, nozzle and port contract.",
       "viewBox": "0 0 380 452",
       "dynamicViewBox": true,
       "attributes": [
@@ -92,7 +92,7 @@
             "slurry",
             "glycol"
           ],
-          "description": "Stored substance. Sets the liquid colour and propagates to the process ports."
+          "description": "Stored substance. Sets the liquid colour and propagates to process ports."
         },
         {
           "name": "capacity",
@@ -113,7 +113,7 @@
             "vertical",
             "horizontal"
           ],
-          "description": "Body style. Changes the viewport, the shell and the nozzle axis."
+          "description": "Body orientation."
         },
         {
           "name": "nozzles",
@@ -123,7 +123,7 @@
           "minimum": 0,
           "maximum": 6,
           "step": 1,
-          "description": "Number of generated shell nozzles from 0 to 6. Each one adds a port."
+          "description": "Number of generated process ports."
         },
         {
           "name": "foam",
@@ -134,7 +134,7 @@
           "maximum": 100,
           "step": 1,
           "unit": "%",
-          "description": "Foam layer thickness from 0 to 100 percent of the vessel height."
+          "description": "Foam layer thickness."
         },
         {
           "name": "agitator",
@@ -151,7 +151,7 @@
           "minimum": 0,
           "step": 5,
           "unit": "rpm",
-          "description": "Agitator shaft speed in rpm."
+          "description": "Agitator shaft speed."
         },
         {
           "name": "heater",
@@ -204,6 +204,18 @@
             "symbol"
           ],
           "description": "Visual level of detail."
+        },
+        {
+          "name": "view",
+          "property": "view",
+          "kind": "enum",
+          "default": "equipment",
+          "values": [
+            "pid",
+            "flat",
+            "equipment"
+          ],
+          "description": "SVG visual family. Does not change the vessel data or ports."
         }
       ],
       "states": [
@@ -225,33 +237,28 @@
       "parts": [
         {
           "name": "shell",
-          "description": "Vessel shell outline.",
+          "description": "Vessel silhouette in every visual family.",
           "detail": "essential"
         },
         {
           "name": "liquid-carrier",
-          "description": "Clipped liquid stack driven by the level.",
+          "description": "Level scrub target.",
           "detail": "essential"
         },
         {
           "name": "surface-wave",
-          "description": "Nested surface ripple that rides on the level.",
+          "description": "Liquid surface.",
           "detail": "standard"
         },
         {
-          "name": "foam-band",
-          "description": "Foam layer whose thickness follows the foam value.",
-          "detail": "standard"
-        },
-        {
-          "name": "vortex",
-          "description": "Surface vortex shown while the agitator runs.",
+          "name": "agitator",
+          "description": "Agitator assembly.",
           "detail": "standard"
         },
         {
           "name": "impeller",
-          "description": "Agitator impeller.",
-          "detail": "essential"
+          "description": "Agitator motion target.",
+          "detail": "standard"
         },
         {
           "name": "heater-coil",
@@ -260,29 +267,18 @@
         },
         {
           "name": "gauge",
-          "description": "Level gauge with warning bands and alarm marks.",
+          "description": "Level gauge.",
           "detail": "standard"
         },
         {
           "name": "level-marker",
-          "description": "Level pointer on the gauge.",
+          "description": "Gauge level marker.",
           "detail": "standard"
         },
         {
-          "name": "band-low",
-          "detail": "standard"
-        },
-        {
-          "name": "band-high",
-          "detail": "standard"
-        },
-        {
-          "name": "temperature-readout",
-          "detail": "standard"
-        },
-        {
-          "name": "pressure-readout",
-          "detail": "standard"
+          "name": "status-outline",
+          "description": "Warning/alarm outline.",
+          "detail": "essential"
         },
         {
           "name": "status-strip",
@@ -365,44 +361,17 @@
           "target": "level-marker"
         },
         {
-          "id": "surface-wave",
-          "type": "loop",
-          "target": "surface-wave"
-        },
-        {
-          "id": "vortex-swirl",
-          "type": "loop",
-          "target": "vortex"
-        },
-        {
           "id": "impeller-spin",
           "type": "loop",
           "target": "impeller"
-        },
-        {
-          "id": "impeller-upper-spin",
-          "type": "loop",
-          "target": "impeller-upper"
-        },
-        {
-          "id": "heater-glow",
-          "type": "loop",
-          "target": "heater-coil"
-        },
-        {
-          "id": "alarm-pulse",
-          "type": "loop",
-          "target": "status-strip"
         }
       ],
-      "composition": [
-        "vessel"
-      ]
+      "composition": []
     },
     {
       "tagName": "pe-pump",
       "name": "End-suction centrifugal pump",
-      "description": "A horizontal end-suction pump with short equipment nozzles. The scene owns all external process piping and flow animation.",
+      "description": "A centrifugal pump with interchangeable P&ID, flat SCADA and equipment SVG views over one data, state and port contract.",
       "viewBox": "0 0 510 290",
       "dynamicViewBox": false,
       "attributes": [
@@ -478,6 +447,18 @@
             "symbol"
           ],
           "description": "Visual level of detail."
+        },
+        {
+          "name": "view",
+          "property": "view",
+          "kind": "enum",
+          "default": "equipment",
+          "values": [
+            "pid",
+            "flat",
+            "equipment"
+          ],
+          "description": "SVG visual family. Does not change data, states, motions or ports."
         }
       ],
       "states": [
@@ -486,37 +467,32 @@
       "parts": [
         {
           "name": "housing",
-          "description": "Pump casing. External pipes are scene-owned.",
-          "detail": "essential"
-        },
-        {
-          "name": "inspection-window",
-          "description": "Circular impeller inspection window.",
+          "description": "Pump body in every visual family.",
           "detail": "essential"
         },
         {
           "name": "rotor",
-          "description": "Shrouded impeller with curved vanes.",
-          "detail": "essential"
-        },
-        {
-          "name": "coupling",
-          "description": "Shaft coupling aligned with the impeller timeline.",
-          "detail": "essential"
+          "description": "Operation motion target where the selected view exposes one.",
+          "detail": "standard"
         },
         {
           "name": "motor-group",
-          "description": "Electric motor assembly.",
+          "description": "Drive representation.",
           "detail": "essential"
         },
         {
           "name": "status-ring",
-          "description": "Primary severity indicator.",
+          "description": "Severity outline.",
+          "detail": "essential"
+        },
+        {
+          "name": "operation-marker",
+          "description": "Running-state marker.",
           "detail": "essential"
         },
         {
           "name": "status-strip",
-          "description": "Running-state marker.",
+          "description": "Running-state marker in the tag.",
           "detail": "standard"
         },
         {
@@ -543,21 +519,24 @@
           "x": 10,
           "y": 145,
           "direction": "left",
-          "kind": "process"
+          "kind": "process",
+          "role": "inlet"
         },
         {
           "id": "out",
           "x": 273,
           "y": 31,
           "direction": "top",
-          "kind": "process"
+          "kind": "process",
+          "role": "outlet"
         },
         {
           "id": "power",
           "x": 474,
           "y": 145,
           "direction": "right",
-          "kind": "electrical"
+          "kind": "electrical",
+          "role": "inlet"
         }
       ],
       "dynamicPorts": false,
@@ -566,16 +545,6 @@
           "id": "rotor-spin",
           "type": "loop",
           "target": "rotor"
-        },
-        {
-          "id": "coupling-spin",
-          "type": "loop",
-          "target": "coupling"
-        },
-        {
-          "id": "motor-hum",
-          "type": "loop",
-          "target": "motor-group"
         },
         {
           "id": "start-status",
@@ -588,14 +557,183 @@
           "target": "status-ring"
         }
       ],
-      "composition": [
-        "assembly"
-      ]
+      "composition": []
+    },
+    {
+      "tagName": "pe-valve",
+      "name": "Isolation valve",
+      "description": "A manual or actuated isolation valve with P&ID, flat SCADA and equipment views over one open/closed contract.",
+      "viewBox": "0 0 260 190",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "HV-101",
+          "description": "Valve tag."
+        },
+        {
+          "name": "open",
+          "property": "open",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the valve is open."
+        },
+        {
+          "name": "position",
+          "property": "position",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 100,
+          "step": 1,
+          "unit": "%",
+          "description": "Measured opening."
+        },
+        {
+          "name": "medium",
+          "property": "medium",
+          "kind": "enum",
+          "default": "water",
+          "values": [
+            "water",
+            "steam",
+            "condensate",
+            "oil",
+            "fuel",
+            "gas",
+            "air",
+            "chemical",
+            "slurry",
+            "glycol"
+          ],
+          "description": "Process substance."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Valve severity."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Telemetry quality."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual detail."
+        },
+        {
+          "name": "view",
+          "property": "view",
+          "kind": "enum",
+          "default": "equipment",
+          "values": [
+            "pid",
+            "flat",
+            "equipment"
+          ],
+          "description": "SVG visual family."
+        }
+      ],
+      "states": [
+        "open",
+        "closed"
+      ],
+      "parts": [
+        {
+          "name": "body",
+          "description": "Valve silhouette.",
+          "detail": "essential"
+        },
+        {
+          "name": "handle",
+          "description": "Manual handle.",
+          "detail": "standard"
+        },
+        {
+          "name": "travel",
+          "description": "Position scrub target.",
+          "detail": "standard"
+        },
+        {
+          "name": "operation-marker",
+          "description": "Open-state marker.",
+          "detail": "essential"
+        },
+        {
+          "name": "status-outline",
+          "description": "Severity outline.",
+          "detail": "essential"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "standard"
+        }
+      ],
+      "ports": [
+        {
+          "id": "in",
+          "x": 8,
+          "y": 95,
+          "direction": "left",
+          "kind": "process",
+          "role": "inlet",
+          "label": "Inlet"
+        },
+        {
+          "id": "out",
+          "x": 252,
+          "y": 95,
+          "direction": "right",
+          "kind": "process",
+          "role": "outlet",
+          "label": "Outlet"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [
+        {
+          "id": "valve-travel",
+          "type": "scrub",
+          "target": "travel"
+        }
+      ],
+      "composition": []
     },
     {
       "tagName": "pe-control-valve",
       "name": "Control valve",
-      "description": "A globe control valve drawn as an operator sees it: body, yoke, stem travel, actuator and positioner. Piping and flow belong to the scene.",
+      "description": "A control valve with P&ID, flat SCADA and equipment SVG views sharing travel, actuator, state and live-port contracts.",
       "viewBox": "0 0 200 250",
       "dynamicViewBox": false,
       "attributes": [
@@ -615,7 +753,7 @@
           "maximum": 100,
           "step": 1,
           "unit": "%",
-          "description": "Actual travel from 0 (shut) to 100 (open)."
+          "description": "Actual travel from 0 to 100 percent."
         },
         {
           "name": "command",
@@ -626,7 +764,7 @@
           "maximum": 100,
           "step": 1,
           "unit": "%",
-          "description": "Commanded travel from 0 (shut) to 100 (open)."
+          "description": "Commanded travel."
         },
         {
           "name": "actuator",
@@ -637,7 +775,7 @@
             "pneumatic",
             "electric"
           ],
-          "description": "Actuator type. Swaps the actuator and its auxiliary port."
+          "description": "Actuator type and auxiliary port."
         },
         {
           "name": "action",
@@ -648,7 +786,7 @@
             "normally-closed",
             "normally-open"
           ],
-          "description": "Fail position on loss of signal or motive power."
+          "description": "Fail position."
         },
         {
           "name": "medium",
@@ -667,7 +805,7 @@
             "slurry",
             "glycol"
           ],
-          "description": "Process substance. Propagates to the inlet and outlet ports."
+          "description": "Process substance."
         },
         {
           "name": "mode",
@@ -678,7 +816,7 @@
             "auto",
             "manual"
           ],
-          "description": "Auto follows the command, manual follows the handwheel."
+          "description": "Control mode."
         },
         {
           "name": "deadband",
@@ -688,21 +826,21 @@
           "minimum": 0,
           "step": 0.1,
           "unit": "%",
-          "description": "Travel difference below which the valve counts as settled."
+          "description": "Settled travel deadband."
         },
         {
           "name": "stuck",
           "property": "stuck",
           "kind": "boolean",
           "default": false,
-          "description": "Whether the trim has stopped following the command."
+          "description": "Whether actual travel has stopped following command."
         },
         {
           "name": "powered",
           "property": "powered",
           "kind": "boolean",
           "default": false,
-          "description": "Whether actuator power or instrument air is available."
+          "description": "Whether motive power is available."
         },
         {
           "name": "status",
@@ -715,7 +853,7 @@
             "warning",
             "alarm"
           ],
-          "description": "Process status independent from data quality."
+          "description": "Process severity."
         },
         {
           "name": "quality",
@@ -727,7 +865,7 @@
             "stale",
             "bad"
           ],
-          "description": "Telemetry quality independent from process status."
+          "description": "Telemetry quality."
         },
         {
           "name": "detail",
@@ -740,7 +878,19 @@
             "compact",
             "symbol"
           ],
-          "description": "Visual level of detail. Symbol swaps to the P&ID symbol."
+          "description": "Visual level of detail."
+        },
+        {
+          "name": "view",
+          "property": "view",
+          "kind": "enum",
+          "default": "equipment",
+          "values": [
+            "pid",
+            "flat",
+            "equipment"
+          ],
+          "description": "SVG visual family. Does not change valve data or ports."
         }
       ],
       "states": [
@@ -762,42 +912,43 @@
       "parts": [
         {
           "name": "body",
-          "description": "Valve body silhouette.",
+          "description": "Valve body in every visual family.",
           "detail": "essential"
         },
         {
           "name": "stem-travel",
-          "description": "Stem and the travel pointer clamped to it.",
+          "description": "Actual travel motion target.",
           "detail": "essential"
         },
         {
           "name": "travel-pointer",
-          "description": "Actual travel read against the scale.",
           "detail": "essential"
         },
         {
           "name": "command-marker",
-          "description": "Commanded travel on the same scale.",
+          "description": "Commanded travel.",
           "detail": "standard"
         },
         {
           "name": "travel-scale",
-          "description": "Travel scale on the yoke.",
+          "detail": "standard"
+        },
+        {
+          "name": "handwheel",
           "detail": "standard"
         },
         {
           "name": "positioner-led",
-          "description": "Positioner power and command indicator.",
-          "detail": "essential"
+          "detail": "standard"
         },
         {
           "name": "positioner-readout",
           "detail": "standard"
         },
         {
-          "name": "handwheel",
-          "description": "Manual override on the electric actuator.",
-          "detail": "standard"
+          "name": "status-outline",
+          "description": "Warning/alarm outline.",
+          "detail": "essential"
         },
         {
           "name": "status-strip",
@@ -825,7 +976,7 @@
           "kind": "process",
           "role": "inlet",
           "medium": "water",
-          "label": "Inlet flange"
+          "label": "Inlet"
         },
         {
           "id": "out",
@@ -835,7 +986,7 @@
           "kind": "process",
           "role": "outlet",
           "medium": "water",
-          "label": "Outlet flange"
+          "label": "Outlet"
         },
         {
           "id": "signal",
@@ -844,7 +995,7 @@
           "direction": "left",
           "kind": "signal",
           "role": "inlet",
-          "label": "Positioner signal"
+          "label": "Command"
         },
         {
           "id": "supply",
@@ -853,7 +1004,8 @@
           "direction": "right",
           "kind": "process",
           "role": "inlet",
-          "medium": "air"
+          "medium": "air",
+          "label": "Instrument air"
         }
       ],
       "dynamicPorts": true,
@@ -874,19 +1026,710 @@
           "target": "handwheel"
         },
         {
-          "id": "command-received",
+          "id": "severity-change",
           "type": "transition",
-          "target": "positioner-led"
-        },
-        {
-          "id": "alarm-pulse",
-          "type": "loop",
-          "target": "status-strip"
+          "target": "status-outline"
         }
       ],
-      "composition": [
-        "assembly"
-      ]
+      "composition": []
+    },
+    {
+      "tagName": "pe-fan",
+      "name": "Fan / blower",
+      "description": "A fan or blower with P&ID, flat SCADA and equipment SVG views sharing speed, flow, state and process ports.",
+      "viewBox": "0 0 320 220",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "F-101",
+          "description": "Fan tag."
+        },
+        {
+          "name": "running",
+          "property": "running",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the fan is running."
+        },
+        {
+          "name": "speed",
+          "property": "speed",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 1,
+          "unit": "rpm",
+          "description": "Fan speed."
+        },
+        {
+          "name": "flow",
+          "property": "flow",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 0.1,
+          "unit": "m³/s",
+          "description": "Air or gas flow."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Fan severity."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Telemetry quality."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual detail."
+        },
+        {
+          "name": "view",
+          "property": "view",
+          "kind": "enum",
+          "default": "equipment",
+          "values": [
+            "pid",
+            "flat",
+            "equipment"
+          ],
+          "description": "SVG visual family."
+        }
+      ],
+      "states": [
+        "running"
+      ],
+      "parts": [
+        {
+          "name": "body",
+          "detail": "essential"
+        },
+        {
+          "name": "rotor",
+          "detail": "essential"
+        },
+        {
+          "name": "operation-marker",
+          "detail": "essential"
+        },
+        {
+          "name": "status-outline",
+          "detail": "essential"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "standard"
+        }
+      ],
+      "ports": [
+        {
+          "id": "in",
+          "x": 8,
+          "y": 110,
+          "direction": "left",
+          "kind": "process",
+          "role": "inlet",
+          "medium": "air"
+        },
+        {
+          "id": "out",
+          "x": 312,
+          "y": 110,
+          "direction": "right",
+          "kind": "process",
+          "role": "outlet",
+          "medium": "air"
+        },
+        {
+          "id": "power",
+          "x": 220,
+          "y": 20,
+          "direction": "top",
+          "kind": "electrical",
+          "role": "inlet"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [
+        {
+          "id": "fan-rotor",
+          "type": "loop",
+          "target": "rotor"
+        }
+      ],
+      "composition": []
+    },
+    {
+      "tagName": "pe-compressor",
+      "name": "Compressor",
+      "description": "A generic process-gas compressor with three interchangeable SVG visual families.",
+      "viewBox": "0 0 340 220",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "C-101",
+          "description": "Compressor tag."
+        },
+        {
+          "name": "running",
+          "property": "running",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether the compressor is running."
+        },
+        {
+          "name": "speed",
+          "property": "speed",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 1,
+          "unit": "rpm",
+          "description": "Shaft speed."
+        },
+        {
+          "name": "pressure",
+          "property": "pressure",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 0.1,
+          "unit": "bar",
+          "description": "Discharge pressure."
+        },
+        {
+          "name": "flow",
+          "property": "flow",
+          "kind": "number",
+          "default": 0,
+          "minimum": 0,
+          "step": 0.1,
+          "unit": "m³/h",
+          "description": "Gas flow."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Compressor severity."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Telemetry quality."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual detail."
+        },
+        {
+          "name": "view",
+          "property": "view",
+          "kind": "enum",
+          "default": "equipment",
+          "values": [
+            "pid",
+            "flat",
+            "equipment"
+          ],
+          "description": "SVG visual family."
+        }
+      ],
+      "states": [
+        "running"
+      ],
+      "parts": [
+        {
+          "name": "body",
+          "detail": "essential"
+        },
+        {
+          "name": "rotor",
+          "detail": "essential"
+        },
+        {
+          "name": "operation-marker",
+          "detail": "essential"
+        },
+        {
+          "name": "status-outline",
+          "detail": "essential"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "standard"
+        }
+      ],
+      "ports": [
+        {
+          "id": "in",
+          "x": 8,
+          "y": 110,
+          "direction": "left",
+          "kind": "process",
+          "role": "inlet",
+          "medium": "air"
+        },
+        {
+          "id": "out",
+          "x": 332,
+          "y": 110,
+          "direction": "right",
+          "kind": "process",
+          "role": "outlet",
+          "medium": "air"
+        },
+        {
+          "id": "power",
+          "x": 230,
+          "y": 20,
+          "direction": "top",
+          "kind": "electrical",
+          "role": "inlet"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [
+        {
+          "id": "compressor-rotor",
+          "type": "loop",
+          "target": "rotor"
+        }
+      ],
+      "composition": []
+    },
+    {
+      "tagName": "pe-heat-exchanger",
+      "name": "Heat exchanger",
+      "description": "A two-stream heat exchanger with P&ID, flat SCADA and equipment SVG views over the same four process ports.",
+      "viewBox": "0 0 360 240",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "HX-101",
+          "description": "Heat exchanger tag."
+        },
+        {
+          "name": "active",
+          "property": "active",
+          "kind": "boolean",
+          "default": false,
+          "description": "Whether heat transfer duty is active."
+        },
+        {
+          "name": "hot-in",
+          "property": "hotIn",
+          "kind": "number",
+          "default": 0,
+          "step": 1,
+          "unit": "°C",
+          "description": "Hot-side inlet temperature."
+        },
+        {
+          "name": "hot-out",
+          "property": "hotOut",
+          "kind": "number",
+          "default": 0,
+          "step": 1,
+          "unit": "°C",
+          "description": "Hot-side outlet temperature."
+        },
+        {
+          "name": "cold-in",
+          "property": "coldIn",
+          "kind": "number",
+          "default": 0,
+          "step": 1,
+          "unit": "°C",
+          "description": "Cold-side inlet temperature."
+        },
+        {
+          "name": "cold-out",
+          "property": "coldOut",
+          "kind": "number",
+          "default": 0,
+          "step": 1,
+          "unit": "°C",
+          "description": "Cold-side outlet temperature."
+        },
+        {
+          "name": "hot-medium",
+          "property": "hotMedium",
+          "kind": "enum",
+          "default": "water",
+          "values": [
+            "water",
+            "steam",
+            "condensate",
+            "oil",
+            "fuel",
+            "gas",
+            "air",
+            "chemical",
+            "slurry",
+            "glycol"
+          ],
+          "description": "Hot stream medium."
+        },
+        {
+          "name": "cold-medium",
+          "property": "coldMedium",
+          "kind": "enum",
+          "default": "water",
+          "values": [
+            "water",
+            "steam",
+            "condensate",
+            "oil",
+            "fuel",
+            "gas",
+            "air",
+            "chemical",
+            "slurry",
+            "glycol"
+          ],
+          "description": "Cold stream medium."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Heat exchanger severity."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Telemetry quality."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual detail."
+        },
+        {
+          "name": "view",
+          "property": "view",
+          "kind": "enum",
+          "default": "equipment",
+          "values": [
+            "pid",
+            "flat",
+            "equipment"
+          ],
+          "description": "SVG visual family."
+        }
+      ],
+      "states": [
+        "active"
+      ],
+      "parts": [
+        {
+          "name": "body",
+          "detail": "essential"
+        },
+        {
+          "name": "operation-marker",
+          "detail": "essential"
+        },
+        {
+          "name": "status-outline",
+          "detail": "essential"
+        },
+        {
+          "name": "label",
+          "detail": "standard"
+        },
+        {
+          "name": "readout",
+          "detail": "standard"
+        }
+      ],
+      "ports": [
+        {
+          "id": "hot-in",
+          "x": 8,
+          "y": 80,
+          "direction": "left",
+          "kind": "process",
+          "role": "inlet",
+          "label": "Hot inlet"
+        },
+        {
+          "id": "hot-out",
+          "x": 352,
+          "y": 80,
+          "direction": "right",
+          "kind": "process",
+          "role": "outlet",
+          "label": "Hot outlet"
+        },
+        {
+          "id": "cold-in",
+          "x": 8,
+          "y": 160,
+          "direction": "left",
+          "kind": "process",
+          "role": "inlet",
+          "label": "Cold inlet"
+        },
+        {
+          "id": "cold-out",
+          "x": 352,
+          "y": 160,
+          "direction": "right",
+          "kind": "process",
+          "role": "outlet",
+          "label": "Cold outlet"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [],
+      "composition": []
+    },
+    {
+      "tagName": "pe-instrument",
+      "name": "Process instrument",
+      "description": "A generic ISA-style pressure, temperature, flow or level instrument with three SVG visual families.",
+      "viewBox": "0 0 240 210",
+      "dynamicViewBox": false,
+      "attributes": [
+        {
+          "name": "label",
+          "property": "label",
+          "kind": "string",
+          "default": "PT-101",
+          "description": "Instrument tag."
+        },
+        {
+          "name": "variable",
+          "property": "variable",
+          "kind": "enum",
+          "default": "pressure",
+          "values": [
+            "pressure",
+            "temperature",
+            "flow",
+            "level"
+          ],
+          "description": "Measured process variable."
+        },
+        {
+          "name": "function",
+          "property": "function",
+          "kind": "enum",
+          "default": "transmitter",
+          "values": [
+            "indicator",
+            "transmitter",
+            "controller",
+            "switch"
+          ],
+          "description": "Instrument function."
+        },
+        {
+          "name": "value",
+          "property": "value",
+          "kind": "number",
+          "default": 0,
+          "step": 0.1,
+          "description": "Measured value."
+        },
+        {
+          "name": "unit",
+          "property": "unit",
+          "kind": "string",
+          "default": "bar",
+          "description": "Engineering unit."
+        },
+        {
+          "name": "status",
+          "property": "status",
+          "kind": "enum",
+          "default": "normal",
+          "values": [
+            "normal",
+            "warning",
+            "alarm"
+          ],
+          "description": "Instrument severity."
+        },
+        {
+          "name": "quality",
+          "property": "quality",
+          "kind": "enum",
+          "default": "unknown",
+          "values": [
+            "unknown",
+            "good",
+            "stale",
+            "bad"
+          ],
+          "description": "Measurement quality."
+        },
+        {
+          "name": "detail",
+          "property": "detail",
+          "kind": "enum",
+          "default": "auto",
+          "values": [
+            "auto",
+            "full",
+            "compact",
+            "symbol"
+          ],
+          "description": "Visual detail."
+        },
+        {
+          "name": "view",
+          "property": "view",
+          "kind": "enum",
+          "default": "equipment",
+          "values": [
+            "pid",
+            "flat",
+            "equipment"
+          ],
+          "description": "SVG visual family."
+        }
+      ],
+      "states": [],
+      "parts": [
+        {
+          "name": "body",
+          "detail": "essential"
+        },
+        {
+          "name": "code",
+          "detail": "essential"
+        },
+        {
+          "name": "readout",
+          "detail": "essential"
+        },
+        {
+          "name": "quality-indicator",
+          "detail": "standard"
+        },
+        {
+          "name": "status-outline",
+          "detail": "essential"
+        },
+        {
+          "name": "full-label",
+          "detail": "standard"
+        }
+      ],
+      "ports": [
+        {
+          "id": "process",
+          "x": 8,
+          "y": 105,
+          "direction": "left",
+          "kind": "process",
+          "role": "bidirectional",
+          "label": "Process tap"
+        },
+        {
+          "id": "signal",
+          "x": 232,
+          "y": 105,
+          "direction": "right",
+          "kind": "signal",
+          "role": "outlet",
+          "label": "Instrument signal"
+        }
+      ],
+      "dynamicPorts": false,
+      "motions": [],
+      "composition": []
     },
     {
       "tagName": "pe-controller",

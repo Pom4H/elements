@@ -1,164 +1,97 @@
-import {
-  attribute,
-  bind,
-  defineElementDefinition,
-  defineFragment,
-  svg,
-  type FragmentPlacement,
-} from '@pom4h/elements-core';
+import { attribute, bind, defineElementDefinition, svg } from '@pom4h/elements-core';
 import { booleanValue, numberValue, stateValue, stringValue } from '../shared.js';
 
+const views = ['pid', 'flat', 'equipment'] as const;
+const details = ['auto', 'full', 'compact', 'symbol'] as const;
+const statuses = ['normal', 'warning', 'alarm'] as const;
+const qualities = ['unknown', 'good', 'stale', 'bad'] as const;
+
 const geometry = Object.freeze({
-  centerX: 160,
-  centerY: 145,
-  casingRadius: 78,
-  cavityRadius: 57,
-  windowRadius: 48,
-  statusRingRadius: 64,
-  impellerRadius: 36,
-  eyeRadius: 10,
-  suctionPortX: 10,
-  dischargePortX: 273,
-  dischargePortY: 31,
-  powerPortX: 474,
+  cx: 160,
+  cy: 145,
+  inX: 10,
+  outX: 273,
+  outY: 31,
+  powerX: 474,
 });
-
-function impellerVanes(count = 5): string {
-  return Array.from({ length: count }, (_, index) => (
-    `<g transform="rotate(${index * (360 / count)})">
-      <path class="vane" d="M8 -5 C20 -27 40 -43 62 -44 C58 -26 48 -9 31 7 C19 18 7 20 -2 12 C-7 7 -5 1 8 -5 Z"/>
-      <path class="vane-highlight" d="M13 -5 C26 -22 40 -31 52 -32"/>
-    </g>`
-  )).join('');
-}
-
-const hydraulic = defineFragment({
-  name: 'pump-hydraulic',
-  template: svg`
-<path class="base" d="M72 226 H458 L472 251 H58 Z"/>
-<rect class="base-rail" x="74" y="250" width="392" height="10" rx="4"/>
-
-<g data-part="process-body">
-  <path class="suction-nozzle" d="M24 132 H88 V158 H24 Z"/>
-  <rect class="flange" x="10" y="123" width="20" height="44" rx="3"/>
-  <circle class="bolt" cx="20" cy="132" r="2" data-detail="fine"/>
-  <circle class="bolt" cx="20" cy="158" r="2" data-detail="fine"/>
-
-  <circle class="casing" data-part="housing" cx="${geometry.centerX}" cy="${geometry.centerY}" r="${geometry.casingRadius}"/>
-  <path class="discharge-neck" d="M183 72 H248 Q266 72 266 90 V121 H246 V98 H198 Z"/>
-  <path class="discharge-nozzle" d="M246 98 H285 V72 H304 V119 H266 V145 H246 Z"/>
-  <rect class="flange" x="263" y="21" width="58" height="20" rx="3"/>
-  <path class="discharge-riser" d="M273 40 H311 V98 H273 Z"/>
-  <circle class="bolt" cx="273" cy="31" r="2" data-detail="fine"/>
-  <circle class="bolt" cx="311" cy="31" r="2" data-detail="fine"/>
-
-  <circle class="cavity" cx="${geometry.centerX}" cy="${geometry.centerY}" r="${geometry.cavityRadius}"/>
-  <circle class="inspection-window" data-part="inspection-window" cx="${geometry.centerX}" cy="${geometry.centerY}" r="${geometry.windowRadius}"/>
-  <circle class="window-ring" cx="${geometry.centerX}" cy="${geometry.centerY}" r="53" data-detail="fine"/>
-  <circle class="status-ring" data-part="status-ring" data-status-primary cx="${geometry.centerX}" cy="${geometry.centerY}" r="${geometry.statusRingRadius}"/>
-
-  <path class="volute-accent" d="M202 99 C229 112 241 138 237 166" data-detail="fine"/>
-  <path class="cutwater" d="M210 99 C235 82 250 62 257 40" data-detail="fine"/>
-</g>
-
-<path class="foot" d="M111 226 L122 205 H153 L161 226 Z"/>
-<path class="foot" d="M199 226 L210 207 H240 L249 226 Z"/>
-`,
-});
-
-const impeller = defineFragment({
-  name: 'pump-impeller',
-  template: svg`
-<g transform="translate(${geometry.centerX} ${geometry.centerY})">
-  <g class="rotor" data-part="rotor">
-    <circle class="impeller-shroud" r="${geometry.impellerRadius}"/>
-    ${impellerVanes()}
-    <circle class="eye-ring" r="19"/>
-    <circle class="eye" r="${geometry.eyeRadius}"/>
-  </g>
-</g>
-`,
-});
-
-const drive = defineFragment({
-  name: 'pump-drive',
-  template: svg`
-<path class="bearing" d="M232 129 H283 V161 H232 C240 151 240 139 232 129 Z"/>
-<rect class="shaft" x="273" y="139" width="44" height="12" rx="4" data-part="shaft"/>
-
-<g transform="translate(319 145)">
-  <g class="coupling" data-part="coupling">
-    <circle class="coupling-rim" r="13"/>
-    <circle class="coupling-hub" r="6"/>
-    <path class="coupling-mark" d="M-9 0 H9 M0 -9 V9"/>
-  </g>
-</g>
-
-<path class="guard" d="M302 119 H355 Q368 119 368 133 V157 Q368 171 355 171 H302 Z"/>
-<g class="guard-vents" data-detail="fine">
-  <circle cx="320" cy="132" r="2.4"/><circle cx="337" cy="132" r="2.4"/><circle cx="354" cy="132" r="2.4"/>
-  <circle cx="320" cy="145" r="2.4"/><circle cx="337" cy="145" r="2.4"/><circle cx="354" cy="145" r="2.4"/>
-  <circle cx="320" cy="158" r="2.4"/><circle cx="337" cy="158" r="2.4"/><circle cx="354" cy="158" r="2.4"/>
-</g>
-
-<g class="motor-group" data-part="motor-group">
-  <rect class="motor-shell" x="357" y="94" width="110" height="102" rx="20"/>
-  <path class="motor-end" d="M452 102 C478 117 488 132 488 145 C488 164 478 184 452 191 Z"/>
-  <g class="motor-fins">
-    <rect x="370" y="100" width="5" height="90" rx="2"/>
-    <rect x="383" y="98" width="5" height="94" rx="2"/>
-    <rect x="396" y="97" width="5" height="96" rx="2"/>
-    <rect x="409" y="97" width="5" height="96" rx="2"/>
-    <rect x="422" y="98" width="5" height="94" rx="2"/>
-    <rect x="435" y="100" width="5" height="90" rx="2"/>
-  </g>
-  <rect class="terminal-box" x="386" y="68" width="52" height="27" rx="5"/>
-  <rect class="terminal-lid" x="397" y="58" width="30" height="12" rx="3" data-detail="fine"/>
-  <path class="foot" d="M370 196 H400 L408 226 H362 Z"/>
-  <path class="foot" d="M428 196 H457 L466 226 H419 Z"/>
-</g>
-`,
-});
-
-const assembly: readonly FragmentPlacement[] = [
-  { key: 'hydraulic', fragment: hydraulic },
-  { key: 'impeller', fragment: impeller },
-  { key: 'drive', fragment: drive },
-];
 
 export const pumpDefinition = defineElementDefinition({
   tagName: 'pe-pump',
   displayName: 'End-suction centrifugal pump',
-  description: 'A horizontal end-suction pump with short equipment nozzles. The scene owns all external process piping and flow animation.',
+  description: 'A centrifugal pump with interchangeable P&ID, flat SCADA and equipment SVG views over one data, state and port contract.',
   viewBox: '0 0 510 290',
-  template: svg`<defs>
-<linearGradient id="pump-shell" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#506b82"/><stop offset=".5" stop-color="#2c4357"/><stop offset="1" stop-color="#172a3a"/></linearGradient>
-<radialGradient id="pump-cavity"><stop stop-color="#15364d"/><stop offset=".72" stop-color="#0a1c2b"/><stop offset="1" stop-color="#06121d"/></radialGradient>
-<linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8196a8"/><stop offset=".42" stop-color="#41586c"/><stop offset="1" stop-color="#1d3042"/></linearGradient>
-<linearGradient id="motor" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#405c75"/><stop offset=".52" stop-color="#263e53"/><stop offset="1" stop-color="#152a3b"/></linearGradient>
-<linearGradient id="guard" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#42596d"/><stop offset="1" stop-color="#1c2e3e"/></linearGradient>
-<linearGradient id="shaft" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#eef6fb"/><stop offset=".42" stop-color="#879bad"/><stop offset="1" stop-color="#304659"/></linearGradient>
-<radialGradient id="eye"><stop stop-color="#e5fbff"/><stop offset=".28" stop-color="#72d8ff"/><stop offset="1" stop-color="#166f9b"/></radialGradient>
-<filter id="cyan-glow" x="-100%" y="-100%" width="300%" height="300%"><feDropShadow dx="0" dy="0" stdDeviation="2.1" flood-color="#42caff" flood-opacity=".62"/></filter>
-<filter id="green-glow" x="-100%" y="-100%" width="300%" height="300%"><feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#56e29a" flood-opacity=".66"/></filter>
-<filter id="amber-glow" x="-100%" y="-100%" width="300%" height="300%"><feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#ffbe4a" flood-opacity=".62"/></filter>
-<filter id="red-glow" x="-100%" y="-100%" width="300%" height="300%"><feDropShadow dx="0" dy="0" stdDeviation="2.8" flood-color="#ff5c74" flood-opacity=".7"/></filter>
-</defs>
+  template: svg`
+<!-- P&ID: notation first. -->
+<g data-view="pid" class="view pid-view">
+  <path class="line" d="M10 145 H88"/>
+  <circle class="body" data-part="housing" cx="160" cy="145" r="62"/>
+  <path class="process-mark" d="M126 108 L207 145 L126 182 Z"/>
+  <path class="line" d="M201 101 H273 V31"/>
+  <path class="line secondary" d="M222 145 H327"/>
+  <circle class="drive" data-part="motor-group" cx="376" cy="145" r="43"/>
+  <text class="view-mark" x="376" y="153" text-anchor="middle">M</text>
+  <path class="line secondary" d="M419 145 H474"/>
+  <circle class="status-ring" data-part="status-ring" data-status-primary cx="160" cy="145" r="70"/>
+  <circle class="operation-dot" data-part="operation-marker" data-operation-marker cx="202" cy="99" r="6"/>
+</g>
 
-<g data-mount="assembly"/>
-<g class="tag-panel" transform="translate(118 238)" data-part="tag-panel">
-  <rect class="tag-plate" width="266" height="35" rx="7" data-detail="standard"/>
-  <rect class="status-strip" data-part="status-strip" data-operation-marker width="5" height="35" rx="2.5" data-detail="standard"/>
-  <circle class="quality-indicator" data-part="quality-indicator" data-quality-indicator cx="258" cy="8" r="3" data-detail="standard"/>
-  <text class="tag" x="16" y="22" data-detail="standard" data-part="label">P-101</text>
-  <text class="meta" data-quality-sensitive x="86" y="21" data-detail="standard" data-part="meta">END-SUCTION · 1450 RPM</text>
-  <text class="readout" data-quality-sensitive x="253" y="22" text-anchor="end" data-detail="standard" data-part="readout">6.2 BAR</text>
+<!-- Flat SCADA: same topology, stronger operational affordance. -->
+<g data-view="flat" class="view flat-view">
+  <path class="line" d="M10 145 H87"/>
+  <circle class="body" data-part="housing" cx="160" cy="145" r="70"/>
+  <circle class="inner" cx="160" cy="145" r="48"/>
+  <g transform="translate(160 145)">
+    <g data-part="rotor" class="rotor">
+      <path class="process-fill" d="M0 -32 L10 -8 L32 0 L10 8 L0 32 L-10 8 L-32 0 L-10 -8 Z"/>
+    </g>
+  </g>
+  <path class="line" d="M208 96 H273 V31"/>
+  <path class="shaft" d="M230 145 H330"/>
+  <rect class="drive" data-part="motor-group" x="330" y="105" width="96" height="80" rx="24"/>
+  <path class="line secondary" d="M426 145 H474"/>
+  <circle class="status-ring" data-part="status-ring" data-status-primary cx="160" cy="145" r="78"/>
+  <circle class="operation-dot" data-part="operation-marker" data-operation-marker cx="400" cy="119" r="7"/>
+</g>
+
+<!-- Equipment: recognizable machine, still flat enough to live beside symbols. -->
+<g data-view="equipment" class="view equipment-view">
+  <path class="base" d="M74 224 H444 L458 244 H60 Z"/>
+  <path class="fitting" d="M10 128 H88 V162 H10 Z"/>
+  <circle class="body" data-part="housing" cx="160" cy="145" r="76"/>
+  <path class="body" d="M186 82 H250 Q268 82 268 100 V124 H244 V105 H201 Z"/>
+  <path class="fitting" d="M254 96 H286 V41 H306 V122 H268 V145 H244 V116 H254 Z"/>
+  <rect class="fitting" x="263" y="22" width="56" height="18" rx="3"/>
+  <circle class="inner" cx="160" cy="145" r="49"/>
+  <g transform="translate(160 145)">
+    <g data-part="rotor" class="rotor">
+      <path class="process-fill" d="M0 -34 C12 -25 21 -13 26 0 C16 4 8 13 0 28 C-9 15 -18 7 -29 2 C-22 -12 -12 -24 0 -34 Z"/>
+    </g>
+  </g>
+  <path class="shaft" d="M209 145 H337"/>
+  <rect class="drive" data-part="motor-group" x="337" y="98" width="113" height="94" rx="20"/>
+  <path class="drive-line" d="M354 111 V179 M370 106 V184 M386 104 V186 M402 104 V186 M418 106 V184 M434 111 V179"/>
+  <rect class="fitting" x="372" y="72" width="48" height="26" rx="5"/>
+  <path class="line secondary" d="M450 145 H474"/>
+  <circle class="status-ring" data-part="status-ring" data-status-primary cx="160" cy="145" r="84"/>
+  <circle class="operation-dot" data-part="operation-marker" data-operation-marker cx="422" cy="115" r="7"/>
+</g>
+
+<g class="tag-panel" data-part="tag-panel" transform="translate(118 250)" data-detail="standard">
+  <rect class="panel" width="266" height="30" rx="5"/>
+  <rect class="operation-strip" data-part="status-strip" data-operation-marker width="4" height="30" rx="2"/>
+  <text class="tag" x="14" y="20" data-part="label">P-101</text>
+  <text class="meta" x="84" y="19" data-part="meta">1450 RPM</text>
+  <text class="readout" x="252" y="20" text-anchor="end" data-part="readout" data-quality-sensitive>6.2 BAR</text>
+  <circle class="quality" data-part="quality-indicator" data-quality-indicator cx="258" cy="7" r="3"/>
 </g>
 `,
   styles: `
-:host{display:inline-block;width:510px;max-width:100%;aspect-ratio:51/29;color:var(--elements-ink,#dbe7f3);container-type:inline-size;contain:layout style}svg{width:100%;height:100%;overflow:visible}
-.base,.base-rail,.foot{fill:#152637;stroke:#627b90;stroke-width:1.3}.suction-nozzle,.discharge-neck,.discharge-nozzle,.discharge-riser,.bearing{fill:url(#steel);stroke:#a9bbc9;stroke-width:1.5}.flange{fill:url(#steel);stroke:#c0ccd6;stroke-width:1.7}.bolt{fill:#263a4d;stroke:#bbc9d4;stroke-width:.7}.casing{fill:url(#pump-shell);stroke:#a7bac9;stroke-width:2.2}.cavity{fill:url(#pump-cavity);stroke:#708ba1;stroke-width:1.5}.inspection-window{fill:#071521;stroke:#6d8aa1;stroke-width:1.5}.window-ring{fill:none;stroke:#9db4c6;stroke-opacity:.42;stroke-width:1}.status-ring{fill:none;stroke:#56e29a;stroke-width:2.5;opacity:.76;filter:url(#green-glow)}.volute-accent{fill:none;stroke:#5ed2ff;stroke-opacity:.2;stroke-width:7;stroke-linecap:round}.cutwater{fill:none;stroke:#8adfff;stroke-opacity:.45;stroke-width:3;stroke-linecap:round}.rotor{transform-box:fill-box;transform-origin:center;opacity:.72}.impeller-shroud{fill:#102d43;stroke:#45a8ce;stroke-width:1.2}.vane{fill:#42c9f2;fill-opacity:.24;stroke:#5ed2ff;stroke-width:1.8}.vane-highlight{fill:none;stroke:#b8f3ff;stroke-opacity:.74;stroke-width:1.2}.eye-ring{fill:none;stroke:#50d2ff;stroke-opacity:.4;stroke-width:2}.eye{fill:url(#eye);stroke:#d1f4ff;stroke-width:1.1}.shaft{fill:url(#shaft);stroke:#c8d4dd;stroke-width:1}.coupling{transform-box:fill-box;transform-origin:center;opacity:.75}.coupling-rim{fill:url(#steel);stroke:#c0ced9;stroke-width:1.2}.coupling-hub{fill:#071521;stroke:#7390a5;stroke-width:1}.coupling-mark{fill:none;stroke:#8edfff;stroke-width:1.3}.guard{fill:url(#guard);stroke:#8ca2b5;stroke-width:1.4}.guard-vents circle{fill:#091622}.motor-group{transform-box:fill-box;transform-origin:center}.motor-shell{fill:url(#motor);stroke:#93a9bc;stroke-width:1.8}.motor-end{fill:#203449;stroke:#7890a5;stroke-width:1.3}.motor-fins rect{fill:#2a4054;stroke:#6f879a;stroke-width:.75}.terminal-box,.terminal-lid{fill:#142638;stroke:#748da3;stroke-width:1.2}.tag-plate{fill:#07121e;stroke:#4e6579;stroke-width:1}.status-strip{fill:#52687b}.quality-indicator{fill:#72869a;stroke:#a8b7c5;stroke-width:.6}.tag{fill:#edf4fa;font:700 14px/1 ui-monospace,monospace;letter-spacing:.08em}.meta{fill:#72889d;font:600 7px/1 ui-monospace,monospace;letter-spacing:.09em}.readout{fill:#71d8ff;font:700 10px/1 ui-monospace,monospace}[data-quality-sensitive]{opacity:.42}
-:host([data-state~="running"]) .rotor,:host([data-state~="running"]) .coupling{opacity:1}:host([data-state~="running"]) .status-strip{fill:var(--elements-ok,#56e29a);filter:url(#green-glow)}:host([status="warning"]) .status-ring{stroke:var(--elements-warning,#ffbe4a);filter:url(#amber-glow)}:host([status="alarm"]) .status-ring{stroke:var(--elements-alarm,#ff5c74);filter:url(#red-glow)}:host([quality="good"]) [data-quality-sensitive]{opacity:1}:host([quality="stale"]) [data-quality-sensitive]{opacity:.62}:host([quality="bad"]) [data-quality-sensitive]{opacity:.26}:host([quality="good"]) [data-quality-indicator]{fill:var(--elements-ok,#56e29a);stroke:#baffd8}:host([quality="stale"]) [data-quality-indicator]{fill:var(--elements-warning,#ffbe4a);stroke:#ffe1a4}:host([quality="bad"]) [data-quality-indicator]{fill:var(--elements-alarm,#ff5c74);stroke:#ffc0ca}:host([detail="compact"]) [data-detail="fine"],:host([detail="symbol"]) [data-detail]{display:none}:host([detail="symbol"]) text{display:none}@container(max-width:460px){[data-detail="fine"]{display:none}}@container(max-width:300px){[data-detail="standard"]{display:none}.status-ring{stroke-width:3.5}.casing{stroke-width:2.8}}
+:host{display:inline-block;width:510px;max-width:100%;aspect-ratio:51/29;color:var(--elements-ink,#dbe7f3);container-type:inline-size;contain:layout style;--eq-body:var(--elements-equipment-body,#31485a);--eq-body-2:var(--elements-equipment-body-alt,#3d566a);--eq-stroke:var(--elements-equipment-stroke,#9aafbd);--eq-line:var(--elements-line,#8095a4);--eq-panel:var(--elements-panel,#0d1922);--eq-muted:var(--elements-muted,#7890a1);--eq-process:var(--elements-process,#43bce8)}
+svg{width:100%;height:100%;overflow:visible}.view{display:none}:host(:not([view])) .equipment-view,:host([view="equipment"]) .equipment-view,:host([view="flat"]) .flat-view,:host([view="pid"]) .pid-view{display:inline}
+.body{fill:var(--eq-body);stroke:var(--eq-stroke);stroke-width:2}.inner{fill:color-mix(in srgb,var(--eq-body) 72%,#000);stroke:var(--eq-line);stroke-width:1.4}.fitting,.drive{fill:var(--eq-body-2);stroke:var(--eq-stroke);stroke-width:1.6}.drive-line{fill:none;stroke:var(--eq-line);stroke-width:2}.base{fill:var(--eq-body);stroke:var(--eq-line);stroke-width:1.4}.line,.shaft{fill:none;stroke:var(--eq-line);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.line.secondary{stroke-width:2}.process-mark{fill:none;stroke:var(--eq-stroke);stroke-width:3;stroke-linejoin:round}.process-fill{fill:var(--eq-process);stroke:color-mix(in srgb,var(--eq-process) 70%,white);stroke-width:1.5}.rotor{transform-box:fill-box;transform-origin:center;opacity:.32}.view-mark{fill:currentColor;font:800 26px/1 ui-monospace,monospace}.status-ring{fill:none;stroke:transparent;stroke-width:3}.operation-dot,.operation-strip{fill:var(--eq-muted)}.panel{fill:var(--eq-panel);stroke:var(--eq-line);stroke-width:1}.tag{fill:currentColor;font:700 13px/1 ui-monospace,monospace;letter-spacing:.06em}.meta{fill:var(--eq-muted);font:650 8px/1 ui-monospace,monospace}.readout{fill:var(--eq-process);font:750 10px/1 ui-monospace,monospace}.quality{fill:var(--eq-muted)}[data-quality-sensitive]{opacity:.4}
+:host([view="pid"]) .tag-panel .panel{fill:transparent;stroke:none}:host([view="pid"]) .tag-panel .operation-strip,:host([view="pid"]) .tag-panel .meta,:host([view="pid"]) .tag-panel .readout,:host([view="pid"]) .tag-panel .quality{display:none}
+:host([data-state~="running"]) .rotor{opacity:1}:host([data-state~="running"]) .operation-dot,:host([data-state~="running"]) .operation-strip{fill:var(--elements-ok,#56e29a)}:host([status="warning"]) .status-ring{stroke:var(--elements-warning,#ffbe4a)}:host([status="alarm"]) .status-ring{stroke:var(--elements-alarm,#ff5c74)}:host([quality="good"]) [data-quality-sensitive]{opacity:1}:host([quality="stale"]) [data-quality-sensitive]{opacity:.62}:host([quality="bad"]) [data-quality-sensitive]{opacity:.26}:host([quality="good"]) .quality{fill:var(--elements-ok,#56e29a)}:host([quality="stale"]) .quality{fill:var(--elements-warning,#ffbe4a)}:host([quality="bad"]) .quality{fill:var(--elements-alarm,#ff5c74)}
+:host([detail="compact"]) [data-detail="fine"],:host([detail="symbol"]) [data-detail]{display:none}:host([detail="symbol"]) text{display:none}@container(max-width:300px){[data-detail="standard"]{display:none}.status-ring{stroke-width:4}}
 `,
   attributes: {
     label: attribute.string('label', { defaultValue: 'P-101', description: 'Equipment label.' }),
@@ -166,70 +99,36 @@ export const pumpDefinition = defineElementDefinition({
     speed: attribute.number('speed', { defaultValue: 0, cssVariable: '--pump-speed', description: 'Shaft speed in rpm.' }),
     value: attribute.number('value', { defaultValue: 0, description: 'Primary process value.' }),
     unit: attribute.string('unit', { defaultValue: 'bar', description: 'Primary process value unit.' }),
-    status: attribute.enum('status', ['normal', 'warning', 'alarm'] as const, { defaultValue: 'normal', description: 'Severity independent from operation and data quality.' }),
-    quality: attribute.enum('quality', ['unknown', 'good', 'stale', 'bad'] as const, { defaultValue: 'unknown', description: 'Telemetry quality independent from process severity.' }),
-    detail: attribute.enum('detail', ['auto', 'full', 'compact', 'symbol'] as const, { defaultValue: 'auto', description: 'Visual level of detail.' }),
+    status: attribute.enum('status', statuses, { defaultValue: 'normal', description: 'Severity independent from operation and data quality.' }),
+    quality: attribute.enum('quality', qualities, { defaultValue: 'unknown', description: 'Telemetry quality independent from process severity.' }),
+    detail: attribute.enum('detail', details, { defaultValue: 'auto', description: 'Visual level of detail.' }),
+    view: attribute.enum('view', views, { defaultValue: 'equipment', description: 'SVG visual family. Does not change data, states, motions or ports.' }),
   },
   states: {
     running: (context) => booleanValue(context, 'running') && numberValue(context, 'speed') > 0,
   },
-  collections: [{ mount: 'assembly', items: () => assembly }],
   bindings: [
     bind.text('label', (context) => stringValue(context, 'label'), ['label']),
     bind.text('readout', (context) => `${numberValue(context, 'value').toFixed(1)} ${stringValue(context, 'unit').toUpperCase()}`, ['value', 'unit']),
-    bind.text('meta', (context) => `END-SUCTION · ${Math.round(numberValue(context, 'speed'))} RPM`, ['speed']),
+    bind.text('meta', (context) => `${Math.round(numberValue(context, 'speed'))} RPM`, ['speed']),
   ],
   motions: [
-    {
-      id: 'rotor-spin', type: 'loop', target: 'rotor',
-      active: (context) => stateValue(context, 'running'),
-      playbackRate: (context) => Math.max(.08, numberValue(context, 'speed') / 1450),
-      phase: 'process-mechanical',
-      keyframes: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
-      options: { duration: 1350, iterations: Infinity, easing: 'linear' }, reducedMotion: 'freeze',
-    },
-    {
-      id: 'coupling-spin', type: 'loop', target: 'coupling',
-      active: (context) => stateValue(context, 'running'),
-      playbackRate: (context) => Math.max(.08, numberValue(context, 'speed') / 1450),
-      phase: 'process-mechanical',
-      keyframes: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
-      options: { duration: 1350, iterations: Infinity, easing: 'linear' }, reducedMotion: 'freeze',
-    },
-    {
-      id: 'motor-hum', type: 'loop', target: 'motor-group',
-      active: (context) => stateValue(context, 'running'),
-      playbackRate: (context) => Math.max(.2, numberValue(context, 'speed') / 1450),
-      keyframes: [{ transform: 'translateY(-0.12px)' }, { transform: 'translateY(0.12px)' }],
-      options: { duration: 120, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }, reducedMotion: 'freeze',
-    },
-    {
-      id: 'start-status', type: 'transition', target: 'status-strip',
-      trigger: (context) => stateValue(context, 'running'), enabled: (context) => stateValue(context, 'running'),
-      keyframes: [{ opacity: .25 }, { opacity: 1 }, { opacity: .72 }, { opacity: 1 }],
-      options: { duration: 360, easing: 'ease-out' }, reducedMotion: 'finish',
-    },
-    {
-      id: 'severity-change', type: 'transition', target: 'status-ring',
-      trigger: (context) => stringValue(context, 'status'),
-      enabled: (context) => stringValue(context, 'status') !== 'normal',
-      keyframes: [{ opacity: .35 }, { opacity: 1 }, { opacity: .72 }, { opacity: 1 }],
-      options: { duration: 420, easing: 'ease-out' }, reducedMotion: 'finish',
-    },
+    { id: 'rotor-spin', type: 'loop', target: 'rotor', active: (context) => stateValue(context, 'running'), playbackRate: (context) => Math.max(.08, numberValue(context, 'speed') / 1450), phase: 'process-mechanical', keyframes: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], options: { duration: 1350, iterations: Infinity, easing: 'linear' }, reducedMotion: 'freeze' },
+    { id: 'start-status', type: 'transition', target: 'status-strip', trigger: (context) => stateValue(context, 'running'), enabled: (context) => stateValue(context, 'running'), keyframes: [{ opacity: .35 }, { opacity: 1 }], options: { duration: 260, easing: 'ease-out' }, reducedMotion: 'finish' },
+    { id: 'severity-change', type: 'transition', target: 'status-ring', trigger: (context) => stringValue(context, 'status'), enabled: (context) => stringValue(context, 'status') !== 'normal', keyframes: [{ opacity: .35 }, { opacity: 1 }], options: { duration: 360, easing: 'ease-out' }, reducedMotion: 'finish' },
   ],
   ports: [
-    { id: 'in', x: geometry.suctionPortX, y: geometry.centerY, direction: 'left', kind: 'process' },
-    { id: 'out', x: geometry.dischargePortX, y: geometry.dischargePortY, direction: 'top', kind: 'process' },
-    { id: 'power', x: geometry.powerPortX, y: geometry.centerY, direction: 'right', kind: 'electrical' },
+    { id: 'in', x: geometry.inX, y: geometry.cy, direction: 'left', kind: 'process', role: 'inlet' },
+    { id: 'out', x: geometry.outX, y: geometry.outY, direction: 'top', kind: 'process', role: 'outlet' },
+    { id: 'power', x: geometry.powerX, y: geometry.cy, direction: 'right', kind: 'electrical', role: 'inlet' },
   ],
   parts: [
-    { name: 'housing', description: 'Pump casing. External pipes are scene-owned.', detail: 'essential' },
-    { name: 'inspection-window', description: 'Circular impeller inspection window.', detail: 'essential' },
-    { name: 'rotor', description: 'Shrouded impeller with curved vanes.', detail: 'essential' },
-    { name: 'coupling', description: 'Shaft coupling aligned with the impeller timeline.', detail: 'essential' },
-    { name: 'motor-group', description: 'Electric motor assembly.', detail: 'essential' },
-    { name: 'status-ring', description: 'Primary severity indicator.', detail: 'essential' },
-    { name: 'status-strip', description: 'Running-state marker.', detail: 'standard' },
+    { name: 'housing', description: 'Pump body in every visual family.', detail: 'essential' },
+    { name: 'rotor', description: 'Operation motion target where the selected view exposes one.', detail: 'standard' },
+    { name: 'motor-group', description: 'Drive representation.', detail: 'essential' },
+    { name: 'status-ring', description: 'Severity outline.', detail: 'essential' },
+    { name: 'operation-marker', description: 'Running-state marker.', detail: 'essential' },
+    { name: 'status-strip', description: 'Running-state marker in the tag.', detail: 'standard' },
     { name: 'quality-indicator', description: 'Telemetry quality marker.', detail: 'standard' },
     { name: 'label', detail: 'standard' },
     { name: 'readout', detail: 'standard' },
