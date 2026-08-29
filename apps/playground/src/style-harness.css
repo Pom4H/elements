@@ -1,0 +1,110 @@
+@import './light-theme-tuning.css';
+
+:root {
+  color-scheme: light;
+  --board-bg: #eef2f4;
+  --board-panel: #ffffff;
+  --board-border: #d9e1e6;
+  --board-text: #20303a;
+  --board-muted: #778791;
+  --board-grid-major: #e7ecef;
+  --board-grid-minor: #f3f5f6;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--board-bg);
+  color: var(--board-text);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --board-bg: #071018;
+  --board-panel: #0a141c;
+  --board-border: #203441;
+  --board-text: #d9e4eb;
+  --board-muted: #7d92a1;
+  --board-grid-major: #152a36;
+  --board-grid-minor: #0d1d26;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: var(--board-bg); color: var(--board-text); }
+button, select { font: inherit; }
+
+.board-header {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 18px;
+  border-bottom: 1px solid var(--board-border);
+  background: var(--board-panel);
+}
+.board-header > div:first-child { display: grid; gap: 2px; }
+.board-header strong { font-size: 14px; }
+.board-header small { color: var(--board-muted); font-size: 11px; }
+.board-actions { display: flex; align-items: center; gap: 8px; }
+.board-actions label { display: flex; align-items: center; gap: 6px; color: var(--board-muted); font-size: 10px; }
+.board-actions select,
+.board-actions button {
+  height: 32px;
+  border: 1px solid var(--board-border);
+  border-radius: 6px;
+  background: var(--board-panel);
+  color: var(--board-text);
+  padding: 0 10px;
+}
+.board-actions button { cursor: pointer; }
+
+main { padding: 14px; }
+.style-board {
+  max-width: 1900px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 228px;
+  gap: 10px;
+}
+.style-cell {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding: 26px 14px 10px;
+  border: 1px solid var(--board-border);
+  border-radius: 8px;
+  background:
+    linear-gradient(var(--board-grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--board-grid-major) 1px, transparent 1px),
+    linear-gradient(var(--board-grid-minor) 1px, transparent 1px),
+    linear-gradient(90deg, var(--board-grid-minor) 1px, transparent 1px),
+    var(--board-panel);
+  background-size: 48px 48px, 48px 48px, 12px 12px, 12px 12px, auto;
+}
+.style-cell::before {
+  content: attr(data-family) " · " attr(data-state);
+  position: absolute;
+  top: 9px;
+  left: 11px;
+  color: var(--board-muted);
+  font: 700 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* The board equalises optical footprint only. It does not restyle internals. */
+.style-cell > pe-tank { width: 158px; }
+.style-cell > pe-pump { width: 238px; }
+.style-cell > pe-control-valve { width: 170px; }
+.style-cell > pe-controller { width: 250px; }
+
+@media (max-width: 1280px) {
+  .style-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 680px) {
+  .board-header { align-items: flex-start; flex-direction: column; }
+  .style-board { grid-template-columns: 1fr; }
+  main { padding: 8px; }
+}

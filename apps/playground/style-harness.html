@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Elements style board</title>
+  </head>
+  <body>
+    <header class="board-header">
+      <div>
+        <strong>Elements style board</strong>
+        <small>4 × 4 · family × state</small>
+      </div>
+      <div class="board-actions">
+        <label>
+          Theme
+          <select id="theme-select">
+            <option value="light">light</option>
+            <option value="dark">dark</option>
+          </select>
+        </label>
+        <button id="motion-toggle" type="button">Resume motion</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="style-board" id="style-board" aria-label="Process element style board">
+        <article class="style-cell studio-scene" data-family="tank" data-state="normal"><pe-tank label="T-101" level="64" temperature="24" pressure="1.2" capacity="45" nozzles="2" medium="water" status="normal" quality="good" detail="full"></pe-tank></article>
+        <article class="style-cell studio-scene" data-family="tank" data-state="active"><pe-tank label="T-102" level="78" temperature="48" pressure="1.8" capacity="45" nozzles="2" medium="water" agitator agitator-speed="55" status="normal" quality="good" detail="full"></pe-tank></article>
+        <article class="style-cell studio-scene" data-family="tank" data-state="warning"><pe-tank label="T-103" level="12" low-limit="18" low-alarm="5" temperature="18" pressure="0.6" capacity="45" nozzles="2" medium="water" status="warning" quality="good" detail="full"></pe-tank></article>
+        <article class="style-cell studio-scene" data-family="tank" data-state="alarm"><pe-tank label="T-104" level="97" high-limit="85" high-alarm="95" temperature="68" pressure="3.1" capacity="45" nozzles="2" medium="water" status="alarm" quality="good" detail="full"></pe-tank></article>
+
+        <article class="style-cell studio-scene" data-family="pump" data-state="standby"><pe-pump label="P-101" speed="0" value="0" unit="bar" status="normal" quality="good" detail="full"></pe-pump></article>
+        <article class="style-cell studio-scene" data-family="pump" data-state="active"><pe-pump label="P-102" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" detail="full"></pe-pump></article>
+        <article class="style-cell studio-scene" data-family="pump" data-state="warning"><pe-pump label="P-103" running speed="1180" value="4.1" unit="bar" status="warning" quality="good" detail="full"></pe-pump></article>
+        <article class="style-cell studio-scene" data-family="pump" data-state="alarm"><pe-pump label="P-104" running speed="960" value="8.7" unit="bar" status="alarm" quality="good" detail="full"></pe-pump></article>
+
+        <article class="style-cell studio-scene" data-family="control valve" data-state="closed"><pe-control-valve label="FV-101" position="0" command="0" powered status="normal" quality="good" detail="full"></pe-control-valve></article>
+        <article class="style-cell studio-scene" data-family="control valve" data-state="active"><pe-control-valve label="FV-102" position="68" command="68" powered status="normal" quality="good" detail="full"></pe-control-valve></article>
+        <article class="style-cell studio-scene" data-family="control valve" data-state="warning"><pe-control-valve label="FV-103" position="46" command="75" powered stuck status="warning" quality="good" detail="full"></pe-control-valve></article>
+        <article class="style-cell studio-scene" data-family="control valve" data-state="alarm"><pe-control-valve label="FV-104" position="18" command="82" powered stuck status="alarm" quality="good" detail="full"></pe-control-valve></article>
+
+        <article class="style-cell studio-scene" data-family="controller" data-state="idle"><pe-controller label="PLC-01" inputs="8" outputs="8" load="12" scan-rate="18" status="normal" quality="good" detail="full"></pe-controller></article>
+        <article class="style-cell studio-scene" data-family="controller" data-state="active"><pe-controller label="PLC-02" running inputs="8" outputs="8" input-state="10110101" output-state="11001010" load="62" scan-rate="10" activity="1" status="normal" quality="good" detail="full"></pe-controller></article>
+        <article class="style-cell studio-scene" data-family="controller" data-state="warning"><pe-controller label="PLC-03" running inputs="8" outputs="8" input-state="11110101" output-state="11001010" load="84" scan-rate="24" status="warning" quality="good" detail="full"></pe-controller></article>
+        <article class="style-cell studio-scene" data-family="controller" data-state="alarm"><pe-controller label="PLC-04" running inputs="8" outputs="8" input-state="11111111" output-state="00000000" load="98" scan-rate="55" status="alarm" quality="good" detail="full"></pe-controller></article>
+      </section>
+    </main>
+
+    <script type="module" src="./src/style-harness.ts"></script>
+  </body>
+</html>
