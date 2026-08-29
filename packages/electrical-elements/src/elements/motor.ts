@@ -31,7 +31,7 @@ export const motorDefinition = defineElementDefinition({
 <g class="view flat-view">
   <path class="wire" d="M8 110 H74"/>
   <circle class="body" data-part="body" cx="148" cy="110" r="58"/>
-  <g class="rotor" data-part="rotor" transform="translate(148 110)"><path d="M0 -26 L8 -8 L26 0 L8 8 L0 26 L-8 8 L-26 0 L-8 -8 Z"/></g>
+  <g transform="translate(148 110)"><g class="rotor" data-part="rotor"><path d="M0 -26 L8 -8 L26 0 L8 8 L0 26 L-8 8 L-26 0 L-8 -8 Z"/></g></g>
   <path class="shaft" d="M206 110 H270"/>
   <rect class="shaft" x="270" y="104" width="39" height="12" rx="4"/>
   <circle class="status-ring status-primary" data-part="status-ring" cx="148" cy="110" r="66"/>
@@ -43,7 +43,7 @@ export const motorDefinition = defineElementDefinition({
   <rect class="body" data-part="body" x="62" y="62" width="156" height="96" rx="42"/>
   <path class="case-line" d="M84 72 V148 M106 66 V154 M128 64 V156 M150 64 V156 M172 66 V154 M194 72 V148"/>
   <circle class="end-cap" cx="205" cy="110" r="40"/>
-  <g class="rotor" data-part="rotor" transform="translate(110 110)"><path d="M0 -22 L8 -7 L22 0 L8 7 L0 22 L-8 7 L-22 0 L-8 -7 Z"/></g>
+  <g transform="translate(110 110)"><g class="rotor" data-part="rotor"><path d="M0 -22 L8 -7 L22 0 L8 7 L0 22 L-8 7 L-22 0 L-8 -7 Z"/></g></g>
   <path class="shaft" d="M218 110 H270"/>
   <rect class="shaft" x="270" y="104" width="39" height="12" rx="4"/>
   <rect class="fitting" x="112" y="42" width="54" height="24" rx="5"/>
@@ -52,12 +52,12 @@ export const motorDefinition = defineElementDefinition({
   <circle class="state-dot" data-part="state-dot" cx="205" cy="64" r="6"/>
 </g>
 
-<g data-detail="standard">
+<g class="tag-panel" data-detail="standard">
   <rect class="panel" x="72" y="184" width="164" height="34" rx="5"/>
   <text class="label" data-part="label" x="84" y="199">M-101</text>
   <text class="readout" data-part="readout" data-quality-sensitive x="84" y="213">1450 RPM · 12.4 A</text>
 </g>
-<g data-detail="fine" data-quality-sensitive>
+<g class="load-panel" data-detail="fine" data-quality-sensitive>
   <rect class="load-track" x="238" y="190" width="70" height="6" rx="3"/>
   <rect class="load-bar" data-part="load-bar" x="238" y="190" width="70" height="6" rx="3"/>
   <text class="meta" data-part="load-label" x="273" y="211" text-anchor="middle">72% LOAD</text>
@@ -65,7 +65,7 @@ export const motorDefinition = defineElementDefinition({
 `,
   styles: `
 ${electricalBaseStyles}
-:host{width:320px;aspect-ratio:16/11;--eq-body:var(--elements-equipment-body,#31485a);--eq-body-2:var(--elements-equipment-body-alt,#3d566a);--eq-stroke:var(--elements-equipment-stroke,#9aafbd);--eq-line:var(--elements-line,#8095a4);--eq-panel:var(--elements-panel,#0d1922);--eq-live:var(--elements-electric-live,#ffd166)}.view{display:none}:host(:not([view])) .equipment-view,:host([view="equipment"]) .equipment-view,:host([view="flat"]) .flat-view,:host([view="pid"]) .pid-view{display:inline}.body{fill:var(--eq-body);stroke:var(--eq-stroke);stroke-width:2}.end-cap,.fitting{fill:var(--eq-body-2);stroke:var(--eq-stroke);stroke-width:1.5}.case-line{fill:none;stroke:var(--eq-line);stroke-width:2}.foot{fill:var(--eq-body);stroke:var(--eq-line);stroke-width:1.2}.mark{fill:currentColor;font:900 28px/1 ui-monospace,monospace}.rotor{fill:var(--eq-live);transform-box:fill-box;transform-origin:center;opacity:.25}.shaft{fill:none;stroke:var(--eq-line);stroke-width:4;stroke-linecap:round}.status-ring{fill:none;stroke:transparent;stroke-width:3}.state-dot{fill:var(--elements-muted,#7890a5)}.load-track{fill:var(--eq-panel);stroke:var(--eq-line);stroke-width:1}.load-bar{fill:var(--eq-live);transform-box:view-box;transform-origin:238px 193px}
+:host{width:320px;aspect-ratio:16/11;--eq-body:var(--elements-equipment-body,#31485a);--eq-body-2:var(--elements-equipment-body-alt,#3d566a);--eq-stroke:var(--elements-equipment-stroke,#9aafbd);--eq-line:var(--elements-line,#8095a4);--eq-panel:var(--elements-panel,#0d1922);--eq-live:var(--elements-electric-live,#ffd166)}.view{display:none}:host(:not([view])) .equipment-view,:host([view="equipment"]) .equipment-view,:host([view="flat"]) .flat-view,:host([view="pid"]) .pid-view{display:inline}.body{fill:var(--eq-body);stroke:var(--eq-stroke);stroke-width:2}.end-cap,.fitting{fill:var(--eq-body-2);stroke:var(--eq-stroke);stroke-width:1.5}.case-line{fill:none;stroke:var(--eq-line);stroke-width:2}.foot{fill:var(--eq-body);stroke:var(--eq-line);stroke-width:1.2}.mark{fill:currentColor;font:900 28px/1 ui-monospace,monospace}.rotor{fill:var(--eq-live);transform-box:fill-box;transform-origin:center;opacity:.25}.shaft{fill:none;stroke:var(--eq-line);stroke-width:4;stroke-linecap:round}.status-ring{fill:none;stroke:transparent;stroke-width:3}.state-dot{fill:var(--elements-muted,#7890a5)}.load-track{fill:var(--eq-panel);stroke:var(--eq-line);stroke-width:1}.load-bar{fill:var(--eq-live);transform-box:view-box;transform-origin:238px 193px}:host([view="pid"]) .tag-panel .panel{fill:transparent;stroke:none}:host([view="pid"]) .tag-panel .readout,:host([view="pid"]) .load-panel{display:none}
 :host([data-state~="running"]) .rotor{opacity:1}:host([data-state~="running"]) .state-dot{fill:var(--elements-ok,#56e29a)}:host([data-state~="overloaded"]) .load-bar{fill:var(--elements-warning,#ffbe4a)}:host([status="warning"]) .status-ring{stroke:var(--elements-warning,#ffbe4a)}:host([status="alarm"]) .status-ring{stroke:var(--elements-alarm,#ff5c74)}
 `,
   attributes: {
