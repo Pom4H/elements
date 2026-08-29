@@ -19,6 +19,7 @@ jobs:
         with:
           bun-version: 1.3.14
       - run: bun install --frozen-lockfile
+      - run: bun run build
       - name: Sync generated manifests and restore check mode
         run: |
           bun run registry:sync
