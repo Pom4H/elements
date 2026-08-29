@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex,nofollow" />
     <meta name="color-scheme" content="light dark" />
-    <title>Elements style board</title>
+    <title>Common SCADA element board</title>
   </head>
   <body>
     <header class="board-header">
       <div>
-        <strong>Elements style board</strong>
-        <small>4 × 4 · family × state</small>
+        <strong>Common SCADA elements</strong>
+        <small>actual custom elements · process · P&amp;ID · electrical · connections</small>
       </div>
       <div class="board-actions">
         <label>
@@ -26,26 +26,55 @@
     </header>
 
     <main>
-      <section class="style-board" id="style-board" aria-label="Process element style board">
-        <article class="style-cell studio-scene" data-family="tank" data-state="normal"><pe-tank label="T-101" level="64" temperature="24" pressure="1.2" capacity="45" nozzles="2" medium="water" status="normal" quality="good" detail="full"></pe-tank></article>
-        <article class="style-cell studio-scene" data-family="tank" data-state="active"><pe-tank label="T-102" level="78" temperature="48" pressure="1.8" capacity="45" nozzles="2" medium="water" agitator agitator-speed="55" status="normal" quality="good" detail="full"></pe-tank></article>
-        <article class="style-cell studio-scene" data-family="tank" data-state="warning"><pe-tank label="T-103" level="12" low-limit="18" low-alarm="5" temperature="18" pressure="0.6" capacity="45" nozzles="2" medium="water" status="warning" quality="good" detail="full"></pe-tank></article>
-        <article class="style-cell studio-scene" data-family="tank" data-state="alarm"><pe-tank label="T-104" level="97" high-limit="85" high-alarm="95" temperature="68" pressure="3.1" capacity="45" nozzles="2" medium="water" status="alarm" quality="good" detail="full"></pe-tank></article>
+      <section class="style-board" id="style-board" aria-label="Common SCADA element style board">
+        <article class="style-cell studio-scene" data-family="storage tank" data-kind="process"><pe-tank label="T-101" level="68" temperature="24" pressure="1.2" capacity="45" nozzles="2" medium="water" status="normal" quality="good" detail="full"></pe-tank></article>
+        <article class="style-cell studio-scene" data-family="centrifugal pump" data-kind="process"><pe-pump label="P-101" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" detail="full"></pe-pump></article>
+        <article class="style-cell studio-scene" data-family="control valve" data-kind="process"><pe-control-valve label="FV-101" position="68" command="68" medium="water" status="normal" quality="good" powered detail="full"></pe-control-valve></article>
+        <article class="style-cell studio-scene" data-family="PLC / I/O" data-kind="control"><pe-controller label="PLC-01" running inputs="8" outputs="8" input-state="10110101" output-state="11001010" load="62" scan-rate="10" activity="1" status="normal" quality="good" detail="full"></pe-controller></article>
 
-        <article class="style-cell studio-scene" data-family="pump" data-state="standby"><pe-pump label="P-101" speed="0" value="0" unit="bar" status="normal" quality="good" detail="full"></pe-pump></article>
-        <article class="style-cell studio-scene" data-family="pump" data-state="active"><pe-pump label="P-102" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" detail="full"></pe-pump></article>
-        <article class="style-cell studio-scene" data-family="pump" data-state="warning"><pe-pump label="P-103" running speed="1180" value="4.1" unit="bar" status="warning" quality="good" detail="full"></pe-pump></article>
-        <article class="style-cell studio-scene" data-family="pump" data-state="alarm"><pe-pump label="P-104" running speed="960" value="8.7" unit="bar" status="alarm" quality="good" detail="full"></pe-pump></article>
+        <article class="style-cell studio-scene" data-family="P&amp;ID vessel" data-kind="symbol"><pe-pid-vessel label="V-101" active level="64" value="4.8" unit="m" status="normal" quality="good" abstraction="operational"></pe-pid-vessel></article>
+        <article class="style-cell studio-scene" data-family="P&amp;ID pump" data-kind="symbol"><pe-pid-pump label="P-201" running speed="1450" value="6.2" unit="bar" status="normal" quality="good" abstraction="operational"></pe-pid-pump></article>
+        <article class="style-cell studio-scene" data-family="P&amp;ID valve" data-kind="symbol"><pe-pid-valve label="FV-201" active position="72" value="12.4" unit="m³/h" status="normal" quality="good" abstraction="operational"></pe-pid-valve></article>
+        <article class="style-cell studio-scene" data-family="process piping" data-kind="connection">
+          <elements-scene class="mini-scene">
+            <pe-pid-vessel id="pv" x="20" y="35" width="110" label="V" active level="64" status="normal" quality="good" abstraction="symbol"></pe-pid-vessel>
+            <pe-pid-valve id="vv" x="185" y="42" width="90" label="FV" active position="72" status="normal" quality="good" abstraction="symbol"></pe-pid-valve>
+            <pe-pid-pump id="pp" x="330" y="45" width="100" label="P" running speed="1450" status="normal" quality="good" abstraction="symbol"></pe-pid-pump>
+            <el-pipe from="pv:out" to="vv:in" flowing speed="1" diameter="10"></el-pipe>
+            <el-pipe from="vv:out" to="pp:in" flowing speed="1" diameter="10"></el-pipe>
+          </elements-scene>
+        </article>
 
-        <article class="style-cell studio-scene" data-family="control valve" data-state="closed"><pe-control-valve label="FV-101" position="0" command="0" powered status="normal" quality="good" detail="full"></pe-control-valve></article>
-        <article class="style-cell studio-scene" data-family="control valve" data-state="active"><pe-control-valve label="FV-102" position="68" command="68" powered status="normal" quality="good" detail="full"></pe-control-valve></article>
-        <article class="style-cell studio-scene" data-family="control valve" data-state="warning"><pe-control-valve label="FV-103" position="46" command="75" powered stuck status="warning" quality="good" detail="full"></pe-control-valve></article>
-        <article class="style-cell studio-scene" data-family="control valve" data-state="alarm"><pe-control-valve label="FV-104" position="18" command="82" powered stuck status="alarm" quality="good" detail="full"></pe-control-valve></article>
+        <article class="style-cell" data-family="three-phase motor" data-kind="electrical"><ee-motor label="M-101" running speed="1450" load="72" current="12.4" voltage="400" status="normal" quality="good" detail="full"></ee-motor></article>
+        <article class="style-cell" data-family="circuit breaker" data-kind="electrical"><ee-breaker label="QF-101" poles="3" closed current="42.1" rating="63" status="normal" quality="good" detail="full"></ee-breaker></article>
+        <article class="style-cell" data-family="power contactor" data-kind="electrical"><ee-contactor label="KM-101" energized current="31.2" coil-voltage="24" status="normal" quality="good" detail="full"></ee-contactor></article>
+        <article class="style-cell" data-family="transformer" data-kind="electrical"><ee-transformer label="TR-101" energized primary-voltage="10000" secondary-voltage="400" load="68" status="normal" quality="good" detail="full"></ee-transformer></article>
 
-        <article class="style-cell studio-scene" data-family="controller" data-state="idle"><pe-controller label="PLC-01" inputs="8" outputs="8" load="12" scan-rate="18" status="normal" quality="good" detail="full"></pe-controller></article>
-        <article class="style-cell studio-scene" data-family="controller" data-state="active"><pe-controller label="PLC-02" running inputs="8" outputs="8" input-state="10110101" output-state="11001010" load="62" scan-rate="10" activity="1" status="normal" quality="good" detail="full"></pe-controller></article>
-        <article class="style-cell studio-scene" data-family="controller" data-state="warning"><pe-controller label="PLC-03" running inputs="8" outputs="8" input-state="11110101" output-state="11001010" load="84" scan-rate="24" status="warning" quality="good" detail="full"></pe-controller></article>
-        <article class="style-cell studio-scene" data-family="controller" data-state="alarm"><pe-controller label="PLC-04" running inputs="8" outputs="8" input-state="11111111" output-state="00000000" load="98" scan-rate="55" status="alarm" quality="good" detail="full"></pe-controller></article>
+        <article class="style-cell" data-family="power meter" data-kind="measurement"><ee-meter label="EM-101" voltage="400" current="24.8" power="16.4" frequency="50" current-range="100" status="normal" quality="good" detail="full"></ee-meter></article>
+        <article class="style-cell" data-family="power wiring" data-kind="connection">
+          <elements-scene class="mini-scene">
+            <ee-breaker id="board-breaker" x="30" y="25" width="125" label="QF" poles="3" closed current="42" rating="63" status="normal" quality="good" detail="compact"></ee-breaker>
+            <ee-motor id="board-motor" x="285" y="35" width="145" label="M" running speed="1450" load="72" current="12" voltage="400" status="normal" quality="good" detail="compact"></ee-motor>
+            <el-wire from="board-breaker:load-1" to="board-motor:power" active speed="1"></el-wire>
+          </elements-scene>
+        </article>
+        <article class="style-cell" data-family="signal line" data-kind="connection">
+          <elements-scene class="mini-scene">
+            <ee-meter id="board-meter" x="30" y="30" width="150" label="EM" voltage="400" current="24.8" power="16.4" frequency="50" status="normal" quality="good" detail="compact"></ee-meter>
+            <el-junction id="signal-junction" x="370" y="95" label="AI"></el-junction>
+            <el-signal from="board-meter:telemetry" to="signal-junction" active speed="1"></el-signal>
+          </elements-scene>
+        </article>
+        <article class="style-cell studio-scene" data-family="branch / junction" data-kind="connection">
+          <elements-scene class="mini-scene">
+            <pe-pid-vessel id="branch-source" x="20" y="35" width="105" label="V" active level="70" status="normal" quality="good" abstraction="symbol"></pe-pid-vessel>
+            <el-junction id="branch-junction" x="210" y="95" medium="water" label="J"></el-junction>
+            <pe-pid-pump id="branch-pump-a" x="320" y="20" width="95" label="PA" running speed="1450" status="normal" quality="good" abstraction="symbol"></pe-pid-pump>
+            <pe-pid-pump id="branch-pump-b" x="320" y="105" width="95" label="PB" status="normal" quality="good" abstraction="symbol"></pe-pid-pump>
+            <el-pipe from="branch-source:out" to="branch-junction" flowing speed="1" diameter="10"></el-pipe>
+            <el-pipe from="branch-junction" to="branch-pump-a:in branch-pump-b:in" flowing speed="1" diameter="10"></el-pipe>
+          </elements-scene>
+        </article>
       </section>
     </main>
 
