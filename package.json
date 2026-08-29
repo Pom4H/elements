@@ -15,7 +15,7 @@
     "release:check": "bun run scripts/release-check.ts",
     "registry:proof": "bun run scripts/registry-proof.ts",
     "registry:sync": "bun run scripts/registry-sync.ts",
-    "registry:check": "bun run scripts/registry-sync.ts",
+    "registry:check": "bun run scripts/registry-sync.ts --check",
     "registry:demo-proof": "bun run scripts/registry-demo-proof.ts",
     "check": "bun run build && bun test"
   },
